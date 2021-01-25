@@ -1,5 +1,8 @@
 #!/bin/sh
 
-KEY=`grep -A5 '\[Tezos\]' woracle.ini |grep owner | sed -e 's/owner = //'`
+. bash-ini-parser.sh
 
-ligo compile-storage wolfram.mligo main "{ questions = (Map.empty :  (string, query_storage) map) ; owner = (\"$KEY\" : address) }"
+cfg_parser 'woracle.ini'
+cfg_section_Tezos
+
+ligo compile-storage wolfram.mligo main "{ questions = (Map.empty :  (string, query_storage) map) ; owner = (\"$owner\" : address) }"

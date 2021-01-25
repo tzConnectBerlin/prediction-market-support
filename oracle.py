@@ -10,7 +10,7 @@ import wolframalpha
 config = configparser.ConfigParser()
 config.read('woracle.ini')
 
-pytezos.key = pytezos.Key.from_encoded_key(config['Tezos']['privkey'])
+pytezos.key = Key.from_encoded_key(config['Tezos']['privkey'])
 
 contract = pytezos.contract(config['Tezos']['contract'])
 
