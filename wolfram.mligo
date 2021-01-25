@@ -16,7 +16,7 @@
  *
  *)
 type callback_params = (string * bool)
-type callback = SubmitAnswer of callback_params
+type callback = CloseMarket of callback_params
 
 type query_storage = {
     answer_to : address;
@@ -54,7 +54,7 @@ let answer (ipfs_hash, answer, storage : string * bool * storage) : operation li
     match ((Tezos.get_entrypoint_opt "%CloseMarket" query.answer_to) : callback contract option) with
     | Some c -> c
     | None -> (failwith "5" : callback contract) in
-  let operation = Tezos.transaction (SubmitAnswer (query.question_id, answer)) 0tz contract_to_answer in
+  let operation = Tezos.transaction (CloseMarket (query.question_id, answer)) 0tz contract_to_answer in
   ([operation] : operation list),
   { storage with questions = Map.remove ipfs_hash storage.questions }
 
