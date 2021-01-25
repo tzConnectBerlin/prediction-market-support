@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import configparser
+import dateparser
+from datetime import datetime
 import ipfshttpclient
 from pytezos import pytezos
 import wolframalpha
@@ -8,7 +10,28 @@ import wolframalpha
 config = configparser.ConfigParser()
 config.read('woracle.ini')
 
-wolfram = wolframalpha.Client(config['Wolfram']['AppId'])
+pytezos.key = pytezos.Key.from_encoded_key(config['Tezos']['privkey'])
 
-ipfs = ipfshttpclient.connect(config['IPFS']['server'])
-ipfs.cat('QmWkFfFjDUiJkQ8kBz45ACr2SQ9iPFUENLz6PTx92Ykq36')
+contract = pytezos.contract(config['Tezos']['contract'])
+
+def answer(details):
+    wolfram = wolframalpha.Client(config['Wolfram']['AppId'])
+    ipfs = ipfshttpclient.connect(config['IPFS']['server'])
+    question_details = ipfs.cat(details.query)
+    res = wolfram.query(question_details.query)
+    result = res['pod'][1]['subpod']['plaintext']
+    if res.startswith(question_details.yes_answer):
+        the_answer = True
+    else:
+        the_answer = False
+    contract.
+
+storage = contract.storage()
+
+questions = storage.questions.keys()
+
+for question in questions:
+    details = storage['questions'][question]
+    answer_at = dateparser.parse(details['answer_at'])
+    if answer_at > datetime.now():
+        answer(details)
