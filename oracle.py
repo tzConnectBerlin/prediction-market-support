@@ -24,7 +24,7 @@ def answer(details):
         the_answer = True
     else:
         the_answer = False
-    contract.
+    contract.answer(ipfs, the_answer).inject()
 
 storage = contract.storage()
 

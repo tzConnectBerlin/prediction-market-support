@@ -51,7 +51,7 @@ let answer (ipfs_hash, answer, storage : string * bool * storage) : operation li
     | None -> (failwith "3" : query_storage) in
   let x = if Tezos.now < query.answer_at then failwith "4" else unit in
   let contract_to_answer : callback contract =
-    match ((Tezos.get_entrypoint_opt "%SubmitAnswer" query.answer_to) : callback contract option) with
+    match ((Tezos.get_entrypoint_opt "%CloseMarket" query.answer_to) : callback contract option) with
     | Some c -> c
     | None -> (failwith "5" : callback contract) in
   let operation = Tezos.transaction (SubmitAnswer (query.question_id, answer)) 0tz contract_to_answer in
