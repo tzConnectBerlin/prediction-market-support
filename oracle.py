@@ -4,15 +4,16 @@ import configparser
 import dateparser
 from datetime import datetime
 import ipfshttpclient
-from pytezos import pytezos
+import pytezos
+import pytz
 import wolframalpha
 
 config = configparser.ConfigParser()
-config.read('woracle.ini')
+config.read('oracle.ini')
 
-pytezos.key = Key.from_encoded_key(config['Tezos']['privkey'])
-
-contract = pytezos.contract(config['Tezos']['contract'])
+pytezos.key = pytezos.Key.from_encoded_key(config['Tezos']['privkey'])
+print(config['Tezos']['privkey'])
+contract = pytezos.pytezos.contract(config['Tezos']['contract'])
 
 def answer(details):
     wolfram = wolframalpha.Client(config['Wolfram']['AppId'])
@@ -28,10 +29,13 @@ def answer(details):
 
 storage = contract.storage()
 
-questions = storage.questions.keys()
+questions = storage['questions'].keys()
 
 for question in questions:
+    print(question)
     details = storage['questions'][question]
     answer_at = dateparser.parse(details['answer_at'])
-    if answer_at > datetime.now():
+    if answer_at > pytz.UTC.localize(datetime.now()):
         answer(details)
+    else:
+        print("Not time yet")

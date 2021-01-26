@@ -1,5 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-set -e
+. ./bash-ini-parser.sh
 
-tezos-client -A tezos.newby.org transfer 0 from alice to wolfram --arg "`./compile-ask-parameter.sh`" --burn-cap 0.03925
+cfg_parser 'oracle.ini'
+cfg_section_Tezos
+
+tezos-client -A tezos.newby.org -P $port transfer 0 from alice to wolfram --arg "`./compile-ask-parameter.sh`" --burn-cap 0.03925
