@@ -3,5 +3,6 @@ dateparser
 datetime
 ipfshttpclient
 jq
+numpy
 pytezos
 wolframalpha
