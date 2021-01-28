@@ -2,15 +2,10 @@
 
 from collections import ChainMap
 import configparser
-import dateparser
 from datetime import datetime
-import ipfshttpclient
 import jq
 import json
-import pytezos
-import pytz
 import urllib.request
-import wolframalpha
 
 config = configparser.ConfigParser()
 config.read('oracle.ini')
@@ -19,7 +14,6 @@ bcd_url = "https://api.better-call.dev/v1/"
 network = "delphinet"
 
 contract_id = config['Tezos']['pm_contract']
-contract = pytezos.pytezos.contract(contract_id)
 
 def load_json(url):
     with urllib.request.urlopen(url) as url:

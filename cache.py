@@ -1,4 +1,4 @@
-
+import json
 import summary
 
 pm = summary.get_storage(summary.contract_id)
@@ -9,7 +9,7 @@ ledger = summary.get_ledger(pm['tokens']['ledger'])
 
 total_supply = summary.get_total_supply(pm['tokens']['token_total_supply'])
 
-all_questions = []
+all_questions = {}
 
 for question_hash in questions.keys():
     question = questions[question_hash]
@@ -21,6 +21,6 @@ for question_hash in questions.keys():
         question['price_yes'] = no / (yes + no )
     else:
         question['price_yes'] = None
-    all_questions.append(question)
+    all_questions.update({question_hash: question})
 
-print(all_questions)
+print(json.dumps(all_questions))
