@@ -9,7 +9,8 @@ import json
 from pytezos import pytezos
 import pytz
 import random
-import wolframalpha
+import summary
+import time
 
 ##################
 # Arg parsing
@@ -24,6 +25,10 @@ parser.add_argument('--answer', metavar='A', type=ascii,
                     help='The answer')
 parser.add_argument('--activate-accounts', type=bool, help='Activate accounts')
 parser.add_argument('--reveal-accounts', type=bool, help='Reveal accounts')
+parser.add_argument('--fund-stablecoin', type=bool, help='Fund stablecoin accounts')
+parser.add_argument('--bid-auction', type=ascii, help='Bid on an auction')
+parser.add_argument('--close-auction', type=ascii, help='Fund stablecoin accounts')
+parser.add_argument('--buy-tokens'. type=ascii, help='Buy tokens')
 args = parser.parse_args()
 
 # if (args.question_id is not None and args.ask_question is not None) or (args.question_id is None and args.ask_question is None):
@@ -89,8 +94,45 @@ def create_question(question, answer, user):
         'auction_end': int(auction_end_date.timestamp()),
         'market_close': int(market_close_date.timestamp()),
     }).inject()
-    print("Created market in PM contract")
+    print(f"Created market {ipfs_hash} in PM contract")
+    return ipfs_hash
 
+def transfer_stablecoin():
+    admin_account = summary.admin_account()
+    stablecoin = admin_account.contract(summary.get_storage(summary.CONTRACT_ID)['stablecoin'])
+    for user in users:
+        print(f"Transferring to {user}")
+        stablecoin.transfer({
+            'from': admin_account.key.public_key_hash(),
+            'to': accounts[user].key.public_key_hash(),
+            'value': 100000,
+            }).operation_group.autofill().sign().inject()
+        time.sleep(60)
+
+def bid_auction(ipfs_hash):
+    PERCENT = 10000000000000000
+    for user in users:
+        rate = random.randint(1,99) * PERCENT
+        print(f"User {user} bidding {rate} on {ipfs_hash}")
+        data = {
+            'question': ipfs_hash,
+            'rate': rate,
+            'quantity': 50,
+            }
+        print(data)
+        pm_contracts[user].bid(data).operation_group.autofill().sign().inject()
+
+def close_auction(ipfs_hash):
+        pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
 
 if args.ask_question is not None:
-    create_question(args.ask_question, args.answer, 'alice')
+    create_question(args.ask_question.strip("'"), args.answer.strip("'"), 'alice')
+
+if args.fund_stablecoin is not None:
+    transfer_stablecoin()
+
+if args.bid_auction is not None:
+    bid_auction(args.bid_auction.strip("'"))
+
+if args.close_auction is not None:
+    close_auction(args.close_auction.strip("'"))

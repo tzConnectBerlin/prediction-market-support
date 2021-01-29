@@ -15,6 +15,13 @@ NETWORK = "delphinet"
 
 CONTRACT_ID = config['Tezos']['pm_contract']
 
+def admin_account():
+    import pytezos
+    return pytezos.pytezos.using(
+        key = pytezos.Key.from_encoded_key(config['Tezos']['privkey']),
+        shell = 'delphinet',
+        )
+
 def load_json(url):
     """ Load JSON from given URL and return as Python object"""
     with urllib.request.urlopen(url) as u:
