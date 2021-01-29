@@ -1,0 +1,3 @@
+[submodule "py-ipfs-http-client"]
+	path = py-ipfs-http-client
+	url = git@github.com:ipfs-shipyard/py-ipfs-http-client.git

@@ -23,10 +23,11 @@ parser.add_argument('--ask-question', metavar='Z', type=ascii,
 parser.add_argument('--answer', metavar='A', type=ascii,
                     help='The answer')
 parser.add_argument('--activate-accounts', type=bool, help='Activate accounts')
+parser.add_argument('--reveal-accounts', type=bool, help='Reveal accounts')
 args = parser.parse_args()
 
-if (args.question_id is not None and args.ask_question is not None) or (args.question_id is None and args.ask_question is None):
-    exit("Exactly one of --ask-question and --question-id must be specified")
+# if (args.question_id is not None and args.ask_question is not None) or (args.question_id is None and args.ask_question is None):
+#     exit("Exactly one of --ask-question and --question-id must be specified")
 if (args.ask_question is not None and args.answer is None):
     exit("You must specify an answer if you give a question")
 
@@ -37,7 +38,11 @@ config = configparser.ConfigParser()
 config.read('oracle.ini')
 pm_contract = pytezos.contract(config['Tezos']['pm_contract'])
 
-users = [ 'alice', 'bob', 'caleb', 'donald']
+users = [
+    'alice',
+    'bob',
+    'caleb',
+    'donald']
 
 accounts = {}
 pm_contracts = {}
@@ -49,6 +54,7 @@ for user in users:
         )
     if args.activate_accounts:
         accounts[user].activate_account().fill().sign().inject()
+    if args.reveal_accounts:
         accounts[user].reveal().autofill().sign().inject()
     pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
