@@ -1,7 +1,7 @@
 import json
 import summary
 
-pm = summary.get_storage(summary.contract_id)
+pm = summary.get_storage(summary.CONTRACT_ID)
 
 questions = summary.get_questions(pm['questions'])
 
@@ -13,8 +13,8 @@ all_questions = {}
 
 for question_hash in questions.keys():
     question = questions[question_hash]
-    uniswap_yes_balance = ledger.get(f"{summary.contract_id}.{question['tokens']['yes_token_id']}")
-    uniswap_no_balance = ledger.get(f"{summary.contract_id}.{question['tokens']['no_token_id']}")
+    uniswap_yes_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['yes_token_id']}")
+    uniswap_no_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['no_token_id']}")
     if uniswap_no_balance is not None and uniswap_yes_balance is not None:
         yes = int(uniswap_yes_balance)
         no = int(uniswap_no_balance)
