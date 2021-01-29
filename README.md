@@ -6,7 +6,7 @@ Uses 4 accounts to exercise the PM.
 
 Usage:
 
-First download 4 files from faucet and rename them to alice.json bob.json caleb.json donald.json
+First download 4 files from [the faucet](https://faucet.tzalpha.net/) and rename them to `alice.json bob.json caleb.json donald.json`
 
 then
 ```
