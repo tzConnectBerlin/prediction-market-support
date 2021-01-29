@@ -26,9 +26,10 @@ parser.add_argument('--answer', metavar='A', type=ascii,
 parser.add_argument('--activate-accounts', type=bool, help='Activate accounts')
 parser.add_argument('--reveal-accounts', type=bool, help='Reveal accounts')
 parser.add_argument('--fund-stablecoin', type=bool, help='Fund stablecoin accounts')
+parser.add_argument('--transfer-stablecoin', type=ascii, help='Fund stablecoin accounts')
 parser.add_argument('--bid-auction', type=ascii, help='Bid on an auction')
 parser.add_argument('--close-auction', type=ascii, help='Fund stablecoin accounts')
-parser.add_argument('--buy-tokens'. type=ascii, help='Buy tokens')
+parser.add_argument('--buy-tokens', type=ascii, help='Buy tokens')
 args = parser.parse_args()
 
 # if (args.question_id is not None and args.ask_question is not None) or (args.question_id is None and args.ask_question is None):
@@ -97,7 +98,7 @@ def create_question(question, answer, user):
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
 
-def transfer_stablecoin():
+def fund_stablecoin():
     admin_account = summary.admin_account()
     stablecoin = admin_account.contract(summary.get_storage(summary.CONTRACT_ID)['stablecoin'])
     for user in users:
@@ -108,6 +109,15 @@ def transfer_stablecoin():
             'value': 100000,
             }).operation_group.autofill().sign().inject()
         time.sleep(60)
+
+def transfer_stablecoin(dest):
+    admin_account = summary.admin_account()
+    stablecoin = admin_account.contract(summary.get_storage(summary.CONTRACT_ID)['stablecoin'])
+    stablecoin.transfer({
+        'from': admin_account.key.public_key_hash(),
+        'to': dest,
+        'value': 100000,
+    }).operation_group.autofill().sign().inject()
 
 def bid_auction(ipfs_hash):
     PERCENT = 10000000000000000
@@ -129,7 +139,10 @@ if args.ask_question is not None:
     create_question(args.ask_question.strip("'"), args.answer.strip("'"), 'alice')
 
 if args.fund_stablecoin is not None:
-    transfer_stablecoin()
+    fund_stablecoin()
+
+if args.transfer_stablecoin is not None:
+    transfer_stablecoin(args.transfer_stablecoin.strip("'"))
 
 if args.bid_auction is not None:
     bid_auction(args.bid_auction.strip("'"))
