@@ -20,9 +20,10 @@ def answer(details):
     wolfram = wolframalpha.Client(config['Wolfram']['AppId'])
     ipfs = ipfshttpclient.connect(config['IPFS']['server'])
     question_details = ipfs.get_json(details['question_id'])
-    res = wolfram.query(question_details.query)
+    print(question_details)
+    res = wolfram.query(question_details['question'])
     result = res['pod'][1]['subpod']['plaintext']
-    if res.startswith(question_details.yes_answer):
+    if result.startswith(question_details['yesAnswer']):
         the_answer = True
     else:
         the_answer = False

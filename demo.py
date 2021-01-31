@@ -30,6 +30,7 @@ parser.add_argument('--transfer-stablecoin', type=ascii, help='Fund stablecoin a
 parser.add_argument('--bid-auction', type=ascii, help='Bid on an auction')
 parser.add_argument('--close-auction', type=ascii, help='Fund stablecoin accounts')
 parser.add_argument('--buy-tokens', type=ascii, help='Buy tokens')
+parser.add_argument('--list-auctions', type=ascii, help='List auctions')
 args = parser.parse_args()
 
 # if (args.question_id is not None and args.ask_question is not None) or (args.question_id is None and args.ask_question is None):
@@ -84,7 +85,7 @@ def create_question(question, answer, user):
         'yesAnswer': answer,
         'auctionEndDate':  auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
         'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-        'iconUrl': 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
+        'iconURL': 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
         }
     ipfs = ipfshttpclient.connect(config['IPFS']['server'])
     ipfs_hash = ipfs.add_str(json.dumps(param))
@@ -100,40 +101,44 @@ def create_question(question, answer, user):
 
 def fund_stablecoin():
     admin_account = summary.admin_account()
-    stablecoin = admin_account.contract(summary.get_storage(summary.CONTRACT_ID)['stablecoin'])
+    stablecoin = admin_account.contract(summary.get_storage(config['Tezos']['pm_contract'])['stablecoin'])
     for user in users:
         print(f"Transferring to {user}")
         stablecoin.transfer({
             'from': admin_account.key.public_key_hash(),
             'to': accounts[user].key.public_key_hash(),
-            'value': 100000,
+            'value': 10000000000000000000
             }).operation_group.autofill().sign().inject()
         time.sleep(60)
 
+
 def transfer_stablecoin(dest):
     admin_account = summary.admin_account()
-    stablecoin = admin_account.contract(summary.get_storage(summary.CONTRACT_ID)['stablecoin'])
+    stablecoin = admin_account.contract(summary.get_storage(config['Tezos']['pm_contract'])['stablecoin'])
     stablecoin.transfer({
         'from': admin_account.key.public_key_hash(),
         'to': dest,
-        'value': 100000,
+        'value': 1000000000000000000000
     }).operation_group.autofill().sign().inject()
 
 def bid_auction(ipfs_hash):
-    PERCENT = 10000000000000000
+    PERCENT = 100000000000000
     for user in users:
         rate = random.randint(1,99) * PERCENT
         print(f"User {user} bidding {rate} on {ipfs_hash}")
         data = {
             'question': ipfs_hash,
             'rate': rate,
-            'quantity': 50,
+            'quantity': 5000000000000000,
             }
         print(data)
-        pm_contracts[user].bid(data).operation_group.autofill().sign().inject()
+        pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=100000).sign().inject()
 
 def close_auction(ipfs_hash):
         pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+
+if args.list_auctions is not None:
+    list_auctions()
 
 if args.ask_question is not None:
     create_question(args.ask_question.strip("'"), args.answer.strip("'"), 'alice')
