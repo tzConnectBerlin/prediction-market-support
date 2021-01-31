@@ -6,9 +6,11 @@ import dateparser
 from datetime import datetime, timedelta
 import ipfshttpclient
 import json
+import os
 from pytezos import pytezos
 import pytz
 import random
+import subprocess
 import summary
 import time
 
@@ -25,6 +27,7 @@ parser.add_argument('--answer', metavar='A', type=ascii,
                     help='The answer')
 parser.add_argument('--activate-accounts', type=bool, help='Activate accounts')
 parser.add_argument('--reveal-accounts', type=bool, help='Reveal accounts')
+parser.add_argument('--import-accounts', type=bool, help='Import accounts')
 parser.add_argument('--fund-stablecoin', type=bool, help='Fund stablecoin accounts')
 parser.add_argument('--transfer-stablecoin', type=ascii, help='Fund stablecoin accounts')
 parser.add_argument('--bid-auction', type=ascii, help='Bid on an auction')
@@ -57,12 +60,19 @@ pm_contracts = {}
 for user in users:
     accounts[user] = pytezos.using(
         key = f"{user}.json",
-        shell = "delphinet",
+        shell = "http://tezos.newby.org:8732",
         )
+
     if args.activate_accounts:
-        accounts[user].activate_account().fill().sign().inject()
+        accounts[user].activate_account().autofill().sign().inject()
     if args.reveal_accounts:
-        accounts[user].reveal().autofill().sign().inject()
+        try:
+            accounts[user].reveal().autofill().sign().inject()
+        except(Exception):
+            pass
+    if args.import_accounts:
+        subprocess.run(['tezos-client', 'import', 'secret', 'key', user,
+                       f"unencrypted:{accounts[user].key.secret_key()}"])
     pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
 ##################
@@ -78,8 +88,8 @@ def get_country_and_capital():
 def create_question(question, answer, user):
     """Create a question in IPFS"""
     timenow = datetime.now().astimezone(pytz.utc)
-    auction_end_date = timenow + timedelta(minutes=5)
-    market_close_date = timenow + timedelta(minutes=10)
+    auction_end_date = timenow + timedelta(minutes=15)
+    market_close_date = timenow + timedelta(minutes=30)
     param = {
         'question': question,
         'yesAnswer': answer,
@@ -95,7 +105,7 @@ def create_question(question, answer, user):
         'question': ipfs_hash,
         'auction_end': int(auction_end_date.timestamp()),
         'market_close': int(market_close_date.timestamp()),
-    }).inject()
+    }).operation_group.autofill().sign().inject()
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
 
@@ -109,7 +119,7 @@ def fund_stablecoin():
             'to': accounts[user].key.public_key_hash(),
             'value': 10000000000000000000
             }).operation_group.autofill().sign().inject()
-        time.sleep(60)
+        time.sleep(10)
 
 
 def transfer_stablecoin(dest):
@@ -118,30 +128,41 @@ def transfer_stablecoin(dest):
     stablecoin.transfer({
         'from': admin_account.key.public_key_hash(),
         'to': dest,
-        'value': 1000000000000000000000
+        'value': 1000000000000000000000000
     }).operation_group.autofill().sign().inject()
 
 def bid_auction(ipfs_hash):
-    PERCENT = 100000000000000
+    PERCENT = 10000000000000000
     for user in users:
         rate = random.randint(1,99) * PERCENT
         print(f"User {user} bidding {rate} on {ipfs_hash}")
-        data = {
-            'question': ipfs_hash,
-            'rate': rate,
-            'quantity': 5000000000000000,
-            }
-        print(data)
-        pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=100000).sign().inject()
+        d = dict(os.environ)
+        d['AUCTION'] = ipfs_hash
+        d['HOST'] = config['Tezos']['node']
+        d['PORT'] = config['Tezos']['port']
+        d['ACCOUNT'] = user
+        d['CONTRACT'] = config['Tezos']['pm_contract']
+        d['RATE'] = str(rate)
+        d['QUANTITY'] = "50000000000000000000"
+        s = subprocess.run(["./bid.sh"], env=d, capture_output=True)
+        print(f"{s.stderr}\n{s.stdout}")
+        # data = {
+        #     'question': ipfs_hash,
+        #     'rate': rate,
+        #     'quantity': 50000000000000000000,
+
+        #     }
+        # print(data)
+        # pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
 
 def close_auction(ipfs_hash):
-        pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+       pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
 
 if args.list_auctions is not None:
     list_auctions()
 
 if args.ask_question is not None:
-    create_question(args.ask_question.strip("'"), args.answer.strip("'"), 'alice')
+    create_question(args.ask_question.strip("'"), args.answer.strip("'"), 'caleb')
 
 if args.fund_stablecoin is not None:
     fund_stablecoin()
