@@ -3,6 +3,8 @@ import summary
 
 pm = summary.get_storage(summary.CONTRACT_ID)
 
+sc = summary.get_storage(pm['stablecoin'])
+
 questions = summary.get_questions(pm['questions'])
 
 ledger = summary.get_ledger(pm['tokens']['ledger'])

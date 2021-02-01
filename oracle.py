@@ -7,6 +7,7 @@ import ipfshttpclient
 import json
 import pytezos
 import pytz
+import summary
 import wolframalpha
 
 config = configparser.ConfigParser()
@@ -14,7 +15,8 @@ config.read('oracle.ini')
 
 pytezos.key = pytezos.Key.from_encoded_key(config['Tezos']['privkey'])
 print(config['Tezos']['privkey'])
-contract = pytezos.pytezos.contract(config['Tezos']['contract'])
+pm_storage = summary.get_storage(summary.CONTRACT_ID)
+contract = pytezos.pytezos.contract(pm_storage['oracle'])
 
 def answer(details):
     wolfram = wolframalpha.Client(config['Wolfram']['AppId'])

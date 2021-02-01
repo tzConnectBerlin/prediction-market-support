@@ -119,7 +119,7 @@ def fund_stablecoin():
             'to': accounts[user].key.public_key_hash(),
             'value': 10000000000000000000
             }).operation_group.autofill().sign().inject()
-        time.sleep(10)
+        time.sleep(60)
 
 
 def transfer_stablecoin(dest):
@@ -154,6 +154,13 @@ def bid_auction(ipfs_hash):
         #     }
         # print(data)
         # pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
+
+# def buy_tokens(ipfs_hash):
+#     for user in users:
+#         params = {
+#             'question' : ipfs_hash,
+#             'coin_quantity': 10,
+#             'deadline':
 
 def close_auction(ipfs_hash):
        pm_contracts[users[2]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
