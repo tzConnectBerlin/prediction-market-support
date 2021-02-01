@@ -156,7 +156,7 @@ def bid_auction(ipfs_hash):
         # pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
 
 def close_auction(ipfs_hash):
-       pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+       pm_contracts[users[2]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
 
 if args.list_auctions is not None:
     list_auctions()
