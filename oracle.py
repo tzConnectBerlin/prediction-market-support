@@ -27,7 +27,10 @@ def answer(details):
         the_answer = True
     else:
         the_answer = False
-#    contract.answer(ipfs, the_answer).inject()
+    try:
+        contract.answer(ipfs, the_answer).inject()
+    except Exception as e:
+        print(f"Error: {e}")
 
 storage = contract.storage()
 
@@ -38,7 +41,7 @@ for question in questions:
     details = storage['questions'][question]
     print(details)
     answer_at = dateparser.parse(details['answer_at'])
-    # if answer_at > pytz.UTC.localize(datetime.now()):
-    answer(details)
-    # else:
-    #print("Not time yet")
+    if answer_at < pytz.UTC.localize(datetime.now()):
+        answer(details)
+    else:
+        print("Not time yet")

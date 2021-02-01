@@ -49,8 +49,8 @@ config.read('oracle.ini')
 pm_contract = pytezos.contract(config['Tezos']['pm_contract'])
 
 users = [
-    'alice',
-    'bob',
+    'ava',
+    'brian',
     'caleb',
     'donald']
 
@@ -72,7 +72,7 @@ for user in users:
             pass
     if args.import_accounts:
         subprocess.run(['tezos-client', 'import', 'secret', 'key', user,
-                       f"unencrypted:{accounts[user].key.secret_key()}"])
+                        f"unencrypted:{accounts[user].key.secret_key()}", '--force'])
     pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
 ##################
@@ -88,8 +88,8 @@ def get_country_and_capital():
 def create_question(question, answer, user):
     """Create a question in IPFS"""
     timenow = datetime.now().astimezone(pytz.utc)
-    auction_end_date = timenow + timedelta(minutes=15)
-    market_close_date = timenow + timedelta(minutes=30)
+    auction_end_date = timenow + timedelta(minutes=5)
+    market_close_date = timenow + timedelta(minutes=10)
     param = {
         'question': question,
         'yesAnswer': answer,
@@ -156,7 +156,7 @@ def bid_auction(ipfs_hash):
         # pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
 
 def close_auction(ipfs_hash):
-       pm_contracts[users[0]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+       pm_contracts[users[2]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
 
 if args.list_auctions is not None:
     list_auctions()
