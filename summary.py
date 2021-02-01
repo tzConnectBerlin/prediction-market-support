@@ -48,7 +48,10 @@ def get_questions(id):
     ls = list(map(lambda x : {
         x['data']['key']['value'] : get_question_data(x['data']['value']['children'])
     }, js))
-    return jq.first('add', ls)
+    result = jq.first('add', ls)
+    if result is not None:
+        return result
+    return {}
 
 def get_storage_internal(js):
     """ Internal method which gets the value of a JSON object, or
