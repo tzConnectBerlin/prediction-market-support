@@ -73,10 +73,15 @@ def get_ledger(id):
     url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
     js = load_json(url)
     result = jq.first(r'map({ "\(.data.key.children[0].value).\(.data.key.children[1].value)": .data.value.children[0].value }) | add', js)
-    if result is not None:
-        return result
-    else:
-        return {}
+    if result is None:
+        result = {}
+    return result
+
+def get_stablecoin_ledger(id):
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    js = load_json(url)
+    result = jq.first('map({ (.data.key.value): (.data.value.children[1].value) }) | add', js)
+    return result
 
 def get_total_supply(id):
     """ Get the total supply bigmap and flatten it"""
