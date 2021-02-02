@@ -91,3 +91,19 @@ def get_total_supply(id):
     url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
     js = load_json(url)
     return jq.all('map({ (.data.key.value): (.data.value.value) }) | add', js)
+
+def get_ledger_balances(id):
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    js = load_json(url)
+    results = jq.first(r'map({ (.data.key.children[1].value): { (.data.key.children[0].value): .data.value.children[0].value } })', js)
+    if results is None:
+        return {}
+    balances = {}
+    for result in results:
+        for key in result.keys():
+            val = balances.get(key)
+            if val is None:
+                val = {}
+            val.update(result[key])
+            balances[key] = val
+    return balances

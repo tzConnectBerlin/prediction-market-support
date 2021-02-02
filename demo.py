@@ -54,6 +54,8 @@ users = [
     'caleb',
     'donald']
 
+PERCENT = 10000000000000000
+
 accounts = {}
 pm_contracts = {}
 
@@ -105,15 +107,18 @@ def create_question(question, answer, user):
         'question': ipfs_hash,
         'auction_end': int(auction_end_date.timestamp()),
         'market_close': int(market_close_date.timestamp()),
+        'rate': random.randint(1,99) * PERCENT,
+        'quantity': 100,
+
     }).operation_group.autofill().sign().inject()
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
 
 def fund_stablecoin():
-    admin_account = summary.admin_account()
-    stablecoin = admin_account.contract(summary.get_storage(config['Tezos']['pm_contract'])['stablecoin'])
     for user in users:
         print(f"Transferring to {user}")
+        admin_account = summary.admin_account()
+        stablecoin = admin_account.contract(summary.get_storage(config['Tezos']['pm_contract'])['stablecoin'])
         stablecoin.transfer({
             'from': admin_account.key.public_key_hash(),
             'to': accounts[user].key.public_key_hash(),
@@ -132,7 +137,6 @@ def transfer_stablecoin(dest):
     }).operation_group.autofill().sign().inject()
 
 def bid_auction(ipfs_hash):
-    PERCENT = 10000000000000000
     for user in users:
         rate = random.randint(1,99) * PERCENT
         print(f"User {user} bidding {rate} on {ipfs_hash}")
