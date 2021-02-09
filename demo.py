@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-
 import argparse
 import configparser
 import dateparser
-from datetime import datetime, timedelta
 import ipfshttpclient
 import json
 import os
-from pytezos import pytezos
 import pytz
 import random
 import subprocess
-import summary
 import time
 
+from pytezos import pytezos
+from datetime import datetime, timedelta
+
+##### Local Script 
+import summary
 ##################
 # Arg parsing
 ##################
@@ -62,7 +63,7 @@ pm_contracts = {}
 
 for user in users:
     accounts[user] = pytezos.using(
-        key = f"{user}.json",
+        key = f"users/{user}.json",
         shell = "http://tezos.newby.org:8732",
         )
 
@@ -81,12 +82,6 @@ for user in users:
 ##################
 # methods
 ##################
-def get_country_and_capital():
-    """ Return random country and capital combo"""
-    with open('country-by-capital-city.json', 'r') as f:
-        data = json.load(f)
-        count = len(data)
-        return data[random.randint(0,count)]
 
 def create_question(question, answer, user):
     """Create a question in IPFS"""
@@ -102,7 +97,7 @@ def create_question(question, answer, user):
         }
     ipfs = ipfshttpclient.connect(config['IPFS']['server'])
     ipfs_hash = ipfs.add_str(json.dumps(param))
-    print(f"Created hash ${ipfs_hash}")
+    print(f"Created hash {ipfs_hash}")
     print(ipfs.get_json(ipfs_hash))
     pm_contracts[user].createQuestion({
         'question': ipfs_hash,
@@ -151,14 +146,14 @@ def bid_auction(ipfs_hash):
         d['QUANTITY'] = "50000000000000000000"
         s = subprocess.run(["./bid.sh"], env=d, capture_output=True)
         print(f"{s.stderr}\n{s.stdout}")
-        # data = {
-        #     'question': ipfs_hash,
-        #     'rate': rate,
-        #     'quantity': 50000000000000000000,
-
-        #     }
-        # print(data)
-        # pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
+        data = {
+             'question': ipfs_hash,
+             'rate': rate,
+             'quantity': 50000000000000000000,
+        }
+        ## Not working
+        ## print(data)
+        ## pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
 
 # def buy_tokens(ipfs_hash):
 #     for user in users:
