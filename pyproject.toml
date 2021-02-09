@@ -14,6 +14,8 @@ dateparser = "^1.0.0"
 pytz = "^2021.1"
 jq = "^1.1.2"
 ipfshttpclient = "0.7.0a1"
+typer = "^0.3.2"
+wolframalpha = "^4.1.1"
 
 [tool.poetry.dev-dependencies]
 
