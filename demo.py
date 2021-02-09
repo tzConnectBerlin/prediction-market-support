@@ -49,10 +49,11 @@ config.read('oracle.ini')
 pm_contract = pytezos.contract(config['Tezos']['pm_contract'])
 
 users = [
-    'ava',
-    'brian',
+    #'ava',
+    #'brian',
     'caleb',
-    'donald']
+    'donald'
+    ]
 
 PERCENT = 10000000000000000
 
