@@ -45,6 +45,7 @@ for user in users:
     )
     pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
+admin_account = summary.admin_account()
 ##################
 # methods
 ##################
@@ -96,7 +97,7 @@ def manage_accounts(
         pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
 @app.command()
-def create_question(
+def ask_question(
         question: str,
         answer: str,
         user: str,
@@ -151,7 +152,7 @@ def fund_stablecoin(
         print(f"Transferring to {user}")
         stablecoin = get_stablecoin()
         stablecoin.transfer({
-            'from': admin_account.key.public_key_hash(),
+            'from': get_admin_public_key(),
             'to': accounts[user].key.public_key_hash(),
             'value': value
             }).operation_group.autofill().sign().inject()
@@ -159,12 +160,14 @@ def fund_stablecoin(
 
 def get_stablecoin():
     """ Return an reference to the stablecoin storage """
-    admin_account = summary.admin_account()
     stablecoin = admin_account.contract(
         summary.get_storage(config['Tezos']['pm_contract'])['stablecoin']
     )
     return stablecoin
 
+def get_admin_public_key():
+    admin_account = summary.admin_account()
+    return admin_account.key.public_key_hash()
 
 @app.command()
 def transfer_stablecoin(
@@ -178,7 +181,7 @@ def transfer_stablecoin(
     """
     stablecoin = get_stablecoin()
     stablecoin.transfer({
-        'from': admin_account.key.public_key_hash(),
+        'from': get_admin_public_key(),
         'to': dest,
         'value': value
     }).operation_group.autofill().sign().inject()
