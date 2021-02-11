@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-import argparse
-import configparser
-import dateparser
-import ipfshttpclient
+
+"""
+    Tooling for prediction markets support
+"""
+
 import json
 import os
-import pytz
 import random
 import subprocess
 import time
-import typer
-
-from pytezos import pytezos
 from datetime import datetime, timedelta
+
+import configparser
+import ipfshttpclient
+import pytz
+import typer
+from pytezos import pytezos
 
 ##### Local Script
 import summary
 
-AUCTION_END_DATE=5
+AUCTION_END_DATE=30
 MARKET_END_DATE=50
 
 ##################
@@ -29,26 +32,91 @@ config.read('oracle.ini')
 pm_contract = pytezos.contract(config['Tezos']['pm_contract'])
 
 users = [
-        'caleb',
-        'donald'
-        ]
+    'alice',
+    'ava',
+    'pascal'
+]
 
 PERCENT = 10000000000000000
 
 accounts = {}
 pm_contracts = {}
 
-for user in users:
-    accounts[user] = pytezos.using(
+def instantiate_users(): 
+    """
+    Get all the user data from the user folder user
+    """
+    for user in users:
+        accounts[user] = pytezos.using(
             key = f"users/{user}.json",
             shell = "http://tezos.newby.org:8732",
-    )
-    pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
+        )
+        pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
-admin_account = summary.admin_account()
 ##################
 # methods
 ##################
+
+def get_stablecoin(account):
+    """
+    Return an reference to the stablecoin storage  for account
+    """
+    stablecoin = account.contract(
+        summary.get_storage(config['Tezos']['pm_contract'])['stablecoin']
+    )
+    return stablecoin
+
+def get_public_key(account):
+    """
+    Get public key hash from account
+    """
+    return account.key.public_key_hash()
+
+def activate_user(user: str):
+    """
+    Activate user
+    """
+    print(f"Trying to activate account of user {user}: ", end='')
+    try:
+        accounts[user].activate_account().autofill().sign().inject()
+        print(f"account of {user} was activated")
+    except Exception:
+        print(f"account of user {user} was not activated")
+
+def import_user(user: str):
+    """
+    Import_user
+    """
+    print(f"Trying to import account of user {user}: ", end='')
+    env = dict(os.environ)
+    host = config['Tezos']['endpoint']
+    subprocess.run(
+        [
+            'tezos-client',
+            '-E',
+            host,
+            'import',
+            'secret',
+            'key',
+            user,
+            f"unencrypted:{accounts[user].key.secret_key()}",
+            '--force'
+        ],
+        env=env,
+        check=False,
+    )
+    print(f"account of {user} was imported")
+
+def reveal_user(user: str):
+    """
+    Reveal user
+    """
+    print(f"Trying to reveal account of user {user}: ", end='')
+    try:
+        accounts[user].reveal().autofill().sign().inject()
+        print(f" account of user {user} was revealed")
+    except Exception:
+        print(f"account of user {user} was not revealed")
 
 @app.command()
 def manage_accounts(
@@ -56,45 +124,16 @@ def manage_accounts(
         reveal: bool = typer.Option(False, "--reveal", "-r"),
         import_accounts: bool = typer.Option(False, "--import", "-i")
     ):
-    host = 'https://' + config['Tezos']['node']
+    "Management of accounts in the user folder"
+    instantiate_users()
     with typer.progressbar(users) as progress:
-        for user in users:
-            accounts[user] = pytezos.using(
-                key = f"users/{user}.json",
-                shell = "http://tezos.newby.org:8732",
-            )
+        for user in progress:
             if activate:
-                print(f"Trying to activate account of user {user}: ", end='')
-                accounts[user].activate_account().autofill().sign().inject()
-                print(f"account of {user} was activated")
-            if import_accounts: 
-                print(f"Trying to import account of user {user}: ", end='')
-                d = dict(os.environ)
-                d['PORT'] = config['Tezos']['port']
-                subprocess.run(
-                    [
-                        'tezos-client',
-                        '-E',
-                        host,
-                        'import',
-                        'secret', 
-                        'key',
-                        user,
-                        f"unencrypted:{accounts[user].key.secret_key()}",
-                        '--force'
-                    ],
-                    env=d
-                )
-                print(f"account of {user} was imported")
+                activate_user(user)
+            if import_accounts:
+                import_user(user)
             if reveal:
-                print(f"Trying to reveal account of user {user}: ", end='')
-                try:
-                    accounts[user].reveal().autofill().sign().inject()
-                    print(f"account of user {user} was revealed", end='')
-                except(Exception):
-                    print(f"account of user {user} was not revealed", end='')
-                    pass
-        pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
+                reveal_user(user)
 
 @app.command()
 def ask_question(
@@ -113,28 +152,29 @@ def ask_question(
     quantity: integer representing the quantity of stable coin generated
     rate: rate
     """
+    instantiate_users()
     if user not in users:
         raise Exception("Missing User")
     timenow = datetime.now().astimezone(pytz.utc)
     auction_end_date = timenow + timedelta(minutes=AUCTION_END_DATE)
     market_close_date = timenow + timedelta(minutes=MARKET_END_DATE)
     param = {
+            'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            'iconURL': 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
+            'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
             'question': question,
             'yesAnswer': answer,
-            'auctionEndDate':  auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'iconURL': 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-            }
+    }
     ipfs = ipfshttpclient.connect(config['IPFS']['server'])
     ipfs_hash = ipfs.add_str(json.dumps(param))
     print(f"Created hash {ipfs_hash}")
     print(ipfs.get_json(ipfs_hash))
     pm_contracts[user].createQuestion({
-        'question': ipfs_hash,
         'auction_end': int(auction_end_date.timestamp()),
         'market_close': int(market_close_date.timestamp()),
-        'rate': rate,
         'quantity': quantity,
+        'question': ipfs_hash,
+        'rate': rate
     }).operation_group.autofill().sign().inject()
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
@@ -145,29 +185,17 @@ def fund_stablecoin(
     ):
     """
     Fund all accounts with a random quantity of tezos
-    
+
     value: the amont of tezos funded
     """
+    instantiate_users()
     for user in users:
         print(f"Transferring to {user}")
-        stablecoin = get_stablecoin()
-        stablecoin.transfer({
-            'from': get_admin_public_key(),
-            'to': accounts[user].key.public_key_hash(),
-            'value': value
-            }).operation_group.autofill().sign().inject()
+        transfer_stablecoin(
+            accounts[user].key.public_key_hash(),
+            value,
+        )
         time.sleep(60)
-
-def get_stablecoin():
-    """ Return an reference to the stablecoin storage """
-    stablecoin = admin_account.contract(
-        summary.get_storage(config['Tezos']['pm_contract'])['stablecoin']
-    )
-    return stablecoin
-
-def get_admin_public_key():
-    admin_account = summary.admin_account()
-    return admin_account.key.public_key_hash()
 
 @app.command()
 def transfer_stablecoin(
@@ -179,9 +207,10 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
-    stablecoin = get_stablecoin()
+    admin_account = summary.admin_account()
+    stablecoin = get_stablecoin(admin_account)
     stablecoin.transfer({
-        'from': get_admin_public_key(),
+        'from': get_public_key(admin_account),
         'to': dest,
         'value': value
     }).operation_group.autofill().sign().inject()
@@ -190,7 +219,7 @@ def transfer_stablecoin(
 def bid_auction(
         ipfs_hash: str,
         user: str,
-        quantity: int = typer.Option(50000000000000000000),
+        quantity: int = typer.Option(50000),
         rate: int = typer.Option(random.randint(1,99) * PERCENT)
     ):
     """
@@ -202,30 +231,31 @@ def bid_auction(
     rate: What is rate?
     """
     print(f"User {user} bidding {rate} on {ipfs_hash}")
-    d = dict(os.environ)
-    address_user = pm_contracts[user]
-    d['AUCTION'] = ipfs_hash
-    d['HOST'] = 'https://' + config['Tezos']['node']
-    d['PORT'] = config['Tezos']['port']
-    d['ACCOUNT'] = address_user
-    d['CONTRACT'] = config['Tezos']['pm_contract']
-    d['RATE'] = str(rate)
-    d['QUANTITY'] = str(quantity)
-    s = subprocess.run(["./bid.sh"], env=d, capture_output=True)
-    print(f"{s.stderr}\n{s.stdout}")
+    env = dict(os.environ)
+    print(user)
+    env['ACCOUNT'] =  user
+    env['AUCTION'] = ipfs_hash
+    env['CONTRACT'] = config['Tezos']['pm_contract']
+    env['ENDPOINT'] = config['Tezos']['endpoint']
+    env['HOST'] = config['Tezos']['node']
+    env['PORT'] = config['Tezos']['port']
+    env['QUANTITY'] = str(quantity)
+    env['RATE'] = str(rate)
+    sub = subprocess.run(["./bid.sh"], env=env, capture_output=True, check=False)
+    print(f"{sub.stderr}\n{sub.stdout}")
     _data = {
-            'question': ipfs_hash,
-            'rate': rate,
             'quantity': quantity,
+            'question': ipfs_hash,
+            'rate': rate
     }
     ## Not working
     ## print(data)
-    ## pm_contracts[user].bid(data).operation_group.autofill(gas_reserve=200000).sign().inj
+    ##pm_contracts[user].bid(_data).operation_group.autofill(gas_reserve=200000).sign().inject()
 
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Option(50000000000000000000),
+        quantity: int = typer.Option(50000),
         rate: int = typer.Option(random.randint(1,99) * PERCENT)
     ):
     """
@@ -235,33 +265,15 @@ def random_bids(
     """
     if len(users) == 0:
         print("Please add some users before using this functionality")
+    instantiate_users()
     with typer.progressbar(users) as progress:
-        for user in users:
-            print(pm_contracts[user])
-            address_user = pm_contracts[user].address
-            print(f"User {user} bidding {rate} on {ipfs_hash}")
-            d = dict(os.environ)
-            d['AUCTION'] = ipfs_hash
-            d['HOST'] = 'https://' + config['Tezos']['node']
-            d['PORT'] = config['Tezos']['port']
-            d['ACCOUNT'] = address_user
-            d['CONTRACT'] = config['Tezos']['pm_contract']
-            d['RATE'] = str(rate)
-            d['QUANTITY'] = "50000000000000000000"
-            s = subprocess.run(["./bid.sh"], env=d, capture_output=True)
-            print(f"{s.stderr}\n{s.stdout}")
-            data = {
-                'question': ipfs_hash,
-                'rate': rate,
-                'quantity': quantity,
-            }
-            print("************************************<")
-            #print(pm_contracts[user].bid(data).operation_group.fill())
-            #print(pm_contracts[user].bid(data).operation_group.sign())
-            print("************************************>")
-            #Not working
-            #print(data)
-            pm_contracts[user].bid(data).operation_group.fill().sign().inject()
+        for user in progress:
+            bid_auction(
+                ipfs_hash,
+                user,
+                quantity,
+                rate
+            )
 
 
 @app.command()

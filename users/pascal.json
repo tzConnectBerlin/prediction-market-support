@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "begin",
+    "demise",
+    "roast",
+    "ten",
+    "muffin",
+    "cloud",
+    "sting",
+    "refuse",
+    "client",
+    "cover",
+    "leaf",
+    "hard",
+    "wet",
+    "anxiety",
+    "child"
+  ],
+  "secret": "dcbecc946e248a1f8ad821cbbed2e4e1656dc661",
+  "amount": "123142677623",
+  "pkh": "tz1UDtPY1zkJsceMXPwpBbC7tfYrmxRa5qP4",
+  "password": "0b2vxde5uC",
+  "email": "rwikklud.szedpvbd@tezos.example.org"
+}
