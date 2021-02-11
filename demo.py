@@ -73,7 +73,7 @@ for user in users:
         except(Exception):
             pass
     if args.import_accounts:
-        subprocess.run(['tezos-client', 'import', 'secret', 'key', user,
+        subprocess.run(['tezos-client', '-A', config['Tezos']['node'], 'import', 'secret', 'key', user,
                         f"unencrypted:{accounts[user].key.secret_key()}", '--force'])
     pm_contracts[user] = accounts[user].contract(config['Tezos']['pm_contract'])
 
