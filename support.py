@@ -16,7 +16,6 @@ from utils import get_stablecoin, get_public_key
 
 AUCTION_END_DATE=30
 MARKET_END_DATE=50
-PERCENT = 10000000000000000
 
 class Support:
     """
@@ -30,19 +29,17 @@ class Support:
         """
         self.config = configparser.ConfigParser()
         self.config.read('oracle.ini')
-        self.contract = pytezos.contract(
-                self.config['Tezos']['pm_contract']
-        )
+        self.contract = self.config['Tezos']['pm_contract']
         self.accounts = {}
         self.pm_contracts = {}
         self.users = users
-        self.instantiate_users(users)
+        self.instantiate_users(self.users)
 
     def instantiate_users(self, users: list):
         """
         Get all the user data from the user folder user
         """
-        for user in users:
+        for user in self.users:
             self.accounts[user] = pytezos.using(
                 key = f"users/{user}.json",
                 shell = "http://tezos.newby.org:8732",
@@ -191,7 +188,7 @@ class Support:
         env['QUANTITY'] = str(quantity)
         env['RATE'] = str(rate)
         sub = subprocess.run(["./bid.sh"], env=env, capture_output=True, check=False)
-        print(f"{sub.stderr}\n{sub.stdout}")
+        #print(f"{sub.stderr}\n{sub.stdout}")
         _data = {
                 'quantity': quantity,
                 'question': ipfs_hash,
