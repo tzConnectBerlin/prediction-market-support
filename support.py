@@ -1,22 +1,27 @@
 """
 Support management helper
 """
+import configparser
+import json
 import os
 import subprocess
-import time
 from datetime import datetime, timedelta
 
 import ipfshttpclient
-from tezos import pytezos
+import pytz
+from pytezos import pytezos
 
-import configparser
-from utils.py import get_stablecoin, get_public_key
+import summary
+from utils import get_stablecoin, get_public_key
 
 AUCTION_END_DATE=30
 MARKET_END_DATE=50
 PERCENT = 10000000000000000
 
 class Support:
+    """
+    Support Class
+    """
     def __init__(self, users: list):
         """
         Create a Support object
@@ -25,11 +30,14 @@ class Support:
         """
         self.config = configparser.ConfigParser()
         self.config.read('oracle.ini')
-        self.pm_contract = pytezos.contract(config['Tezos']['pm_contract'])
-        self.accounts = {}     
+        self.contract = pytezos.contract(
+                self.config['Tezos']['pm_contract']
+        )
+        self.accounts = {}
         self.pm_contracts = {}
-        self.users = self.instantiate_users(users)
-    
+        self.users = users
+        self.instantiate_users(users)
+
     def instantiate_users(self, users: list):
         """
         Get all the user data from the user folder user
@@ -39,7 +47,9 @@ class Support:
                 key = f"users/{user}.json",
                 shell = "http://tezos.newby.org:8732",
             )
-            self.pm_contracts[user] = self.accounts[user].contract(config['Tezos']['pm_contract'])
+            self.pm_contracts[user] = self.accounts[user].contract(
+                    self.contract
+            )
 
     def activate_user(self, user: str):
         """
@@ -49,7 +59,7 @@ class Support:
         try:
             self.accounts[user].activate_account().autofill().sign().inject()
             print(f"account of {user} was activated")
-        except Exception:
+        except Exception():
             print(f"account of user {user} was not activated")
 
     def import_user(self, user: str):
@@ -76,7 +86,7 @@ class Support:
         )
         print(f"account of {user} was imported")
 
-    def reveal_user(user: str):
+    def reveal_user(self, user: str):
         """
         Reveal user
         """
@@ -87,69 +97,55 @@ class Support:
         except Exception:
             print(f"account of user {user} was not revealed")
 
-    def get_account(user: str):
-        self.pm_contracts[user]
-
+    def get_account(self, user: str):
+        """
+        Return account for user
+        """
+        return self.pm_contracts[user].key
 
     def ask_question(
+        self,
         question: str,
         answer: str,
         user: str,
         quantity: int,
         rate: int
-    ):
-    """
-    Create a question in IPFS
-
-    question: string representing the answer asked
-    answer: string representing the possible answer
-    user: string representing the questions owner
-    quantity: integer representing the quantity of stable coin generated
-    rate: rate
-    """
-    if user not in self.users:
-        raise Exception("Missing User")
-    timenow = datetime.now().astimezone(pytz.utc)
-    auction_end_date = timenow + timedelta(minutes=AUCTION_END_DATE)
-    market_close_date = timenow + timedelta(minutes=MARKET_END_DATE)
-    param = {
-            'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'iconURL': 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-            'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'question': question,
-            'yesAnswer': answer,
-    }
-    ipfs = ipfshttpclient.connect(config['IPFS']['server'])
-    ipfs_hash = ipfs.add_str(json.dumps(param))
-    print(f"Created hash {ipfs_hash}")
-    print(ipfs.get_json(ipfs_hash))
-    self.pm_contracts[user].createQuestion({
-        'auction_end': int(auction_end_date.timestamp()),
-        'market_close': int(market_close_date.timestamp()),
-        'quantity': quantity,
-        'question': ipfs_hash,
-        'rate': rate
-    }).operation_group.autofill().sign().inject()
-    print(f"Created market {ipfs_hash} in PM contract")
-    return ipfs_hash
-    
-    def transfer_stablecoin(
-            dest: str,
-            value: int
         ):
         """
-        Transfer a certain amount of coins towards an user address
+        Create a question in IPFS
 
-        dest: user address that will receive the funds
+        question: string representing the answer asked
+        answer: string representing the possible answer
+        user: string representing the questions owner
+        quantity: integer representing the quantity of stable coin generated
+        rate: rate
         """
-        admin_account = summary.admin_account()
-        stablecoin = get_stablecoin(admin_account)
-        stablecoin.transfer({
-            'from': get_public_key(admin_account),
-            'to': dest,
-            'value': value
+        if user not in self.users:
+            raise Exception("Missing User")
+        timenow = datetime.now().astimezone(pytz.utc)
+        auction_end_date = timenow + timedelta(minutes=AUCTION_END_DATE)
+        market_close_date = timenow + timedelta(minutes=MARKET_END_DATE)
+        param = {
+                'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                'iconURL':
+                'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
+                'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                'question': question,
+                'yesAnswer': answer,
+        }
+        ipfs = ipfshttpclient.connect(self.config['IPFS']['server'])
+        ipfs_hash = ipfs.add_str(json.dumps(param))
+        print(f"Created hash {ipfs_hash}")
+        print(ipfs.get_json(ipfs_hash))
+        self.pm_contracts[user].createQuestion({
+            'auction_end': int(auction_end_date.timestamp()),
+            'market_close': int(market_close_date.timestamp()),
+            'quantity': quantity,
+            'question': ipfs_hash,
+            'rate': rate
         }).operation_group.autofill().sign().inject()
-
+        print(f"Created market {ipfs_hash} in PM contract")
+        return ipfs_hash
 
     def transfer_stablecoin_to_user(
             self,
@@ -165,15 +161,16 @@ class Support:
         stablecoin = get_stablecoin(admin_account)
         stablecoin.transfer({
             'from': get_public_key(admin_account),
-            'to': get_public_key(get_account(user)),
+            'to': get_public_key(self.get_account(user)),
             'value': value
         }).operation_group.autofill().sign().inject()
 
     def bid_auction(
+            self,
             ipfs_hash: str,
             user: str,
             quantity: int,
-            rate: int 
+            rate: int
         ):
         """
         Launch a bid on an auction
@@ -204,10 +201,27 @@ class Support:
         ## print(data)
         ##pm_contracts[user].bid(_data).operation_group.autofill(gas_reserve=200000).sign().inject()
 
-    def close_auction(ipfs_hash: str):
+    def close_auction(self, ipfs_hash: str, user):
         """
         Close the auction
 
         ipfs_hash: the hash of the concerned contract
         """
-        self.pm_contracts[users[2]].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+        self.pm_contracts[user].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
+
+def transfer_stablecoin(
+        dest: str,
+        value: int
+    ):
+    """
+    Transfer a certain amount of coins towards an user address
+
+    dest: user address that will receive the funds
+    """
+    admin_account = summary.admin_account()
+    stablecoin = get_stablecoin(admin_account)
+    stablecoin.transfer({
+        'from': get_public_key(admin_account),
+        'to': dest,
+        'value': value
+    }).operation_group.autofill().sign().inject()
