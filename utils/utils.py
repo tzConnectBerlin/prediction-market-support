@@ -1,4 +1,4 @@
-import summary
+import utils.summary
 
 
 def get_stablecoin(account):

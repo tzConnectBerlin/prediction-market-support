@@ -1,5 +1,5 @@
 import json
-import summary
+import utils.summary
 
 pm = summary.get_storage(summary.CONTRACT_ID)
 

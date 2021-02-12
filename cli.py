@@ -11,8 +11,8 @@ import configparser
 import typer
 
 ##### Local Script
-import summary
-from support import Support, transfer_stablecoin
+import utils.summary
+from support.support import Support, transfer_stablecoin
 
 PERCENT = 10000000000000000
 

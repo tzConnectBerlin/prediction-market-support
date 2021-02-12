@@ -11,8 +11,8 @@ import ipfshttpclient
 import pytz
 from pytezos import pytezos
 
-import summary
-from utils import get_stablecoin, get_public_key
+import utils.summary
+from utils.utils import get_stablecoin, get_public_key
 
 AUCTION_END_DATE=30
 MARKET_END_DATE=50
@@ -28,7 +28,10 @@ class Support:
         users: List of users who require support
         """
         self.config = configparser.ConfigParser()
-        self.config.read('oracle.ini')
+        try:
+            self.config.read('./oracle.ini')
+        except Exception:
+            print("Missing oracle.ini file")
         self.contract = self.config['Tezos']['pm_contract']
         self.accounts = {}
         self.pm_contracts = {}
@@ -42,7 +45,7 @@ class Support:
         for user in self.users:
             self.accounts[user] = pytezos.using(
                 key = f"users/{user}.json",
-                shell = "http://tezos.newby.org:8732",
+                shell = self.config['Tezos']['endpoint'],
             )
             self.pm_contracts[user] = self.accounts[user].contract(
                     self.contract
