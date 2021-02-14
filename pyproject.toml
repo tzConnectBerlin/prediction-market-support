@@ -13,13 +13,16 @@ pytezos = "^2.5.15"
 dateparser = "^1.0.0"
 pytz = "^2021.1"
 jq = "^1.1.2"
-ipfshttpclient = "0.7.0a1"
 typer = "^0.3.2"
 wolframalpha = "^4.1.1"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.5"
 black = {version = "^20.8b1", allow-prereleases = true}
+pylint = "^2.6.0"
+pytest = "^6.2.2"
+pytest-regtest = "^1.4.5"
+pytest-timeout = "^1.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

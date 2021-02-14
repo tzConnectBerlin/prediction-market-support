@@ -137,6 +137,7 @@ class Support:
         ipfs_hash = ipfs.add_str(json.dumps(param))
         print(f"Created hash {ipfs_hash}")
         print(ipfs.get_json(ipfs_hash))
+        ###check if the question and the data are on the node
         self.pm_contracts[user].createQuestion({
             'auction_end': int(auction_end_date.timestamp()),
             'market_close': int(market_close_date.timestamp()),
@@ -158,7 +159,10 @@ class Support:
         user address that will receive the funds
         """
         admin_account = summary.admin_account()
+        ##Got the stablecoin ?? Rethink the question??
         stablecoin = get_stablecoin(admin_account)
+        ####Check if the account is filled (check the balancebefore)
+        ####With the correct value
         stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),
@@ -190,7 +194,7 @@ class Support:
         env['PORT'] = self.config['Tezos']['port']
         env['QUANTITY'] = str(quantity)
         env['RATE'] = str(rate)
-        sub = subprocess.run(["./bid.sh"], env=env, capture_output=True, check=False)
+        #sub = subprocess.run(["./bid.sh"], env=env, capture_output=True, check=False)
         #print(f"{sub.stderr}\n{sub.stdout}")
         _data = {
                 'quantity': quantity,
@@ -199,16 +203,20 @@ class Support:
         }
         ## Not working
         ## print(data)
-        ##pm_contracts[user].bid(_data).operation_group.autofill(gas_reserve=200000).sign().inject()
-
+        #####Check if the bid is done
+        self.pm_contracts[user].bid(_data).operation_group \
+            .autofill(gas_reserve=200000).sign().inject()
+    ####testable?
     def close_auction(self, ipfs_hash: str, user):
         """
         Close the auction
 
         ipfs_hash: the hash of the concerned contract
         """
+        #####Check if the contract is close
         self.pm_contracts[user].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
 
+####testable
 def transfer_stablecoin(
         dest: str,
         value: int
@@ -219,6 +227,7 @@ def transfer_stablecoin(
     dest: user address that will receive the funds
     """
     admin_account = summary.admin_account()
+    ###check if returns an amount of stablecoin
     stablecoin = get_stablecoin(admin_account)
     stablecoin.transfer({
         'from': get_public_key(admin_account),
