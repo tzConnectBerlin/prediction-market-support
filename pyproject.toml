@@ -8,8 +8,8 @@ authors = ["multi prise <korokoko.toi@gmail.com>"]
 python = "^3.9"
 argparse = "^1.4.0"
 configparse = "^0.1.5"
-pysodium = {git = "https://github.com/stef/pysodium.git", rev = "0.7.5"}
-pytezos = "^2.5.15"
+pysodium = {git = "https://github.com/stef/pysodium.git", rev = "0.7.7"}
+pytezos = "^3.0.1"
 dateparser = "^1.0.0"
 pytz = "^2021.1"
 jq = "^1.1.2"
