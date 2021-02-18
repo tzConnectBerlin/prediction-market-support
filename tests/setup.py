@@ -8,6 +8,8 @@ from pytezos import pytezos, ContractInterface, Key
 from requests.exceptions import ConnectionError
 from unittest import TestCase
 
+from support import Support
+
 ligo_cmd = (
         f'docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.7.1 "$@"'
 )
@@ -52,7 +54,6 @@ def compile_contract():
 def compile_storage():
     compile_command = f"{ligo_cmd} compile-storage {wolfram_file} main '{wolfram_storage}'"
     result = run_command(compile_command)
-    print(result)
     return result
     
 class TestEx():
@@ -62,12 +63,10 @@ class TestEx():
     def setup(self):
         print("compiling contract...")
         contract = compile_contract()
-        self.contract = ContractInterface.from_michelson(contract)
-        print("compiling storage...")
-        storage = compile_storage()
-        print(self.contract)
-        print("storage***************************")
-        self.storage = self.contract.storage.decode(contract)
-        print("originating contracts...")
+        self.contract = ContractInterface.from_michelson(contract).using(shell=shell, key=owner)
+        self.contract.originate(balance=50000)
+        self.mike_key = Key.generate(export=False)
+        print("originating contract...")
+        print(contract)
 
 TestEx()
