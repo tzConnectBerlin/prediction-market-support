@@ -21,7 +21,7 @@ class Support:
     """
     Support Class
     """
-    def __init__(self, users: list):
+    def __init__(self, users: list, config_file="./oracle.ini"):
         """
         Create a Support object
 
@@ -29,7 +29,7 @@ class Support:
         """
         self.config = configparser.ConfigParser()
         try:
-            self.config.read('./oracle.ini')
+            self.config.read(config_file)
         except Exception:
             print("Missing oracle.ini file")
         self.contract = self.config['Tezos']['pm_contract']
