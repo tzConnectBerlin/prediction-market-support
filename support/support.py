@@ -1,7 +1,6 @@
 """
 Support management helper
 """
-import configparser
 import json
 import os
 import subprocess
@@ -21,19 +20,25 @@ class Support:
     """
     Support Class
     """
-    def __init__(self, users: list, config_file="./oracle.ini"):
+    def __init__(
+            self,
+            users: list,
+            endpoint: str = None,
+            pm_contract: str = None,
+            ipfs_server: str = None
+        ):
         """
         Create a Support object
 
         users: List of users who require support
         """
-        self.config = configparser.ConfigParser()
-        try:
-            self.config.read(config_file)
         except Exception:
-            print("Missing oracle.ini file")
-        self.contract = self.config['Tezos']['pm_contract']
+        if not endpoint || not pm_contract || not ipfs_server:
+            raise f"One of those value is None {endpoint} {pm_contract} {ipfs_server}"
         self.accounts = {}
+        self.contract = self.pm_contract
+        self.endpoint = endpoint
+        selg.ipfs_server = ipfs_server
         self.pm_contracts = {}
         self.users = users
         self.instantiate_users(self.users)
@@ -45,7 +50,7 @@ class Support:
         for user in self.users:
             self.accounts[user] = pytezos.using(
                 key = f"users/{user}.json",
-                shell = self.config['Tezos']['endpoint'],
+                shell = self.endpoint,
             )
             self.pm_contracts[user] = self.accounts[user].contract(
                     self.contract
@@ -68,7 +73,7 @@ class Support:
         """
         print(f"Trying to import account of user {user}: ", end='')
         env = dict(os.environ)
-        host = self.config['Tezos']['endpoint']
+        host = self.endpoint
         subprocess.run(
             [
                 'tezos-client',
@@ -133,7 +138,7 @@ class Support:
                 'question': question,
                 'yesAnswer': answer,
         }
-        ipfs = ipfshttpclient.connect(self.config['IPFS']['server'])
+        ipfs = ipfshttpclient.connect(self.ipfs_server)
         ipfs_hash = ipfs.add_str(json.dumps(param))
         print(f"Created hash {ipfs_hash}")
         print(ipfs.get_json(ipfs_hash))
@@ -185,16 +190,6 @@ class Support:
         rate: What is rate?
         """
         print(f"User {user} bidding {rate} on {ipfs_hash}")
-        env = dict(os.environ)
-        env['ACCOUNT'] =  user
-        env['AUCTION'] = ipfs_hash
-        env['CONTRACT'] = self.config['Tezos']['pm_contract']
-        env['ENDPOINT'] = self.config['Tezos']['endpoint']
-        env['HOST'] = self.config['Tezos']['node']
-        env['PORT'] = self.config['Tezos']['port']
-        env['QUANTITY'] = str(quantity)
-        env['RATE'] = str(rate)
-        #sub = subprocess.run(["./bid.sh"], env=env, capture_output=True, check=False)
         #print(f"{sub.stderr}\n{sub.stdout}")
         _data = {
                 'quantity': quantity,
