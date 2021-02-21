@@ -1,7 +1,10 @@
 #!/bin/sh
 
 #Docker image
-export flextesa_image=registry.gitlab.com/tezos/flextesa:image-tutobox-run
+docker_name="flextesa_sandbox"
+flextesa_image="registry.gitlab.com/tezos/flextesa:00b415f2-run"
+port=20000
+
 
 #Instantation Dockerfile
-docker run --rm --name flextesa-sandbox -e block_time=1 --detach -p 20000:20000 tqtezos/flextesa:20200925 delphibox start
+docker run --rm --name $docker_name -e block_time=1 --detach -p $port:$port $flextesa_image delphibox start
