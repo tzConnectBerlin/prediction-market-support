@@ -13,6 +13,7 @@ import typer
 ##### Local Script
 import utils.summary
 from support.support import Support, transfer_stablecoin
+from time import sleep
 
 PERCENT = 10000000000000000
 
@@ -88,7 +89,7 @@ def fund_stablecoin(
             user,
             value,
         )
-        time.sleep(60)
+        sleep(60)
 
 @app.command()
 def transfer_stablecoin(
@@ -100,7 +101,7 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
-    support.transfer_stablecoin(dest, value)
+    support.transfer_stablecoin_to_user(dest, value)
 
 @app.command()
 def bid_auction(

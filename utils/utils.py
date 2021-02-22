@@ -1,12 +1,12 @@
-import utils.summary
+from utils import summary
 
 
-def get_stablecoin(account):
+def get_stablecoin(account, contract):
     """
     Return an reference to the stablecoin storage  for account
     """
     stablecoin = account.contract(
-        summary.get_storage(config['Tezos']['pm_contract'])['stablecoin']
+        summary.get_storage(contract)['stablecoin']
     )
     return stablecoin
 

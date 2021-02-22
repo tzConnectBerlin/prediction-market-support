@@ -11,7 +11,7 @@ import ipfshttpclient
 import pytz
 from pytezos import pytezos
 
-import utils.summary
+from utils import summary
 from utils.utils import get_stablecoin, get_public_key
 
 AUCTION_END_DATE=30
@@ -101,7 +101,7 @@ class Support:
         """
         Return account for user
         """
-        return self.pm_contracts[user].key
+        return self.accounts[user]
 
     def ask_question(
         self,
@@ -160,9 +160,10 @@ class Support:
         """
         admin_account = summary.admin_account()
         ##Got the stablecoin ?? Rethink the question??
-        stablecoin = get_stablecoin(admin_account)
+        stablecoin = get_stablecoin(admin_account, self.contract)
         ####Check if the account is filled (check the balancebefore)
         ####With the correct value
+        print(user)
         stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),

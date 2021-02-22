@@ -11,7 +11,7 @@ config = configparser.ConfigParser()
 config.read('oracle.ini')
 
 BCD_URL = "https://api.better-call.dev/v1/"
-NETWORK = "delphinet"
+NETWORK = "edo2net"
 
 CONTRACT_ID = config['Tezos']['pm_contract']
 
@@ -19,7 +19,7 @@ def admin_account():
     import pytezos
     return pytezos.pytezos.using(
         key = pytezos.Key.from_encoded_key(config['Tezos']['privkey']),
-        shell = 'delphinet',
+        shell = config['Tezos']['endpoint'],
         )
 
 def load_json(url):
