@@ -93,8 +93,9 @@ class TestEx():
 
     def setup(self):
         print("compiling contract...")
-        contract = compile_contract()
-        self.contract = ContractInterface.from_michelson(contract).using(shell=shell, key=owner)
+        #contract = compile_contract()
+        #self.contract = ContractInterface.from_michelson(contract).using(shell=shell, key=owner)
+        self.contract = ContractInterface.from_file("tests/wolframbeta.tz")
         self.contract.using(shell=shell, key=key)
         self.contract.originate(balance=5000000)
         print("originating contract...")
