@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["multi prise <korokoko.toi@gmail.com>"]
 
+[tool.poetry.scripts]
+support = "cli.cli:support_cli"
+
 [tool.poetry.dependencies]
 python = "^3.9"
 argparse = "^1.4.0"
