@@ -1,0 +1,4 @@
+#!/bin/sh
+
+poetry shell; poetry run support_cli
+app()

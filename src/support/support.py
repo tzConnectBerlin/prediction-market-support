@@ -60,7 +60,8 @@ class Support:
         try:
             self.accounts[user].activate_account().autofill().sign().inject()
             print(f"account of {user} was activated")
-        except Exception():
+        except Exception as e:
+            print(e)
             print(f"account of user {user} was not activated")
 
     def import_user(self, user: str):
@@ -155,15 +156,12 @@ class Support:
             value: int
         ):
         """
-        Transfer a certain amount of coins towards an user address
+        Transfer a certain amount of stablcoins towards an user address
 
         user address that will receive the funds
         """
         admin_account = summary.admin_account()
-        ##Got the stablecoin ?? Rethink the question??
         stablecoin = get_stablecoin(admin_account)
-        ####Check if the account is filled (check the balancebefore)
-        ####With the correct value
         stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),
@@ -221,7 +219,7 @@ def transfer_stablecoin(
         value: int
     ):
     """
-    Transfer a certain amount of coins towards an user address
+    Transfer a certain amount of stablecoins towards an user address
 
     dest: user address that will receive the funds
     """

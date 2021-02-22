@@ -1,4 +1,4 @@
-import src.utils.summary
+from src.utils import summary
 
 
 def get_stablecoin(account):
