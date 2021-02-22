@@ -33,5 +33,3 @@ def test_ask_question():
 
 def test_transfer_stablecoin_to_user():
     support_instance.transfer_stablecoin_to_user("donald", 3000)
-
-def bid_auction("):

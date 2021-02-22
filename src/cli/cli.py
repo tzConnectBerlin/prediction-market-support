@@ -25,7 +25,7 @@ users = [
 
 app = typer.Typer()
 
-support = Support(users)
+support = Support(users, config_file="./tests/oracle.ini")
 
 @app.command()
 def manage_accounts(
