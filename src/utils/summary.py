@@ -19,7 +19,7 @@ def admin_account():
     import pytezos
     return pytezos.pytezos.using(
         key = pytezos.Key.from_encoded_key(config['Tezos']['privkey']),
-        shell = config['tezos']['endpoint'],
+        shell = config['Tezos']['endpoint'],
         )
 
 def load_json(url):

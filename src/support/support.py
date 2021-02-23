@@ -44,7 +44,6 @@ class Support:
         Get all the user data from the user folder user
         """
         for user in self.users:
-            print(f"{user_folder}/{user}.json")
             self.accounts[user] = pytezos.using(
                 key = f"{user_folder}/{user}.json",
                 shell = self.config['Tezos']['endpoint'],

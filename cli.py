@@ -13,7 +13,7 @@ import typer
 
 ##### Local Script
 from src.utils import summary
-from support.support import Support
+from src.support.support import Support
 
 PERCENT = 10000000000000000
 
@@ -28,7 +28,7 @@ users = [
 
 app = typer.Typer()
 
-support = Support(users, config_file="./tests/oracle.ini")
+support = Support(users, config_file="./oracle.ini")
 
 @app.command()
 def manage_accounts(
@@ -152,5 +152,5 @@ def close_auction(ipfs_hash: str):
     """
     support.close_auction(ipfs_hash)
 
-def main():
+if __name__ == "__main__":
     app()
