@@ -4,13 +4,16 @@ Tooling for prediction markets support
 
 import json
 import random
+import sys
+
+print(sys.path)
 
 import configparser
 import typer
 
 ##### Local Script
-import src.utils.summary
-from src.support.support import Support, transfer_stablecoin
+from src.utils import summary
+from support.support import Support
 
 PERCENT = 10000000000000000
 
@@ -149,5 +152,5 @@ def close_auction(ipfs_hash: str):
     """
     support.close_auction(ipfs_hash)
 
-def support_cli():
+def main():
     app()

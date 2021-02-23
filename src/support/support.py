@@ -17,6 +17,7 @@ from src.utils.utils import get_stablecoin, get_public_key
 AUCTION_END_DATE=30
 MARKET_END_DATE=50
 
+
 class Support:
     """
     Support Class
@@ -103,7 +104,7 @@ class Support:
         """
         Return account for user
         """
-        return self.pm_contracts[user].key
+        return self.pm_contracts[user]
 
     def ask_question(
         self,
@@ -161,7 +162,7 @@ class Support:
         user address that will receive the funds
         """
         admin_account = summary.admin_account()
-        stablecoin = get_stablecoin(admin_account)
+        stablecoin = get_stablecoin(admin_account, self.contract)
         stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),
@@ -213,21 +214,3 @@ class Support:
         """
         #####Check if the contract is close
         self.pm_contracts[user].closeAuction(ipfs_hash).operation_group.autofill().sign().inject()
-
-def transfer_stablecoin(
-        dest: str,
-        value: int
-    ):
-    """
-    Transfer a certain amount of stablecoins towards an user address
-
-    dest: user address that will receive the funds
-    """
-    admin_account = summary.admin_account()
-    ###check if returns an amount of stablecoin
-    stablecoin = get_stablecoin(admin_account)
-    stablecoin.transfer({
-        'from': get_public_key(admin_account),
-        'to': dest,
-        'value': value
-    }).operation_group.autofill().sign().inject()
