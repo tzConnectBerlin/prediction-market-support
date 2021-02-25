@@ -1,3 +1,4 @@
+#!python
 """
 Tooling for prediction markets support
 """
@@ -5,8 +6,7 @@ Tooling for prediction markets support
 import json
 import random
 import sys
-
-print(sys.path)
+from time import sleep
 
 import configparser
 import typer
@@ -55,7 +55,9 @@ def ask_question(
         answer: str,
         user: str,
         quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
+        rate: int = typer.Option(random.randint(1,99) * PERCENT),
+        auction_end_date: int = typer.Option(30),
+        market_end_date: int = typer.Option(50)
     ):
     """
     create a question in IPFS
@@ -71,7 +73,9 @@ def ask_question(
                 answer,
                 user,
                 quantity,
-                rate
+                rate,
+                auction_end_date,
+                market_end_date
             )
 
 @app.command()
@@ -89,7 +93,7 @@ def fund_stablecoin(
             user,
             value,
         )
-        time.sleep(60)
+        sleep(60)
 
 @app.command()
 def transfer_stablecoin(
