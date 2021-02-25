@@ -1,19 +1,19 @@
-#!/usr/bin/env python3
-
+#!python
 """
 Tooling for prediction markets support
 """
 
 import json
 import random
+import sys
+from time import sleep
 
 import configparser
 import typer
 
 ##### Local Script
-import utils.summary
-from support.support import Support, transfer_stablecoin
-from time import sleep
+from src.utils import summary
+from src.support.support import Support, transfer_stablecoin
 
 PERCENT = 10000000000000000
 
@@ -28,7 +28,7 @@ users = [
 
 app = typer.Typer()
 
-support = Support(users)
+support = Support(users, config_file="./oracle.ini")
 
 @app.command()
 def manage_accounts(
@@ -55,7 +55,9 @@ def ask_question(
         answer: str,
         user: str,
         quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
+        rate: int = typer.Option(random.randint(1,99) * PERCENT),
+        auction_end_date: int = typer.Option(30),
+        market_end_date: int = typer.Option(50)
     ):
     """
     create a question in IPFS
@@ -71,7 +73,9 @@ def ask_question(
                 answer,
                 user,
                 quantity,
-                rate
+                rate,
+                auction_end_date,
+                market_end_date
             )
 
 @app.command()

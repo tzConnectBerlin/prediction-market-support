@@ -4,11 +4,8 @@ from pathlib import Path
 from subprocess import Popen, PIPE
 from time import sleep
 
-import pytest
-import requests
 from pytezos import pytezos, ContractInterface, Key, OperationResult
 from requests.exceptions import ConnectionError
-from unittest import TestCase
 
 ligo_cmd = (
         f'docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.7.1 "$@"'
@@ -87,24 +84,23 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
             contract_id = metadata['operation_result']['originated_contracts'][0]
             return contract_id
 
-class TestEx():
-    def __init__(self):
-        self.setup()
 
-    def setup(self):
-        print("compiling contract...")
-        contract = compile_contract()
-        self.contract = ContractInterface.from_michelson(contract).using(shell=shell, key=owner)
-        self.contract.using(shell=shell, key=key)
-        self.contract.originate(balance=5000000)
-        print("originating contract...")
-        payload = client.origination(
-                self.contract.script()
-        ).fill(
-                counter=None, branch_offset=1
-        ).sign().inject()
-        operation_hash = payload['hash']
-        contract_id = get_contract_id(client, 2, operation_hash)
-        print(contract_id)
+def setup_contract():
+    print("compiling contract...")
+    contract = compile_contract()
+    contract = ContractInterface.from_michelson(contract).using(shell=shell, key=owner)
+    contract.using(shell=shell, key=key)
+    contract.originate(balance=5000000)
+    print("originating contract...")
+    payload = client.origination(
+        contract.script()
+    ).fill(
+        counter=None, branch_offset=1
+    ).sign().inject()
+    print("contract was originated")
+    operation_hash = payload['hash']
+    contract_id = get_contract_id(client, 2, operation_hash)
+    print(contract_id)
+    return(contract_id)
 
-TestEx()
+setup_contract()
