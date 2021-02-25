@@ -11,9 +11,6 @@ import ipfshttpclient
 import pytz
 from pytezos import pytezos
 
-from utils import summary
-from utils.utils import get_stablecoin, get_public_key
-
 from src.utils import summary
 from src.utils.utils import get_stablecoin, get_public_key
 
@@ -57,7 +54,8 @@ class Support:
         """
         print(f"Trying to activate account of user {user}: ", end='')
         try:
-            self.accounts[user].activate_account().autofill().sign().inject()
+            self.accounts[user].activate_account().autofill(branch_offset=1) \
+                    .sign().inject()
             print(f"account of {user} was activated")
         except Exception as e:
             print(e)
@@ -93,7 +91,8 @@ class Support:
         """
         print(f"Trying to reveal account of user {user}: ", end='')
         try:
-            self.accounts[user].reveal().autofill().sign().inject()
+            self.accounts[user].reveal().autofill(branch_offset=1) \
+                    .sign().inject()
             print(f" account of user {user} was revealed")
         except Exception:
             print(f"account of user {user} was not revealed")
@@ -146,7 +145,7 @@ class Support:
             'quantity': quantity,
             'question': ipfs_hash,
             'rate': rate
-        }).as_transaction().autofill().sign().inject()
+        }).as_transaction().autofill(branch_offset=1).sign().inject()
         print(f"Created market {ipfs_hash} in PM contract")
         return ipfs_hash
 
@@ -161,15 +160,12 @@ class Support:
         user address that will receive the funds
         """
         admin_account = summary.admin_account()
-        ##Got the stablecoin ?? Rethink the question??
-        ####Check if the account is filled (check the balancebefore)
-        ####With the correct value
         stablecoin = get_stablecoin(admin_account, self.contract)
         stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),
             'value': value
-        }).as_transaction().autofill().sign().inject()
+        }).as_transaction().autofill(branch_offset=1).sign().inject()
 
     def bid_auction(
             self,
@@ -193,7 +189,7 @@ class Support:
                 'rate': rate
         }
         result = self.pm_contracts[user].bid(_data).as_transaction() \
-            .autofill(gas_reserve=200000).sign().inject()
+            .autofill(gas_reserve=200000, branch_offset=1).sign().inject()
         print(result)
         return result
 
@@ -206,7 +202,7 @@ class Support:
         """
         #####Check if the contract is close
         self.pm_contracts[user].closeAuction(ipfs_hash).as_transaction() \
-                .autofill().sign().inject()
+                .autofill(branch_offset=1).sign().inject()
     
     def buy_token(
             self,
@@ -227,7 +223,7 @@ class Support:
                 token_type,
                 coin_quantity,
                 user
-            ).as_transaction().autofill().sign().inject()
+            ).as_transaction().autofill(branch_offset=1).sign().inject()
 
     def close_market(
             self,
@@ -238,7 +234,7 @@ class Support:
         self.pm_contracts[user].close_market(
             question,
             is_yes
-        ).as_transaction().autofill.sign().inject()
+        ).as_transaction().autofill(branch_offset=1).sign().inject()
     
 
 """
@@ -278,4 +274,4 @@ def transfer_stablecoin_to_user(
         'from': src,
         'to': dest,
         'value': value
-    }).as_transaction().autofill().sign().inject()
+    }).as_transaction().autofill(branch_offset=1).sign().inject()
