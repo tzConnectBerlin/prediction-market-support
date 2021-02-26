@@ -13,7 +13,7 @@ import typer
 
 ##### Local Script
 from src.utils import summary
-from src.support.support import Support, transfer_stablecoin
+from src.support.support import Support
 
 PERCENT = 10000000000000000
 
@@ -155,6 +155,25 @@ def close_auction(ipfs_hash: str):
     ipfs_hash: the hash of the concerned contract
     """
     support.close_auction(ipfs_hash)
+
+@app.command()
+def close_market(
+        ipfs_hash: str,
+        token_type: bool = True,
+        user: str
+    ):
+    """
+    close the market
+
+    ipfs_hash: the hash of the concerned market
+    token_type: type of the token
+    user: owner of the market
+    """
+    support.close_market(
+            ipfs_hash,
+            token_type,
+            user
+    )
 
 if __name__ == "__main__":
     app()

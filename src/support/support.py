@@ -10,9 +10,18 @@ from datetime import datetime, timedelta
 import ipfshttpclient
 import pytz
 from pytezos import pytezos
+from pytezos.rpc.node import RpcError
 
 from src.utils import summary
 from src.utils.utils import get_stablecoin, get_public_key
+
+def submit_transaction(transaction, account, count=None, tries=None):
+    transaction.autofill(counter=count,branch_offset=1).sign().inject()
+    #try: 
+    #except RpcError as e:
+    #    error_type = e[0][id]
+    #    if error_type == 'proto.008-PtEdo2Zk.contract.counter_in_the_future':
+    #    operation.as_transaction().autofill(counter=count,branch_offset=1).sign().inject()
 
 class Support:
     """
@@ -48,19 +57,6 @@ class Support:
                     self.contract
             )
 
-    def activate_user(self, user: str):
-        """
-        Activate user
-        """
-        print(f"Trying to activate account of user {user}: ", end='')
-        try:
-            self.accounts[user].activate_account().autofill(branch_offset=1) \
-                    .sign().inject()
-            print(f"account of {user} was activated")
-        except Exception as e:
-            print(e)
-            print(f"account of user {user} was not activated")
-
     def import_user(self, user: str):
         """
         Import_user
@@ -85,16 +81,31 @@ class Support:
         )
         print(f"account of {user} was imported")
 
+    def activate_user(self, user: str):
+        """
+        Activate user
+        """
+        print(f"Trying to activate account of user {user}: ", end='')
+        try:
+            operation = self.accounts[user].activate_account()
+            submit_transaction(operation, self.accounts[user])
+            print(f"account of {user} was activated")
+        except Exception as e:
+            print(e)
+            print(f"account of user {user} was not activated")
+
+
     def reveal_user(self, user: str):
         """
         Reveal user
         """
         print(f"Trying to reveal account of user {user}: ", end='')
         try:
-            self.accounts[user].reveal().autofill(branch_offset=1) \
-                    .sign().inject()
+            operation = self.accounts[user].reveal()
+            submit_transaction(operation, self.accounts[user])
             print(f" account of user {user} was revealed")
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f"account of user {user} was not revealed")
 
     def get_account(self, user: str):
@@ -110,8 +121,8 @@ class Support:
         user: str,
         quantity: int,
         rate: int,
-        auction_end_date: int,
-        market_end_date: int
+        auction_end_date: int = 5,
+        market_end_date: int = 10
         ):
         """
         Create a question in IPFS
@@ -139,13 +150,14 @@ class Support:
         ipfs_hash = ipfs.add_str(json.dumps(param))
         print(f"Created hash {ipfs_hash}")
         print(ipfs.get_json(ipfs_hash))
-        self.pm_contracts[user].createQuestion({
+        operation = self.pm_contracts[user].createQuestion({
             'auction_end': int(auction_end_date.timestamp()),
             'market_close': int(market_close_date.timestamp()),
             'quantity': quantity,
             'question': ipfs_hash,
             'rate': rate
-        }).as_transaction().autofill(branch_offset=1).sign().inject()
+        })
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
         print(f"Created market {ipfs_hash} in PM contract")
         return ipfs_hash
 
@@ -161,18 +173,19 @@ class Support:
         """
         admin_account = summary.admin_account()
         stablecoin = get_stablecoin(admin_account, self.contract)
-        stablecoin.transfer({
+        operation = stablecoin.transfer({
             'from': get_public_key(admin_account),
             'to': get_public_key(self.get_account(user)),
             'value': value
-        }).as_transaction().autofill(branch_offset=1).sign().inject()
+        })
+        submit_transaction(operation.as_transaction(), admin_account)
 
     def bid_auction(
             self,
             ipfs_hash: str,
             user: str,
-            quantity: int,
-            rate: int
+            quantity: int = 5,
+            rate: int = 10
         ):
         """
         Launch a bid on an auction
@@ -188,10 +201,8 @@ class Support:
                 'question': ipfs_hash,
                 'rate': rate
         }
-        result = self.pm_contracts[user].bid(_data).as_transaction() \
-            .autofill(gas_reserve=200000, branch_offset=1).sign().inject()
-        print(result)
-        return result
+        operation = self.pm_contracts[user].bid(_data)
+        result = submit_transaction(operation.as_transaction(), self.pm_contracts[user])
 
 
     def close_auction(self, ipfs_hash: str, user):
@@ -199,42 +210,52 @@ class Support:
         Close the auction
 
         ipfs_hash: the hash of the concerned contract
+        user: user closing the auction (owner)
         """
         #####Check if the contract is close
-        self.pm_contracts[user].closeAuction(ipfs_hash).as_transaction() \
-                .autofill(branch_offset=1).sign().inject()
+        operation = self.pm_contracts[user].closeAuction(ipfs_hash)
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
     
     def buy_token(
             self,
             question: str,
             token_type: bool,
-            coin_quantity: int,
+            token_quantity: int,
             user: str):
         """
         Buy the token
 
-        question:
-        token_type;
-        coin_quantity:
-        user
+        question: Concerned question
+        token_type: type of tokens (yes or no)
+        token_quantity: quantity of tokens to buy
+        user: user buying the tokens
         """
-        self.pm_contracts[user].buyToken(
+        operation = self.pm_contracts[user].buyToken(
                 question,
                 token_type,
-                coin_quantity,
+                token_quantity,
                 user
-            ).as_transaction().autofill(branch_offset=1).sign().inject()
+            )
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
 
     def close_market(
             self,
             question: str,
-            is_yes: bool,
+            token_type: bool,
             user: str
         ):
-        self.pm_contracts[user].closeMarket(
+        """
+        Close the market
+
+        ipfs_hash: the hash of the concerned contract
+        token_type: type of tokens (yes or no)
+        user: user closing the market (owner)
+        """
+        operation = self.pm_contracts[user].closeMarket(
             question,
-            is_yes
-        ).as_transaction().autofill(branch_offset=1).sign().inject()
+            token_type
+        )
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
     
     def burn(
             self,
@@ -242,34 +263,25 @@ class Support:
             token_quantity: int,
             user: str
         ):
-        self.pm_contracts[user].burn(
+        """
+        Burn the token
+
+        question: Concerned question
+        coin_quantity: quantity of tokens to burn
+        user: user buying the tokens
+        """
+        operation = self.pm_contracts[user].burn(
                 question,
                 token_quantity
-        ).as_transaction().autofill(branch_offset=1).sign().inject()
+        )
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
 
     def claim_winnings(
             self,
             question: str,
             user: str
         ):
-        self.pm_contracts[user].claimWinnings(
+        operation = self.pm_contracts[user].claimWinnings(
                 question
-        ).as_transaction(branch_offset=1).autofill.sign().inject()
-
-def transfer_stablecoin_to_user(
-        dest: str,
-        src: str,
-        value: int
-    ):
-    """
-    Transfer a certain amount of stablcoins towards an user address
-
-    user address that will receive the funds
-    """
-    admin_account = summary.admin_account()
-    stablecoin = get_stablecoin(admin_account, self.contract)
-    stablecoin.transfer({
-        'from': src,
-        'to': dest,
-        'value': value
-    }).as_transaction().autofill(branch_offset=1).sign().inject()
+        )
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user])

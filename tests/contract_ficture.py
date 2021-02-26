@@ -53,6 +53,16 @@ def compile_storage():
     result = run_command(compile_command)
     return result
 
+def launch_sandbox():
+    command = "sh test/start_sandbox.sh"
+    result = run_command(compile_command)
+    return result
+
+def stop_sandbox():
+    command = "sh test/stop_sandbox.sh"
+    result = run_command(compile_command)
+    return result
+
 def wait_next_block(block_time, client):
     header = client.shell.head.header()
     block_hash = client.shell.head.hash()
