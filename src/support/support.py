@@ -231,13 +231,11 @@ class Support:
             is_yes: bool,
             user: str
         ):
-        self.pm_contracts[user].close_market(
+        self.pm_contracts[user].closeMarket(
             question,
             is_yes
         ).as_transaction().autofill(branch_offset=1).sign().inject()
     
-
-"""
     def burn(
             self,
             question: str,
@@ -247,7 +245,7 @@ class Support:
         self.pm_contracts[user].burn(
                 question,
                 token_quantity
-            ).as_transaction().autofill.sign.inject()
+        ).as_transaction().autofill(branch_offset=1).sign().inject()
 
     def claim_winnings(
             self,
@@ -256,8 +254,8 @@ class Support:
         ):
         self.pm_contracts[user].claimWinnings(
                 question
-            ).as_transaction().autofill.sign().inject()
-"""
+        ).as_transaction(branch_offset=1).autofill.sign().inject()
+
 def transfer_stablecoin_to_user(
         dest: str,
         src: str,
