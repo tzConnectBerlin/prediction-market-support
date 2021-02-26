@@ -22,4 +22,4 @@ You can set your own questions, or use a randomly generated one. Randomly genera
 
 Auction end time is now + 5 minutes. Market end time is now + 10 minutes.
 
-There is a command line interface that use ./cli.py. The auction end time through the cli is + 30 min and the market end time us now + 60
+There is a command line interface that use ./cli.py.

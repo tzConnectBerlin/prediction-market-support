@@ -159,8 +159,8 @@ def close_auction(ipfs_hash: str):
 @app.command()
 def close_market(
         ipfs_hash: str,
-        token_type: bool = True,
-        user: str
+        user: str,
+        token_type: bool = True
     ):
     """
     close the market
