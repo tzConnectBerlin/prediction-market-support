@@ -146,21 +146,22 @@ def random_bids(
                 quantity,
                 rate
             )
+        print("\n")
 
 @app.command()
-def close_auction(ipfs_hash: str):
+def close_auction(ipfs_hash: str, user: str):
     """
     close the auction
 
     ipfs_hash: the hash of the concerned contract
     """
-    support.close_auction(ipfs_hash)
+    support.close_auction(ipfs_hash, user)
 
 @app.command()
 def close_market(
         ipfs_hash: str,
         user: str,
-        token_type: bool = True
+        token_type: bool = typer.Option(True)
     ):
     """
     close the market

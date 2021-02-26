@@ -117,8 +117,8 @@ def test_buy_token():
     time.sleep(3)
     balance = stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
     amount = rand() * 100
-    support_instance.buyToken(ipfs_hash, True, amount, "donald")
+    support_instance.buy_token(ipfs_hash, True, amount, "donald")
     time.sleep(3)
     new_balance = stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
     assert stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
-    assert balance["balance"] + amount == new_balance["balance"]
+    assert balance["balance"] - amount == new_balance["balance"]

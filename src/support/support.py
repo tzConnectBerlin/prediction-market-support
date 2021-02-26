@@ -233,8 +233,7 @@ class Support:
         operation = self.pm_contracts[user].buyToken(
                 question,
                 token_type,
-                token_quantity,
-                user
+                token_quantity
             )
         submit_transaction(operation.as_transaction(), self.pm_contracts[user])
 
