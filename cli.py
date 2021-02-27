@@ -12,6 +12,7 @@ import configparser
 import typer
 
 ##### Local Script
+from src.accounts import Accounts
 from src.utils import summary
 from src.support import Support
 
@@ -20,21 +21,11 @@ PERCENT = 10000000000000000
 ##################
 # Setup
 ##################
-users = [
-    'alice',
-    'ava',
-    'pascal'
-]
 
 app = typer.Typer()
 
-support = Support(users, config_file="./oracle.ini")
-
-@app.callback()
-def main():
-    """
-    High level option for the tool
-    """
+accounts = Accounts("http://localhost:20000")#, folder=None)
+support = Support(accounts, config_file="./oracle.ini")
 
 @app.command()
 def manage_accounts(
@@ -45,7 +36,7 @@ def manage_accounts(
     """
     management of accounts in the user folder
     """
-    with typer.progressbar(users) as progress:
+    with typer.progressbar(accounts.names()) as progress:
         for user in progress:
             if import_accounts:
                 support.import_user(user)
@@ -93,7 +84,7 @@ def fund_stablecoin(
 
     value: the amont of tezos funded
     """
-    for user in users:
+    for user in accounts.names():
         print(f"Transferring to {user}")
         support.transfer_stablecoin_to_user(
             user,
@@ -138,13 +129,13 @@ def random_bids(
     ):
     """
     launch random bid on a auction from
-    all of the user contained in the users folder
+    all of the user contained in the accounts.names() folder
 
     ipfs_hash: Contract on which the bid are made
     """
-    if len(users) == 0:
-        print("Please add some users before using this functionality")
-    with typer.progressbar(users) as progress:
+    if len(accounts.names()) == 0:
+        print("Please add some accounts.names() before using this functionality")
+    with typer.progressbar(accounts.names()) as progress:
         for user in progress:
             support.bid_auction(
                 ipfs_hash,
@@ -181,6 +172,13 @@ def close_market(
             token_type,
             user
     )
+
+@app.callback()
+def main():
+    """
+    High level option for the tool
+    """
+    return
 
 if __name__ == "__main__":
     app()

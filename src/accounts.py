@@ -19,7 +19,10 @@ class Accounts:
 
     def __getitem__(self, account_name: str):
         return self.accounts[account_name]
-
+    
+    def names(self):
+        return list(self.accounts.keys())
+    
     def import_from_folder(self, accounts_folder):
         """
         Get all the account data from the account folder account
