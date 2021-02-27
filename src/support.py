@@ -36,8 +36,7 @@ class Support:
         except Exception:
             print("Missing oracle.ini file")
         self.contract = self.config['Tezos']['pm_contract']
-        self.accounts = accounts
-        self.pm_contracts = accounts.get_contracts(self.contract)
+        self.pm_contracts = accounts.contract_accounts(self.contract)
 
     def ask_question(
         self,
@@ -98,7 +97,7 @@ class Support:
         stablecoin = get_stablecoin(admin_account, self.contract)
         operation = stablecoin.transfer({
             'from': get_public_key(admin_account),
-            'to': get_public_key(self.accounts.get_account(user)),
+            'to': get_public_key(self.accounts[user]),
             'value': value
         })
         submit_transaction(operation.as_transaction(), admin_account)

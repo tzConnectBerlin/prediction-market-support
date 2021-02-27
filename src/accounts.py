@@ -95,7 +95,7 @@ class Accounts:
         """
         return self.accounts[account_name]
 
-    def get_contracts(self, contract: str):
+    def contract_accounts(self, contract: str):
         contract_clients = {}
         for account_name in self.accounts:
             contract_clients[account_name] = self.accounts[account_name].contract(contract)
