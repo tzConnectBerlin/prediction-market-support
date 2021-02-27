@@ -2,19 +2,23 @@ import os
 import subprocess
 
 import glob
-from pytezos import pytezos
+from pytezos import pytezos, Key
+
+from src.utils.utils import submit_transaction
 
 class Accounts:
     """
     User Class for Handling tezos accounts
     """
 
-    def __init__(self, folder="users", endpoint="http://localhost:2000"):
+    def __init__(self, endpoint, folder="users"):
         self.accounts = {}
         self.endpoint = endpoint
-        print("folder", folder)
         if folder != None:
             self.import_from_folder(folder)
+
+    def __getitem__(self, account_name: str):
+        return self.accounts[account_name]
 
     def import_from_folder(self, accounts_folder):
         """
@@ -26,25 +30,30 @@ class Accounts:
             name = os.path.splitext(file_name)[0]
             self.import_from_file(account_file, name)
 
-    def import_from_file(self, account_file: str, account_name: str):
-        print(account_file, account_name)
+    def import_from_file(self, account_data: str, account_name: str):
         account = pytezos.using(
-            key = account_file,
+            key = account_data,
             shell = self.endpoint,
         )
         if account_name in self.accounts:
             print(f"user {account_name} as aready been imported")
             return
-        print(f"user {account_name} as aready been imported")
         self.accounts[account_name] = account
+
+    def import_from_tezos_client(self, account_name: str):
+        """
+        Import account from tezos client
+        """
+        key = Key.from_alias(account_name)
+        self.import_from_file(key.public_key_hash(), account_name)
+        
 
     def import_to_tezos_client(self, account_name: str):
         """
-        Import_account
+        Import_account to tezos client
         """
         env = dict(os.environ)
         host = self.endpoint
-        print(self.account)
         subprocess.run(
             [
                 'tezos-client',
@@ -65,8 +74,9 @@ class Accounts:
         """
         Activate account
         """
-        operation = self.accounts[account_name].activate_account()
-        submit_transaction(operation, self.accounts[account_name])
+        if self.accounts[account_name].balance() == 0:
+            operation = self.accounts[account_name].activate_account()
+            submit_transaction(operation, self.accounts[account_name])
 
 
     def reveal_account(self, account_name: str):
@@ -84,6 +94,6 @@ class Accounts:
 
     def get_contracts(self, contract: str):
         contract_clients = {}
-        for account in self.accounts:
-            self.accounts(contract)
+        for account_name in self.accounts:
+            contract_clients[account_name] = self.accounts[account_name].contract(contract)
         return contract_clients

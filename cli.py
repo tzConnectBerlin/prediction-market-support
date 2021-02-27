@@ -13,7 +13,7 @@ import typer
 
 ##### Local Script
 from src.utils import summary
-from src.support.support import Support
+from src.support import Support
 
 PERCENT = 10000000000000000
 
