@@ -30,6 +30,12 @@ app = typer.Typer()
 
 support = Support(users, config_file="./oracle.ini")
 
+@app.callback()
+def main():
+    """
+    High level option for the tool
+    """
+
 @app.command()
 def manage_accounts(
         activate: bool = typer.Option(False, "--activate", "-a"),

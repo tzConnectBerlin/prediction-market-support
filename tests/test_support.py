@@ -43,16 +43,14 @@ def test_users_is_imported():
     assert key.secret_key() == "edsk2sRikkzrGKnRC28UhvJsKAM19vuv4LtCRViyjkm2jMyAxiCMuG"
 
 def test_user_is_activated():
-    try:
-        support_instance.activate_user("donald")
-    except Exception as e:
-        assert False
+    support_instance.activate_user("donald")
+    account = support_instance.get_account("donald")
+    assert account.balance() > 0
 
 def test_user_is_revealed():
-    try:
-        support_instance.reveal_user("donald")
-    except Exception as e:
-        assert False
+    finance_account("donald")
+    support_instance.reveal_user("donald")
+    #test with simple operation if user revealed somewhere
 
 def test_get_user_account():
     account = support_instance.get_account("donald")
@@ -122,3 +120,15 @@ def test_buy_token():
     new_balance = stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
     assert stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
     assert balance["balance"] - amount == new_balance["balance"]
+
+def test_burn_token():
+    finance_account("donald")
+    ipfs_hash = support_instance.ask_question("whl", "wha", "donald", 300, 50, 1, 2)
+    time.sleep(3)
+    balance = stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
+    amount = rand() * 100
+    support_instance.burn(ipfs_hash, amount, "donald")
+    time.sleep(3)
+    new_balance = stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
+    assert stablecoins.storage["ledger"]["tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"]()
+    assert balance["balance"] == new_balance["balance"] + amount

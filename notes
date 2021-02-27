@@ -1,1 +1,16 @@
-https://gitlab.com/tezos/flextesa/-/blob/master/src/lib/interactive_mini_network.ml#L180
+Check if import works without calling the Tezos client
+Find a way to check if key is revealed
+Check if activated
+Have proper parsed error message for user
+Add more options for timestamp management
+Add function to display balance of user
+add function to display bids
+add proper error message
+add proper text for things happening
+add direct import from a json file faucet file
+check if there is a class level catch possible for error management
+***remove message from support file
+parametrized tests
+add complete documentation for all functions
+add optional oracle file ini
+Create user logic
