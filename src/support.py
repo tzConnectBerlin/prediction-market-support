@@ -14,12 +14,6 @@ from src.accounts import Accounts
 from src.utils import summary
 from src.utils.utils import get_public_key, get_stablecoin, submit_transaction
 
-    #try: 
-    #except RpcError as e:
-    #    error_type = e[0][id]
-    #    if error_type == 'proto.008-PtEdo2Zk.contract.counter_in_the_future':
-    #    operation.as_transaction().autofill(counter=count,branch_offset=1).sign().inject()
-
 class Support:
     """
     Support Class
@@ -37,6 +31,7 @@ class Support:
             print("Missing oracle.ini file")
         self.contract = self.config['Tezos']['pm_contract']
         self.pm_contracts = accounts.contract_accounts(self.contract)
+        print(self.pm_contracts)
 
     def ask_question(
         self,

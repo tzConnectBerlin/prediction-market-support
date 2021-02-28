@@ -19,7 +19,10 @@ class Accounts:
 
     def __getitem__(self, account_name: str):
         return self.accounts[account_name]
-    
+
+    def __contains__(self, key):
+        return key in self.accounts 
+        
     def names(self):
         return list(self.accounts.keys())
     

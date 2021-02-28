@@ -26,7 +26,8 @@ def finance_account(user: str):
 def test_user_is_imported_from_folder(input):
     accounts = Accounts(test_shell, folder=None)
     accounts.import_from_folder("tests/users")
-    assert input in accounts
+    accounts["donald"]
+    assert "donald" in accounts
 
 @pytest.mark.parametrize("input", ["donald"])
 def test_user_is_imported_from_file(input):
