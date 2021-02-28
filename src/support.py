@@ -1,5 +1,5 @@
 """
-Support management helper
+Market management helper
 """
 import configparser
 import json
@@ -14,15 +14,15 @@ from src.accounts import Accounts
 from src.utils import summary
 from src.utils.utils import get_public_key, get_stablecoin, submit_transaction
 
-class Support:
+class Market:
     """
-    Support Class
+    Market Class
     """
     def __init__(self, accounts: Accounts, config_file="./oracle.ini"):
         """
-        Create a Support object
+        Create a Market object
 
-        users: List of users who require support
+        users: List of users who require market
         """
         self.config = configparser.ConfigParser()
         try:

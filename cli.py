@@ -1,6 +1,6 @@
 #!python
 """
-Tooling for prediction markets support
+Tooling for prediction markets market
 """
 
 import json
@@ -15,7 +15,7 @@ import typer
 ##### Local Script
 from src.accounts import Accounts
 from src.utils import summary
-from src.support import Support
+from src.market import Market
 
 PERCENT = 10000000000000000
 
@@ -27,7 +27,7 @@ app = typer.Typer()
 
 state = {
         "accounts": Accounts("http://localhost:20000", folder=None),
-        "support": None
+        "market": None
 }
 
 @app.command()
@@ -51,7 +51,7 @@ def manage_accounts(
             if reveal:
                 accounts.reveal_account(user)
             print("\n")
-    support = Support(accounts, config_file="./oracle.ini")
+    market = Market(accounts, config_file="./oracle.ini")
 
 @app.command()
 def ask_question(
@@ -72,7 +72,7 @@ def ask_question(
     quantity: integer representing the quantity of stable coin generated
     rate: rate
     """
-    state["support"].ask_question(
+    state["market"].ask_question(
                 question,
                 answer,
                 user,
@@ -93,7 +93,7 @@ def fund_stablecoin(
     """
     for user in accounts.names():
         print(f"Transferring to {user}")
-        state["support"].transfer_stablecoin_to_user(
+        state["market"].transfer_stablecoin_to_user(
             user,
             value,
         )
@@ -109,7 +109,7 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
-    state["support"].transfer_stablecoin_to_user(dest, value)
+    state["market"].transfer_stablecoin_to_user(dest, value)
 
 @app.command()
 def bid_auction(
@@ -126,7 +126,7 @@ def bid_auction(
     quantity: Integer representing quantity of stable coins bid during the auction
     rate: What is rate?
     """
-    state["support"].bid_auction(ipfs_hash, user, quantity, rate)
+    state["market"].bid_auction(ipfs_hash, user, quantity, rate)
 
 @app.command()
 def random_bids(
@@ -144,7 +144,7 @@ def random_bids(
         print("Please add some accounts.names() before using this functionality")
     with typer.progressbar(accounts.names()) as progress:
         for user in progress:
-            state["support"].bid_auction(
+            state["market"].bid_auction(
                 ipfs_hash,
                 user,
                 quantity,
@@ -159,7 +159,7 @@ def close_auction(ipfs_hash: str, user: str):
 
     ipfs_hash: the hash of the concerned contract
     """
-    state["support"].close_auction(ipfs_hash, user)
+    state["market"].close_auction(ipfs_hash, user)
 
 @app.command()
 def close_market(
@@ -174,7 +174,7 @@ def close_market(
     token_type: type of the token
     user: owner of the market
     """
-    state["support"].close_market(
+    state["market"].close_market(
             ipfs_hash,
             token_type,
             user
@@ -192,7 +192,7 @@ def main(
            account_name = typer.prompt("Please associate a name for this account")
            state["accounts"].import_from_file(account, account_name)
            typer.echo(f"{account_name} was imported")
-    state['support'] = Support(state["accounts"], config_file="./oracle.ini")
+    state['market'] = Market(state["accounts"], config_file="./oracle.ini")
     print(state)
 
 if __name__ == "__main__":
