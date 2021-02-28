@@ -18,7 +18,8 @@ class Accounts:
             self.import_from_folder(folder)
 
     def __getitem__(self, account_name: str):
-        return self.accounts[account_name]
+        if account_name in self.accounts:
+            return self.accounts[account_name]
 
     def __contains__(self, key):
         return key in self.accounts 

@@ -25,9 +25,9 @@ class Market:
 
         users: List of users who require market
         """
-        self.contract = self.config['Tezos']['pm_contract']
+        self.config = config
+        self.contract = self.config['contract']
         self.pm_contracts = accounts.contract_accounts(self.contract)
-        print(self.pm_contracts)
 
     def ask_question(
         self,
@@ -59,7 +59,7 @@ class Market:
                 'question': question,
                 'yesAnswer': answer,
         }
-        ipfs = ipfshttpclient.connect(self.config['IPFS']['server'])
+        ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
         #print(f"Created hash {ipfs_hash}")
         #print(ipfs.get_json(ipfs_hash))

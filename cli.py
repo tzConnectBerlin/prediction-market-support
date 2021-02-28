@@ -14,6 +14,7 @@ import typer
 
 ##### Local Script
 from src.accounts import Accounts
+from src.config import Config
 from src.utils import summary
 from src.market import Market
 
@@ -27,6 +28,7 @@ app = typer.Typer()
 
 state = {
         "accounts": Accounts("http://localhost:20000", folder=None),
+        "config": Config(config_file="oracle.ini"),
         "market": None
 }
 
@@ -192,7 +194,7 @@ def main(
            account_name = typer.prompt("Please associate a name for this account")
            state["accounts"].import_from_file(account, account_name)
            typer.echo(f"{account_name} was imported")
-    state['market'] = Market(state["accounts"], config_file="./oracle.ini")
+    state['market'] = Market(state["accounts"], state["config"])
     print(state)
 
 if __name__ == "__main__":

@@ -5,22 +5,28 @@ from pytezos import pytezos
 class Config:
     def __init__(self,
             config_file="oracle.ini",
-            contract: str = None,
-            endpoint: str = None,
+            contract: str = "",
+            endpoint: str = "",
             ipfs_server: str = None,
             admin_account_key: str = None
         ):
         """
         Init a config file
         """
+        self.data={}
         if config_file is not None:
-                config = configparser.ConfigParser()
+            config = configparser.ConfigParser()
             try:
                 config.read(config_file)
             except Exception:
                 print("Missing oracle.ini file")
-        self.contract = config['Tezos']['pm_contract'] if contract else None
-        self.endpoint = config['Tezos']['endpoint'] if endpoint else None
-        self.ipfs_server = config['IPFS']['server'] if ipfs_server else None
-        privkey = config['Tezos']['privkey'] if admin_account_key else None
-        self.admin_account = pytezos(key=privkey, shell=self.endpoint)
+        self.data["contract"] = contract or config['Tezos']['pm_contract']
+        self.data["endpoint"] = endpoint or config['Tezos']['endpoint']
+        self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
+        privkey = admin_account_key or config['Tezos']['privkey']
+        self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
+
+    def __getitem__(self, key):
+        if key in self.data:
+            return self.data[key]
+        return none
