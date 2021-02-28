@@ -11,6 +11,7 @@ from pytezos import pytezos
 from pytezos.rpc.node import RpcError
 
 from src.accounts import Accounts
+from src.config import Config
 from src.utils import summary
 from src.utils.utils import get_public_key, get_stablecoin, submit_transaction
 
@@ -18,17 +19,12 @@ class Market:
     """
     Market Class
     """
-    def __init__(self, accounts: Accounts, config_file="./oracle.ini"):
+    def __init__(self, accounts: Accounts, config):
         """
         Create a Market object
 
         users: List of users who require market
         """
-        self.config = configparser.ConfigParser()
-        try:
-            self.config.read(config_file)
-        except Exception:
-            print("Missing oracle.ini file")
         self.contract = self.config['Tezos']['pm_contract']
         self.pm_contracts = accounts.contract_accounts(self.contract)
         print(self.pm_contracts)
