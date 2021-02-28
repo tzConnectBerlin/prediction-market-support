@@ -184,7 +184,11 @@ def close_market(
 
 @app.callback()
 def main(
-        import_accounts: Optional[List[str]] = typer.Option(None)
+        import_accounts: Optional[List[str]] = typer.Option(None),
+        endpoint: str = typer.Option(None, "--endpoint", "-e"),
+        contract: str = typer.Option(None, "--contract", "-c"),
+        admin_key: str = typer.Option(None),
+        config_file: str = typer.Option("oracle.ini")
     ):
     """
     High level option for the tool
@@ -194,8 +198,13 @@ def main(
            account_name = typer.prompt("Please associate a name for this account")
            state["accounts"].import_from_file(account, account_name)
            typer.echo(f"{account_name} was imported")
+    state['config'] = Config(
+            admin_account_key=admin_key,
+            config_file=config_file,
+            contract=contract,
+            endpoint=endpoint
+        )
     state['market'] = Market(state["accounts"], state["config"])
-    print(state)
 
 if __name__ == "__main__":
     app()
