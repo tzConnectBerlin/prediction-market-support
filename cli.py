@@ -52,8 +52,7 @@ def manage_accounts(
                 state["accounts"].activate_account(user)
             if reveal:
                 state["accounts"].reveal_account(user)
-            print("\n")
-    market = Market(accounts, config_file="./oracle.ini")
+    market = Market(state["accounts"], state["config"])
 
 @app.command()
 def ask_question(
