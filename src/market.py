@@ -19,12 +19,13 @@ class Market:
     """
     Market Class
     """
-    def __init__(self, accounts: Accounts, config):
+    def __init__(self, accounts: Accounts, config: Config):
         """
         Create a Market object
 
         users: List of users who require market
         """
+        self.accounts = accounts
         self.config = config
         self.contract = self.config['contract']
         self.pm_contracts = accounts.contract_accounts(self.contract)
@@ -71,7 +72,6 @@ class Market:
             'rate': rate
         })
         submit_transaction(operation.as_transaction(), self.pm_contracts[user])
-        #print(f"Created market {ipfs_hash} in PM contract")
         return ipfs_hash
 
     def transfer_stablecoin_to_user(

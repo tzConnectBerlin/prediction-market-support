@@ -41,17 +41,17 @@ def manage_accounts(
     """
     management of accounts in the user folder
     """
-    with typer.progressbar(accounts.names()) as progress:
+    with typer.progressbar(state["accounts"].names()) as progress:
         for user in progress:
             if import_accounts:
                 if user == None:
                     print("please add user")
                     return
-                accounts.import_to_tezos_client(user)
+                state["accounts"].import_to_tezos_client(user)
             if activate:
-                accounts.activate_account(user)
+                state["accounts"].activate_account(user)
             if reveal:
-                accounts.reveal_account(user)
+                state["accounts"].reveal_account(user)
             print("\n")
     market = Market(accounts, config_file="./oracle.ini")
 
@@ -74,7 +74,7 @@ def ask_question(
     quantity: integer representing the quantity of stable coin generated
     rate: rate
     """
-    state["market"].ask_question(
+    ipfs_hash = state["market"].ask_question(
                 question,
                 answer,
                 user,
@@ -83,6 +83,7 @@ def ask_question(
                 auction_end_date,
                 market_end_date
             )
+    print(f"Created market {ipfs_hash} in PM contract")
 
 @app.command()
 def fund_stablecoin(
@@ -93,8 +94,8 @@ def fund_stablecoin(
 
     value: the amont of tezos funded
     """
-    for user in accounts.names():
-        print(f"Transferring to {user}")
+    for user in state["accounts"].names():
+        print(f"Transferring stablecoin to {user}")
         state["market"].transfer_stablecoin_to_user(
             user,
             value,
@@ -111,6 +112,7 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
+    print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(dest, value)
 
 @app.command()
@@ -128,6 +130,7 @@ def bid_auction(
     quantity: Integer representing quantity of stable coins bid during the auction
     rate: What is rate?
     """
+    print(f"bidding auction for {user}")
     state["market"].bid_auction(ipfs_hash, user, quantity, rate)
 
 @app.command()
@@ -138,13 +141,14 @@ def random_bids(
     ):
     """
     launch random bid on a auction from
-    all of the user contained in the accounts.names() folder
+    all of the user contained in the state["accounts"].names() folder
 
     ipfs_hash: Contract on which the bid are made
     """
-    if len(accounts.names()) == 0:
-        print("Please add some accounts.names() before using this functionality")
-    with typer.progressbar(accounts.names()) as progress:
+    if len(state["accounts"].names()) == 0:
+        print("Please add some accounts before using this functionality")
+    print("placing random bids")
+    with typer.progressbar(state["accounts"].names()) as progress:
         for user in progress:
             state["market"].bid_auction(
                 ipfs_hash,
@@ -161,6 +165,7 @@ def close_auction(ipfs_hash: str, user: str):
 
     ipfs_hash: the hash of the concerned contract
     """
+    print(f"closing action {ipfs_hash} for {user}")
     state["market"].close_auction(ipfs_hash, user)
 
 @app.command()
@@ -176,6 +181,7 @@ def close_market(
     token_type: type of the token
     user: owner of the market
     """
+    print(f"closing market {ipfs_hash}")
     state["market"].close_market(
             ipfs_hash,
             token_type,

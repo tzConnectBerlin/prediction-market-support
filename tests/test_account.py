@@ -11,14 +11,13 @@ from src.utils import summary
 
 test_shell="http://localhost:20000"
 admin_account_key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
-client = pytezos.using(
+
+def finance_account(key: str):
+    client = pytezos.using(
         shell=test_shell,
         key=admin_account_key
-)
-
-
-def finance_account(user: str):
-    client.transaction("tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", amount=Decimal(3)) \
+    )
+    client.transaction(key, amount=Decimal(1)) \
             .autofill().sign().inject()
     time.sleep(3)
 
@@ -50,21 +49,27 @@ def test_users_is_imported_from_tezos_client(input):
     accounts.import_from_tezos_client(input)
     assert input in accounts
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_user_is_activated(input):
-    finance_account(input)
+@pytest.mark.parametrize("input,key", [
+    ("donald", "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2")
+])
+def test_user_is_activated(input,key):
+    finance_account(key)
     accounts = Accounts(test_shell, folder="tests/users")
     accounts.activate_account(input)
     assert accounts[input].balance() > 0
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_user_is_revealed(input):
-    finance_account(input)
+@pytest.mark.parametrize("input,key", [
+    ("donald", "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2")
+ ])
+def test_user_is_revealed(input,key):
+    finance_account(key)
     accounts = Accounts(test_shell, folder="tests/users")
     accounts.activate_account(input)
     accounts.reveal_account(input)
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_get_accounts(input):
+@pytest.mark.parametrize("input,contract_id", [
+    ("donald", "KT18r4ngbDwJh7UHyNwchKxHnRK3TzBbcATh")
+])
+def test_get_accounts(input, contract_id):
     accounts = Accounts(test_shell, folder="tests/users")
-    contract = accounts.contract_accounts(input)
+    contract = accounts.contract_accounts(contract_id)
