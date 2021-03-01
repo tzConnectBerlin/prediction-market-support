@@ -27,7 +27,7 @@ PERCENT = 10000000000000000
 app = typer.Typer()
 
 state = {
-        "accounts": Accounts("http://localhost:20000", folder=None),
+        "accounts": Accounts("http://localhost:20000", folder="users"),
         "config": Config(config_file="oracle.ini"),
         "market": None
 }

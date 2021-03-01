@@ -16,4 +16,8 @@ def get_stablecoin(account, contract: str):
     return stablecoin_client
 
 def submit_transaction(transaction, account, count=None, tries=None):
-    transaction.autofill(counter=count,branch_offset=1).sign().inject()
+    transaction = transaction.autofill(counter=count,branch_offset=1).sign()
+    try:
+        transaction.inject()
+    except Exception as e:
+        print("error", e)
