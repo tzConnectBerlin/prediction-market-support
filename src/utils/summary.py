@@ -8,7 +8,7 @@ import json
 import urllib.request
 
 config = configparser.ConfigParser()
-config.read('oracle.ini')
+config.read('tests/oracle.ini')
 
 BCD_URL = "https://api.better-call.dev/v1/"
 NETWORK = "edo2net"
@@ -19,8 +19,8 @@ def admin_account():
     import pytezos
     return pytezos.pytezos.using(
         key = pytezos.Key.from_encoded_key(config['Tezos']['privkey']),
-        shell = 'edo2net',
-        )
+        shell = config['Tezos']['endpoint'],
+    )
 
 def load_json(url):
     """ Load JSON from given URL and return as Python object"""
@@ -69,6 +69,7 @@ def get_storage(id):
     url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size=10000"
     js = load_json(url)
     storage = get_storage_internal(js['children'])
+    print(storage)
     return storage
 
 def get_ledger(id):

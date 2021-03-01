@@ -1,8 +1,0 @@
-argparse
-dateparser
-datetime
-flit
-ipfshttpclient
-jq
-pytezos
-wolframalpha

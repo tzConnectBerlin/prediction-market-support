@@ -90,7 +90,7 @@ Checks the query is ready to be answered, else fail
 Sets the current_question in storage to be ipfs_hash
 Returns new storage and a list of 2 operations:
 - the call to the oracle, which should result in a callback to this contract, and
-- a check entrypoint, which ensures the callback has been called.
+- a check entrypoint, which ensures that the callback has been called.
 *)
 let answer (ipfs_hash, storage : string * storage) : operation list * storage =
   let query : query_storage = match Map.find_opt ipfs_hash storage.questions with

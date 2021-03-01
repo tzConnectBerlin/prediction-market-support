@@ -1,0 +1,10 @@
+Check if import works without calling the Tezos client
+Find a way to check if key is revealed
+Have proper parsed error message for user
+Add more options for timestamp management
+Add function to display balance of user
+add function to display bids
+add proper error message
+add proper text for things happening
+check if there is a class level catch possible for error management
+add complete documentation for all functions

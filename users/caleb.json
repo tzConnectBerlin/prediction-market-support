@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "client",
+    "curious",
+    "distance",
+    "mule",
+    "jelly",
+    "snow",
+    "town",
+    "tell",
+    "seek",
+    "square",
+    "scorpion",
+    "gain",
+    "indoor",
+    "cricket",
+    "volume"
+  ],
+  "secret": "46c2736a233b5942189c9e4a1032300f73fda46a",
+  "amount": "65630513095",
+  "pkh": "tz1RyDnnYaX2ws7ELkLqPA2LLky29J8eUeLv",
+  "password": "L2158YEhcD",
+  "email": "vkovyjly.ndujlvhp@tezos.example.org"
+}
