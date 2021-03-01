@@ -19,7 +19,7 @@ class Market:
     """
     Market Class
     """
-    def __init__(self, accounts: Accounts, config):
+    def __init__(self, accounts: Accounts, config: Config):
         """
         Create a Market object
 
