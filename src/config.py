@@ -29,4 +29,4 @@ class Config:
     def __getitem__(self, key):
         if key in self.data:
             return self.data[key]
-        return none
+        return None
