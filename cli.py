@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 """
 Tooling for prediction markets market
 """
