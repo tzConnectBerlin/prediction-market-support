@@ -1,5 +1,6 @@
 import random
 import sys
+from datetime import datetime, timedelta
 from time import sleep
 
 import configparser
@@ -24,11 +25,8 @@ accounts = [
 ]
 
 questions = [
-        ["who", "why", "donald", 1000, 10, 1, 2]
-]
-
-expected = [
-        []
+        ["who", "why", "donald", 300, 50, 0.1, 0.2],
+        ["who", "why", "donald", 300, 50, 1, 2]
 ]
 
 test_data = [
@@ -67,12 +65,16 @@ def test_fund_stablecoin(account, market, data, expected):
 @pytest.mark.parametrize("account,market,data,expected", test_data)
 def test_ask_question(account, market, data, expected):
     finance_account(account["key"])
+    auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
+    market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
     sleep(3)
     question = contract.storage["questions"][ipfs_hash]()
     assert question['total_auction_quantity'] == data[3]
     assert question['state'] == "questionAuctionOpen"
     assert question['owner'] == account["key"]
+    assert question['auction_end'] == int(auction_end)
+    assert question['market_close'] == int(market_close)
 
 @pytest.mark.parametrize("account,market,data,expected", test_data)
 def test_bid_auction(account, market, data, expected):
@@ -90,7 +92,7 @@ def test_close_auction(account, market, data, expected):
     finance_account(account["key"])
     sleep(3)
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
-    sleep(80)
+    sleep(data[5] * 60 + 0.1)
     market.close_auction(ipfs_hash, account["name"])
     sleep(3)
     question = contract.storage["questions"][ipfs_hash]()
@@ -102,15 +104,16 @@ def test_close_market(account, market, data, expected):
     finance_account(account["key"])
     sleep(3)
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
-    sleep(130)
+    sleep(data[6] * 60 + 0.1)
     market.close_market(ipfs_hash, True, account["name"])
     sleep(3)
     question = contract.storage["questions"][ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
 
-@pytest.mark.parametrize("account,market,data,expected", test_data)
-def test_buy_token(account, market, data, expected):
+"""
+@pytest.mark.parametrize("account,market,data", test_data)
+def test_buy_token(account,market,data):
     finance_account(account["key"])
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
     sleep(2)
@@ -135,3 +138,4 @@ def test_burn_token(account, market, data, expected):
     print(new_balance)
     assert stablecoins.storage["ledger"][account["key"]]()
     assert balance["balance"] == new_balance["balance"] + amount
+"""
