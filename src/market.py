@@ -108,7 +108,6 @@ class Market:
         quantity: Integer representing quantity of stable coins bid during the auction
         rate: What is rate?
         """
-        print(f"User {user} bidding {rate} on {ipfs_hash}")
         data = {
                 'quantity': quantity,
                 'question': ipfs_hash,
