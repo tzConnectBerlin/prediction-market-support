@@ -28,3 +28,5 @@ def submit_transaction(transaction, account, count=None, tries=None, error_func=
         if error_func != None:
             error_func(splited_error_message)
         print(splited_error_message[3])
+        print(e)
+        #raise

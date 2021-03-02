@@ -7,36 +7,33 @@ from decimal import Decimal
 from pytezos import pytezos, Key
 
 from src.accounts import Accounts
+from src.config import Config
 from src.utils import summary
 
-test_shell="http://localhost:20000"
-admin_account_key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
+config = Config(config_file="tests/oracle.ini")
 
 def finance_account(key: str):
-    client = pytezos.using(
-        shell=test_shell,
-        key=admin_account_key
-    )
-    client.transaction(key, amount=Decimal(1)) \
+    client = config["admin_account"]
+    client.transaction(key, amount=Decimal(100)) \
             .autofill().sign().inject()
     time.sleep(3)
 
 @pytest.mark.parametrize("input", ["donald"])
 def test_user_is_imported_from_folder(input):
-    accounts = Accounts(test_shell, folder=None)
+    accounts = Accounts(config["endpoint"], folder=None)
     accounts.import_from_folder("tests/users")
     accounts["donald"]
     assert "donald" in accounts
 
 @pytest.mark.parametrize("input", ["donald"])
 def test_user_is_imported_from_file(input):
-    accounts = Accounts(test_shell, folder=None)
+    accounts = Accounts(config["endpoint"], folder=None)
     accounts.import_from_file(f"tests/users/{input}.json", input)
     assert input in accounts
 
 @pytest.mark.parametrize("input", ["donald"])
 def test_users_is_imported_to_tezos_client(input):
-    accounts = Accounts(test_shell, "tests/users")
+    accounts = Accounts(config["endpoint"], "tests/users")
     accounts.import_to_tezos_client(input)
     key = Key.from_alias(input)
     assert key.public_key_hash() == "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"
@@ -45,7 +42,7 @@ def test_users_is_imported_to_tezos_client(input):
 
 @pytest.mark.parametrize("input", ["donald"])
 def test_users_is_imported_from_tezos_client(input):
-    accounts = Accounts(test_shell, "tests/users")
+    accounts = Accounts(config["endpoint"], "tests/users")
     accounts.import_from_tezos_client(input)
     assert input in accounts
 
@@ -54,7 +51,7 @@ def test_users_is_imported_from_tezos_client(input):
 ])
 def test_user_is_activated(input,key):
     finance_account(key)
-    accounts = Accounts(test_shell, folder="tests/users")
+    accounts = Accounts(config["endpoint"], folder="tests/users")
     accounts.activate_account(input)
     assert accounts[input].balance() > 0
 
@@ -63,13 +60,13 @@ def test_user_is_activated(input,key):
  ])
 def test_user_is_revealed(input,key):
     finance_account(key)
-    accounts = Accounts(test_shell, folder="tests/users")
+    accounts = Accounts(config["endpoint"], folder="tests/users")
     accounts.activate_account(input)
     accounts.reveal_account(input)
 
 @pytest.mark.parametrize("input,contract_id", [
-    ("donald", "KT18r4ngbDwJh7UHyNwchKxHnRK3TzBbcATh")
+    ("donald", config["contract"])
 ])
 def test_get_accounts(input, contract_id):
-    accounts = Accounts(test_shell, folder="tests/users")
+    accounts = Accounts(config["endpoint"], folder="tests/users")
     contract = accounts.contract_accounts(contract_id)
