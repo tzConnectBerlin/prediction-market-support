@@ -21,3 +21,5 @@ Now you are good to go.
 You can set your own questions, or use a randomly generated one. Randomly generated questions are of the form, what is the capital city of XXX? and are populated from the file `country-by-capital-city.json`.
 
 Auction end time is now + 5 minutes. Market end time is now + 10 minutes.
+
+There is a command line interface that use ./cli.py.
