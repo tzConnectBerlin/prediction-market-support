@@ -12,7 +12,7 @@ from src.config import Config
 from src.market import Market
 from src.utils import summary
 
-config = Config(config_file="oracle.ini")
+config = Config(config_file="tests/oracle.ini")
 
 def new_market():
     test_accounts = Accounts(folder="tests/users", endpoint="http://localhost:20000")
