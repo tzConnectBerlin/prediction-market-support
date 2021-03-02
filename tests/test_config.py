@@ -12,6 +12,7 @@ loaded_config.read("tests/oracle.ini")
 ])
 def test_override_endpoint(input, expected):
     config = Config(
+            config_file="tests/oracle.ini",
             endpoint=input,
     )
     assert config["endpoint"] == expected
@@ -25,6 +26,7 @@ def test_override_endpoint(input, expected):
 ])
 def test_override_contract(input, expected):
     config = Config(
+            config_file="tests/oracle.ini",
             contract=input
     )
     assert config["contract"] == expected
@@ -38,6 +40,7 @@ def test_override_contract(input, expected):
 ])
 def test_override_ipfsserver(input, expected):
     config = Config(
+            config_file="tests/oracle.ini",
             ipfs_server=input,
     )
     assert config["ipfs_server"] == expected
@@ -51,6 +54,7 @@ def test_override_ipfsserver(input, expected):
 ])
 def test_override_admin_account(input, expected):
     config = Config(
+            config_file="tests/oracle.ini",
             admin_account_key=input,
     )
     assert config["admin_account"].key.secret_key() == expected
