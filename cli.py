@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 """
 Tooling for prediction markets market
 """
@@ -27,7 +27,7 @@ PERCENT = 10000000000000000
 app = typer.Typer()
 
 state = {
-        "accounts": Accounts("http://localhost:20000", folder="users"),
+        "accounts": None,
         "config": Config(config_file="oracle.ini"),
         "market": None
 }
@@ -209,6 +209,7 @@ def main(
             contract=contract,
             endpoint=endpoint
         )
+    state['accounts'] = Accounts(state["config"]["endpoint"])
     state['market'] = Market(state["accounts"], state["config"])
 
 if __name__ == "__main__":
