@@ -1,5 +1,5 @@
 import configparser
-import json
+
 from pytezos import pytezos
 
 class Config:
@@ -28,7 +28,10 @@ class Config:
         self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
         self.data["user_folder"] = user_folder or "users"
         privkey = admin_account_key or config['Tezos']['privkey']
+        #try:
         self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
+        #except:
+        print(f'Something went wrong with instantiating the shell object on endpoint {self["endpoint"]}')
 
     def __getitem__(self, key):
         if key in self.data:
