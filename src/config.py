@@ -10,7 +10,6 @@ class Config:
             contract: str = "",
             endpoint: str = "",
             ipfs_server: str = None,
-            admin_account_key: str = None
             user_folder: str = None
         ):
         """

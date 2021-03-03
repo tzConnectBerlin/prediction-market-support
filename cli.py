@@ -211,7 +211,7 @@ def main(
             endpoint=endpoint,
             user_folder=user_folder
         )
-    state['accounts'] = Accounts(state["endpoint"], state["user_folder"])
+    state['accounts'] = Accounts(state["config"]["endpoint"], state["config"]["user_folder"])
     state['market'] = Market(state["accounts"], state["config"])
     return state
 

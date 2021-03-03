@@ -11,7 +11,7 @@ from pytezos import pytezos
 from src.accounts import Accounts
 from src.config import Config
 from src.utils import summary
-from src.utils.utils import get_public_key, get_stablecoin, submit_transaction
+from src.utils.utils import get_public_key, get_stablecoin, raise_error, submit_transaction
 
 class Market:
     """
@@ -50,8 +50,6 @@ class Market:
         timenow = datetime.now().astimezone(pytz.utc)
         auction_end_date = timenow + timedelta(minutes=auction_end_date)
         market_close_date = timenow + timedelta(minutes=market_end_date)
-        print(auction_end_date)
-        print(market_close_date)
         param = {
                 'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
                 'iconURL':
@@ -71,7 +69,7 @@ class Market:
             'question': ipfs_hash,
             'rate': rate
         })
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
         return ipfs_hash
 
     def transfer_stablecoin_to_user(
