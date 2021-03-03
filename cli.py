@@ -15,7 +15,6 @@ import typer
 ##### Local Script
 from src.accounts import Accounts
 from src.config import Config
-from src.utils import summary
 from src.market import Market
 
 PERCENT = 10000000000000000
@@ -83,6 +82,7 @@ def ask_question(
                 market_end_date
             )
     print(f"Created market {ipfs_hash} in PM contract")
+    return ipfs_hash
 
 @app.command()
 def fund_stablecoin(
@@ -99,7 +99,7 @@ def fund_stablecoin(
             user,
             value,
         )
-        sleep(60)
+        sleep(5)
 
 @app.command()
 def transfer_stablecoin(
@@ -193,7 +193,8 @@ def main(
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
-        config_file: str = typer.Option("oracle.ini")
+        config_file: str = typer.Option("oracle.ini"),
+        user_folder: str = typer.Option(None)
     ):
     """
     High level option for the tool
@@ -212,6 +213,7 @@ def main(
         )
     state['accounts'] = Accounts(state["endpoint"], state["user_folder"])
     state['market'] = Market(state["accounts"], state["config"])
+    return state
 
 if __name__ == "__main__":
     app()
