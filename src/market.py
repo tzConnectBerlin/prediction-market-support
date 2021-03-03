@@ -89,7 +89,7 @@ class Market:
             'to': get_public_key(self.accounts[user]),
             'value': value
         })
-        submit_transaction(operation.as_transaction(), admin_account)
+        submit_transaction(operation.as_transaction(), admin_account, error_func=raise_error)
 
     def bid_auction(
             self,
@@ -113,7 +113,7 @@ class Market:
                 'rate': rate
         }
         operation = self.pm_contracts[user].bid(data)
-        result = submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        result = submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
     
     def withdraw_auction(
             self,
@@ -134,7 +134,7 @@ class Market:
         user: user closing the auction (owner)
         """
         operation = self.pm_contracts[user].closeAuction(ipfs_hash)
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
 
     def close_market(
             self,
@@ -153,7 +153,7 @@ class Market:
             question,
             token_type
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
     
     def buy_token(
             self,
@@ -174,7 +174,7 @@ class Market:
                 token_type,
                 token_quantity
             )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
     
     def burn(
             self,
@@ -193,7 +193,7 @@ class Market:
                 question,
                 token_quantity
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
 
     def claim_winnings(
             self,
@@ -203,7 +203,7 @@ class Market:
         operation = self.pm_contracts[user].claimWinnings(
                 question
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
 
     def update_liquidity(
             self,
@@ -217,7 +217,7 @@ class Market:
                 add_lqt,
                 lqt_amount
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)
 
     def swap(
             self,
@@ -231,4 +231,4 @@ class Market:
                 token_in_type,
                 fixed_token_in
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction(), self.pm_contracts[user], error_func=raise_error)

@@ -19,7 +19,7 @@ def get_stablecoin(account, contract: str):
     stablecoin_client = account.contract(stablecoin_contract)
     return stablecoin_client
 
-def raise_error():
+def raise_error(error_message):
     raise
 
 def submit_transaction(transaction, account, count=None, tries=None, error_func=None):
