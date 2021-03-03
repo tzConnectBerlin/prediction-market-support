@@ -15,7 +15,6 @@ import typer
 ##### Local Script
 from src.accounts import Accounts
 from src.config import Config
-from src.utils import summary
 from src.market import Market
 
 PERCENT = 10000000000000000
@@ -99,7 +98,6 @@ def fund_stablecoin(
             user,
             value,
         )
-        sleep(60)
 
 @app.command()
 def transfer_stablecoin(
