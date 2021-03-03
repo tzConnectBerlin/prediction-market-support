@@ -207,9 +207,10 @@ def main(
             admin_account_key=admin_key,
             config_file=config_file,
             contract=contract,
-            endpoint=endpoint
+            endpoint=endpoint,
+            user_folder=user_folder
         )
-    state['accounts'] = Accounts(state["config"]["endpoint"])
+    state['accounts'] = Accounts(state["endpoint"], state["user_folder"])
     state['market'] = Market(state["accounts"], state["config"])
 
 if __name__ == "__main__":
