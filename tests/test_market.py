@@ -28,11 +28,16 @@ accounts = [
 questions = [
         ["who", "why", "donald", 300, 50, 0.1, 0.2],
         ["who", "why", "donald", 300, 50, 1, 2]
+        ["who", "why", "donald", 1000, 10, 3, 4]
+]
+
+expected = [
+        []
 ]
 
 test_data = [
     [accounts[0], new_market(), questions[0]],
-    [accounts[0], new_market(), questions[0]]
+    [accounts[1], new_market(), questions[1]]
 ]
 
 client = config["admin_account"]
@@ -52,6 +57,7 @@ def finance_account(key: str):
     print(res)
     sleep(3)
 
+<<<<<<< HEAD:tests/test_market.py
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_fund_stablecoin(account, market, data):
     finance_account(account["key"])
