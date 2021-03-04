@@ -93,13 +93,8 @@ def fund_stablecoin(
 
     value: the amont of tezos funded
     """
-    for user in state["accounts"].names():
-        print(f"Transferring stablecoin to {user}")
-        state["market"].transfer_stablecoin_to_user(
-            user,
-            value,
-        )
-        sleep(60)
+    print("Transferring stablecoin to accounts:", state["accounts"].names())
+    state["market"].fund_stablecoin(value)
 
 @app.command()
 def transfer_stablecoin(
