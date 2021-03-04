@@ -62,8 +62,6 @@ class Market:
         }
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
-        #print(f"Created hash {ipfs_hash}")
-        #print(ipfs.get_json(ipfs_hash))
         operation = self.pm_contracts[user].createQuestion({
             'auction_end': int(auction_end_date.timestamp()),
             'market_close': int(market_close_date.timestamp()),
@@ -84,14 +82,13 @@ class Market:
 
         user address that will receive the funds
         """
-        admin_account = summary.admin_account()
-        stablecoin = get_stablecoin(admin_account, self.contract)
+        stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
         operation = stablecoin.transfer({
-            'from': get_public_key(admin_account),
+            'from': get_public_key(self.config["admin_account"]),
             'to': get_public_key(self.accounts[user]),
             'value': value
         })
-        submit_transaction(operation.as_transaction(), admin_account)
+        submit_transaction(operation.as_transaction(), None)
 
     def fund_stablecoin(
             self,
@@ -104,16 +101,15 @@ class Market:
         """
         operation_list = []
         for user in self.accounts.names():
-            admin_account = summary.admin_account()
-            stablecoin = get_stablecoin(admin_account, self.contract)
+            stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
             operation = stablecoin.transfer({
-            'from': get_public_key(admin_account),
+            'from': get_public_key(self.config["admin_account"]),
             'to': get_public_key(self.accounts[user]),
             'value': value
             })
             operation_list.append(operation.as_transaction())
         bulk_operations = pytezos.bulk((operation))
-        submit_transaction(bulk_operations, admin_account)
+        submit_transaction(bulk_operations, None)
 
     def bid_auction(
             self,
