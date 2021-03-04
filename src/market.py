@@ -1,14 +1,12 @@
 """
 Market management helper
 """
-import configparser
 import json
 from datetime import datetime, timedelta
 
 import ipfshttpclient
 import pytz
 from pytezos import pytezos
-from pytezos.rpc.node import RpcError
 
 from src.accounts import Accounts
 from src.config import Config
@@ -52,6 +50,8 @@ class Market:
         timenow = datetime.now().astimezone(pytz.utc)
         auction_end_date = timenow + timedelta(minutes=auction_end_date)
         market_close_date = timenow + timedelta(minutes=market_end_date)
+        print(auction_end_date)
+        print(market_close_date)
         param = {
                 'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
                 'iconURL':
