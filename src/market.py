@@ -69,7 +69,7 @@ class Market:
             'question': ipfs_hash,
             'rate': rate
         })
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
         return ipfs_hash
 
     def transfer_stablecoin_to_user(
@@ -132,7 +132,7 @@ class Market:
                 'rate': rate
         }
         operation = self.pm_contracts[user].bid(data)
-        result = submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        result = submit_transaction(operation.as_transaction())
     
     def multiple_bids(
             self,
@@ -167,7 +167,7 @@ class Market:
         operation = self.pm_contracts[user].withdrawAuction(
                 question
         )
-        submit_transaction(operation.as_transactions(), self.pm_contracts[user])
+        submit_transaction(operation.as_transactions())
 
 
     def close_auction(self, ipfs_hash: str, user):
@@ -178,7 +178,7 @@ class Market:
         user: user closing the auction (owner)
         """
         operation = self.pm_contracts[user].closeAuction(ipfs_hash)
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
 
     def close_market(
             self,
@@ -197,7 +197,7 @@ class Market:
             question,
             token_type
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
     
     def buy_token(
             self,
@@ -218,7 +218,7 @@ class Market:
                 token_type,
                 token_quantity
             )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
     
     def burn(
             self,
@@ -237,7 +237,7 @@ class Market:
                 question,
                 token_quantity
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
 
     def claim_winnings(
             self,
@@ -247,7 +247,7 @@ class Market:
         operation = self.pm_contracts[user].claimWinnings(
                 question
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
 
     def update_liquidity(
             self,
@@ -261,7 +261,7 @@ class Market:
                 add_lqt,
                 lqt_amount
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())
 
     def swap(
             self,
@@ -275,4 +275,4 @@ class Market:
                 token_in_type,
                 fixed_token_in
         )
-        submit_transaction(operation.as_transaction(), self.pm_contracts[user])
+        submit_transaction(operation.as_transaction())

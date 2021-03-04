@@ -18,7 +18,7 @@ def get_stablecoin(account, contract: str):
     stablecoin_client = account.contract(stablecoin_contract)
     return stablecoin_client
 
-def submit_transaction(transaction, account, count=None, tries=None, error_func=None):
+def submit_transaction(transaction, count=None, tries=None, error_func=None):
     try:
         transaction = transaction.autofill(counter=count,branch_offset=1).sign()
         transaction.inject()
