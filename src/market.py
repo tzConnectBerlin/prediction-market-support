@@ -11,7 +11,7 @@ from pytezos import pytezos
 from src.accounts import Accounts
 from src.config import Config
 from src.utils import summary
-from src.utils.utils import get_public_key, get_stablecoin, submit_transaction
+from src.utils.utils import get_public_key, get_stablecoin, raise_error, submit_transaction
 
 class Market:
     """
@@ -50,8 +50,6 @@ class Market:
         timenow = datetime.now().astimezone(pytz.utc)
         auction_end_date = timenow + timedelta(minutes=auction_end_date)
         market_close_date = timenow + timedelta(minutes=market_end_date)
-        print(auction_end_date)
-        print(market_close_date)
         param = {
                 'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
                 'iconURL':
@@ -69,7 +67,7 @@ class Market:
             'question': ipfs_hash,
             'rate': rate
         })
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
         return ipfs_hash
 
     def transfer_stablecoin_to_user(
@@ -88,7 +86,7 @@ class Market:
             'to': get_public_key(self.accounts[user]),
             'value': value
         })
-        submit_transaction(operation.as_transaction(), None)
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def fund_stablecoin(
             self,
@@ -109,7 +107,7 @@ class Market:
             })
             operation_list.append(operation.as_transaction())
         bulk_operations = pytezos.bulk((operation))
-        submit_transaction(bulk_operations, None)
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def bid_auction(
             self,
@@ -156,8 +154,7 @@ class Market:
             operation = self.pm_contracts[user].bid(data)
             operation_list.append(operation.as_transaction())
         bulk_operations = pytezos.bulk((operation))
-        result = submit_transaction(bulk_operations, None)
-
+        result = submit_transaction(operation.as_transaction(), error_func=raise_error)
     
     def withdraw_auction(
             self,
@@ -167,7 +164,7 @@ class Market:
         operation = self.pm_contracts[user].withdrawAuction(
                 question
         )
-        submit_transaction(operation.as_transactions())
+        result = submit_transaction(operation.as_transaction(), error_func=raise_error)
 
 
     def close_auction(self, ipfs_hash: str, user):
@@ -178,7 +175,7 @@ class Market:
         user: user closing the auction (owner)
         """
         operation = self.pm_contracts[user].closeAuction(ipfs_hash)
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def close_market(
             self,
@@ -197,7 +194,7 @@ class Market:
             question,
             token_type
         )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
     
     def buy_token(
             self,
@@ -218,7 +215,7 @@ class Market:
                 token_type,
                 token_quantity
             )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
     
     def burn(
             self,
@@ -237,7 +234,7 @@ class Market:
                 question,
                 token_quantity
         )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def claim_winnings(
             self,
@@ -247,7 +244,7 @@ class Market:
         operation = self.pm_contracts[user].claimWinnings(
                 question
         )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def update_liquidity(
             self,
@@ -261,7 +258,7 @@ class Market:
                 add_lqt,
                 lqt_amount
         )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def swap(
             self,
@@ -275,4 +272,4 @@ class Market:
                 token_in_type,
                 fixed_token_in
         )
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
