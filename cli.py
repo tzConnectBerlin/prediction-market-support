@@ -86,7 +86,7 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Option(10000000000000000000)
+        value: int = typer.Option(1000000000)
     ):
     """
     fund all accounts with a random quantity of tezos
@@ -99,7 +99,7 @@ def fund_stablecoin(
 @app.command()
 def transfer_stablecoin(
         dest: str,
-        value: int = typer.Option(100000000000000000)
+        value: int = typer.Option(1000000000)
     ):
     """
     transfer a certain amount of coins toward an user address
