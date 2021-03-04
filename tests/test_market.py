@@ -57,7 +57,6 @@ def finance_account(key: str):
     print(res)
     sleep(3)
 
-<<<<<<< HEAD:tests/test_market.py
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_fund_stablecoin(account, market, data):
     finance_account(account["key"])
