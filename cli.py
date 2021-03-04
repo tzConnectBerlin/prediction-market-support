@@ -31,6 +31,12 @@ state = {
         "market": None
 }
 
+def check_account_loaded(account):
+    if account not in state["accounts"]:
+        print(f"account {account} not found, here are available accounts:")
+        print(state["accounts"].names())
+        raise typer.Exit()
+
 @app.command()
 def manage_accounts(
         activate: bool = typer.Option(False, "--activate", "-a"),
@@ -72,6 +78,7 @@ def ask_question(
     quantity: integer representing the quantity of stable coin generated
     rate: rate
     """
+    check_account_loaded(user)
     ipfs_hash = state["market"].ask_question(
                 question,
                 answer,
@@ -106,6 +113,7 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
+    check_account_loaded(user)
     print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(dest, value)
 
@@ -124,6 +132,7 @@ def bid_auction(
     quantity: Integer representing quantity of stable coins bid during the auction
     rate: What is rate?
     """
+    check_account_loaded(user)
     print(f"bidding auction for {user}")
     state["market"].bid_auction(ipfs_hash, user, quantity, rate)
 
@@ -175,6 +184,7 @@ def close_market(
     token_type: type of the token
     user: owner of the market
     """
+    check_account_loaded(user)
     print(f"closing market {ipfs_hash}")
     state["market"].close_market(
             ipfs_hash,
@@ -203,8 +213,8 @@ def main(
             admin_account_key=admin_key,
             config_file=config_file,
             contract=contract,
-            endpoint=endpoint,
-        )
+            endpoint=endpoint
+    )
     state['accounts'] = Accounts(state["config"]["endpoint"])
     state['market'] = Market(state["accounts"], state["config"])
     return state
