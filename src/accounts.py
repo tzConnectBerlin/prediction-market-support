@@ -83,7 +83,7 @@ class Accounts:
         """
         if self.accounts[account_name].balance() == 0:
             operation = self.accounts[account_name].activate_account()
-            submit_transaction(operation, self.accounts[account_name])
+            submit_transaction(operation)
 
 
     def reveal_account(self, account_name: str):
@@ -91,7 +91,7 @@ class Accounts:
         Reveal account
         """
         operation = self.accounts[account_name].reveal()
-        submit_transaction(operation, self.accounts[account_name])
+        submit_transaction(operation)
 
     def get_account(self, account_name: str):
         """

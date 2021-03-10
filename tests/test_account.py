@@ -17,7 +17,7 @@ def finance_account(key: str):
     client.transaction(key, amount=Decimal(100)) \
             .autofill().sign().inject()
     time.sleep(3)
-
+""""
 @pytest.mark.parametrize("input", ["donald"])
 def test_user_is_imported_from_folder(input):
     accounts = Accounts(config["endpoint"], folder=None)
@@ -70,3 +70,4 @@ def test_user_is_revealed(input,key):
 def test_get_accounts(input, contract_id):
     accounts = Accounts(config["endpoint"], folder="tests/users")
     contract = accounts.contract_accounts(contract_id)
+"""

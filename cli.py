@@ -15,7 +15,6 @@ import typer
 ##### Local Script
 from src.accounts import Accounts
 from src.config import Config
-from src.utils import summary
 from src.market import Market
 
 PERCENT = 10000000000000000
@@ -31,6 +30,12 @@ state = {
         "config": Config(config_file="oracle.ini"),
         "market": None
 }
+
+def check_account_loaded(account):
+    if account not in state["accounts"]:
+        print(f"account {account} not found, here are available accounts:")
+        print(state["accounts"].names())
+        raise typer.Exit()
 
 @app.command()
 def manage_accounts(
@@ -73,6 +78,7 @@ def ask_question(
     quantity: integer representing the quantity of stable coin generated
     rate: rate
     """
+    check_account_loaded(user)
     ipfs_hash = state["market"].ask_question(
                 question,
                 answer,
@@ -83,34 +89,31 @@ def ask_question(
                 market_end_date
             )
     print(f"Created market {ipfs_hash} in PM contract")
+    return ipfs_hash
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Option(10000000000000000000)
+        value: int = typer.Option(1000000000)
     ):
     """
     fund all accounts with a random quantity of tezos
 
     value: the amont of tezos funded
     """
-    for user in state["accounts"].names():
-        print(f"Transferring stablecoin to {user}")
-        state["market"].transfer_stablecoin_to_user(
-            user,
-            value,
-        )
-        sleep(60)
+    print("Transferring stablecoin to accounts:", state["accounts"].names())
+    state["market"].fund_stablecoin(value)
 
 @app.command()
 def transfer_stablecoin(
         dest: str,
-        value: int = typer.Option(100000000000000000)
+        value: int = typer.Option(1000000000)
     ):
     """
     transfer a certain amount of coins toward an user address
 
     dest: user address that will receive the funds
     """
+    check_account_loaded(user)
     print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(dest, value)
 
@@ -129,6 +132,7 @@ def bid_auction(
     quantity: Integer representing quantity of stable coins bid during the auction
     rate: What is rate?
     """
+    check_account_loaded(user)
     print(f"bidding auction for {user}")
     state["market"].bid_auction(ipfs_hash, user, quantity, rate)
 
@@ -180,6 +184,7 @@ def close_market(
     token_type: type of the token
     user: owner of the market
     """
+    check_account_loaded(user)
     print(f"closing market {ipfs_hash}")
     state["market"].close_market(
             ipfs_hash,
@@ -193,7 +198,8 @@ def main(
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
-        config_file: str = typer.Option("oracle.ini")
+        config_file: str = typer.Option("oracle.ini"),
+        user_folder: str = typer.Option(None)
     ):
     """
     High level option for the tool
@@ -207,10 +213,12 @@ def main(
             admin_account_key=admin_key,
             config_file=config_file,
             contract=contract,
-            endpoint=endpoint
+            endpoint=endpoint,
+            user_folder=user_folder
         )
-    state['accounts'] = Accounts(state["config"]["endpoint"])
+    state['accounts'] = Accounts(state["config"]["endpoint"], state["config"]["user_folder"])
     state['market'] = Market(state["accounts"], state["config"])
+    return state
 
 if __name__ == "__main__":
     app()

@@ -8,7 +8,7 @@ import json
 import urllib.request
 
 config = configparser.ConfigParser()
-config.read('tests/oracle.ini')
+config.read('oracle.ini')
 
 BCD_URL = "https://api.better-call.dev/v1/"
 NETWORK = "edo2net"

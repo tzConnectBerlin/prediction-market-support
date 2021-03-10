@@ -3,6 +3,7 @@ import json
 
 from pytezos import pytezos
 
+
 def get_public_key(account):
     """
     Get public key hash from account
@@ -18,7 +19,10 @@ def get_stablecoin(account, contract: str):
     stablecoin_client = account.contract(stablecoin_contract)
     return stablecoin_client
 
-def submit_transaction(transaction, account, count=None, tries=None, error_func=None):
+def raise_error(error_message):
+    raise
+
+def submit_transaction(transaction, count=None, tries=None, error_func=None):
     try:
         transaction = transaction.autofill(counter=count,branch_offset=1).sign()
         transaction.inject()
@@ -27,6 +31,4 @@ def submit_transaction(transaction, account, count=None, tries=None, error_func=
         splited_error_message = error_message["id"].split('.')
         if error_func != None:
             error_func(splited_error_message)
-        print(splited_error_message[3])
         print(e)
-        #raise
