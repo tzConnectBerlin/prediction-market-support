@@ -199,8 +199,7 @@ def main(
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
         config_file: str = typer.Option("oracle.ini"),
-        user_folder: str = typer.Option(None),
-        import_from_client: Optional[List[str]] = typer.Option(None)
+        force: bool = typer.Option(None, "--force", "-f")
     ):
     """
     High level option for the tool
@@ -210,17 +209,19 @@ def main(
             config_file=config_file,
             contract=contract,
             endpoint=endpoint,
-            user_folder=user_folder
         )
-    state['accounts'] = Accounts(state["config"]["endpoint"], state["config"]["user_folder"])
+    state['accounts'] = Accounts(state["config"]["endpoint"])
     if import_accounts != None:
         for account in import_accounts:
            account_name = typer.prompt("Please associate a name for this account")
            state["accounts"].import_from_file(account, account_name)
-           typer.echo(f"{account_name} was imported")
-    if import_from_client != None:
-        for account_name in import_from_client:
-           state['accounts'].import_from_tezos_client(account_name)
+           if force != None:
+                state["accounts"].import_to_tezos_client(account_name)
+                typer.echo(f"{account_name} was imported")
+                state["accounts"].activate_account(account_name)
+                typer.echo(f"{account_name} was activated")
+                state["accounts"].reveal_account(account_name)
+                typer.echo(f"{account_name} was revealed")
 
     state['market'] = Market(state["accounts"], state["config"])
     return state

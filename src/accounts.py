@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 
@@ -11,11 +12,10 @@ class Accounts:
     User Class for Handling tezos accounts
     """
 
-    def __init__(self, endpoint, folder="users"):
+    def __init__(self, endpoint):
         self.accounts = {}
         self.endpoint = endpoint
-        if folder != None:
-            self.import_from_folder(folder)
+        self.import_from_tezos_client()
 
     def __getitem__(self, account_name: str):
         if account_name in self.accounts:
@@ -46,12 +46,19 @@ class Accounts:
             print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, account_name: str):
+    def import_from_tezos_client(self):
         """
         Import account from tezos client
         """
-        key = Key.from_alias(account_name)
-        self.import_from_file(key.public_key_hash(), account_name)
+        path = os.path.expanduser(os.path.join('~/.tezos-client', 'secret_keys'))
+        with open(path, 'r') as f:
+            data = json.loads(f.read())
+        for x in data:
+            prefix, sk = x['value'].split(':', maxsplit=1)
+            try:
+                self.import_from_file(Key.from_encoded_key(sk), x['name'])
+            except:
+                print(f"something went wrong with account {x['name']}")
         
 
     def import_to_tezos_client(self, account_name: str):
