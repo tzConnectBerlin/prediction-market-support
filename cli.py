@@ -194,7 +194,7 @@ def close_market(
 
 @app.callback()
 def main(
-        import_accounts: Optional[List[str]] = typer.Option(None),
+        import_accounts: Optional[List[str]] = typer.Option(None, "--with-accounts", "-w"),
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
