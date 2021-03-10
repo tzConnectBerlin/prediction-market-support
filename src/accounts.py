@@ -43,8 +43,7 @@ class Accounts:
             shell = self.endpoint,
         )
         if account_name in self.accounts:
-            print(f"user {account_name} as aready been imported")
-            return
+            print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
     def import_from_tezos_client(self, account_name: str):
