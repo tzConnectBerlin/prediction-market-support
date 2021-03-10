@@ -27,8 +27,7 @@ accounts = [
 
 questions = [
         ["who", "why", "donald", 300, 50, 0.1, 0.2],
-        ["who", "why", "donald", 300, 50, 1, 2]
-        ["who", "why", "donald", 1000, 10, 3, 4]
+        ["who", "why", "donald", 300, 50, 1, 2],
 ]
 
 expected = [
@@ -37,7 +36,7 @@ expected = [
 
 test_data = [
     [accounts[0], new_market(), questions[0]],
-    [accounts[1], new_market(), questions[1]]
+    [accounts[0], new_market(), questions[1]]
 ]
 
 client = config["admin_account"]
