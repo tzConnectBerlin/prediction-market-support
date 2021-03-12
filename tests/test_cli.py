@@ -18,7 +18,10 @@ from cli import app
 config = Config(config_file="tests/oracle.ini")
 
 def new_market():
-    test_accounts = Accounts(endpoint="http://localhost:20000")
+    test_accounts = Accounts(endpoint=config["endpoint"])
+    print("****************************************")
+    print(config["endpoint"])
+    print("****************************************")
     new_market = Market(test_accounts, config)
     return new_market
 
