@@ -15,7 +15,6 @@ class Accounts:
     def __init__(self, endpoint):
         self.accounts = {}
         self.endpoint = endpoint
-        self.import_from_tezos_client()
 
     def __getitem__(self, account_name: str):
         if account_name in self.accounts:
@@ -52,7 +51,10 @@ class Accounts:
         """
         path = os.path.expanduser(os.path.join('~/.tezos-client', 'secret_keys'))
         with open(path, 'r') as f:
-            data = json.loads(f.read())
+            try:
+                data = json.loads(f.read())
+            except:
+                raise Exception('there is something wrong with the key file')
         for x in data:
             prefix, sk = x['value'].split(':', maxsplit=1)
             try:
@@ -67,6 +69,7 @@ class Accounts:
         """
         env = dict(os.environ)
         host = self.endpoint
+        print(self.endpoint)
         subprocess.run(
             [
                 'tezos-client',

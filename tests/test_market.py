@@ -16,7 +16,7 @@ from src.utils import summary
 config = Config(config_file="tests/oracle.ini")
 
 def new_market():
-    test_accounts = Accounts(folder="tests/users", endpoint="http://localhost:20000")
+    test_accounts = Accounts(endpoint="http://localhost:20000")
     new_market = Market(test_accounts, config)
     print(new_market.pm_contracts)
     return new_market

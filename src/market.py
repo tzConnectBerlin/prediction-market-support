@@ -98,6 +98,8 @@ class Market:
         value: the amont of tezos funded
         """
         operation_list = []
+        if len(self.accounts.names()) == 0:
+            return
         for user in self.accounts.names():
             stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
             operation = stablecoin.transfer({
@@ -106,7 +108,7 @@ class Market:
             'value': value
             })
             operation_list.append(operation.as_transaction())
-        bulk_operations = pytezos.bulk((operation))
+        bulk_operations = pytezos.bulk(operation_list)
         submit_transaction(operation.as_transaction(), error_func=raise_error)
 
     def bid_auction(

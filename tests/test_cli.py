@@ -18,7 +18,7 @@ from cli import app
 config = Config(config_file="tests/oracle.ini")
 
 def new_market():
-    test_accounts = Accounts(folder="tests/users", endpoint="http://localhost:20000")
+    test_accounts = Accounts(endpoint="http://localhost:20000")
     new_market = Market(test_accounts, config)
     return new_market
 
@@ -54,7 +54,7 @@ def finance_account(key: str):
     sleep(3)
 
 app_options = [
-        "--config-file", "tests/oracle.ini", "--user-folder", "tests/users"
+        "--config-file", "tests/oracle.ini"
 ]
 
 @pytest.mark.parametrize("account", accounts)
@@ -62,8 +62,6 @@ def test_fund_stablecoin(account):
     finance_account(account["key"])
     balance = stablecoins.storage["ledger"][account["key"]]()
     result = runner.invoke(app, app_options + ["fund-stablecoin"])
-    sleep(3)
-    amount = rand(100)
     sleep(3)
     new_balance = stablecoins.storage["ledger"][account["key"]]()
     assert stablecoins.storage["ledger"][account["key"]]()
@@ -74,8 +72,6 @@ def test_transfer_stablecoin(account):
     finance_account(account["key"])
     balance = stablecoins.storage["ledger"][account["key"]]()
     result = runner.invoke(app, app_options + ["transfer-stablecoin", account["name"]])
-    sleep(3)
-    amount = rand(100)
     sleep(3)
     new_balance = stablecoins.storage["ledger"][account["key"]]()
     assert stablecoins.storage["ledger"][account["key"]]()

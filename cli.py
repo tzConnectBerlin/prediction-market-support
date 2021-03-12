@@ -210,20 +210,20 @@ def main(
             contract=contract,
             endpoint=endpoint,
         )
-    state['accounts'] = Accounts(state["config"]["endpoint"])
+    state['accounts'] = Accounts(state['config']['endpoint'])
     if import_accounts != None:
         for account in import_accounts:
            account_name = typer.prompt("Please associate a name for this account")
-           state["accounts"].import_from_file(account, account_name)
+           state['accounts'].import_from_file(account, account_name)
            if force != None:
-                state["accounts"].import_to_tezos_client(account_name)
-                typer.echo(f"{account_name} was imported")
-                state["accounts"].activate_account(account_name)
-                typer.echo(f"{account_name} was activated")
-                state["accounts"].reveal_account(account_name)
-                typer.echo(f"{account_name} was revealed")
-
-    state['market'] = Market(state["accounts"], state["config"])
+               state["accounts"].import_to_tezos_client(account_name)
+               typer.echo(f"{account_name} was imported")
+               state["accounts"].activate_account(account_name)
+               typer.echo(f"{account_name} was activated")
+               state["accounts"].reveal_account(account_name)
+               typer.echo(f"{account_name} was revealed")
+    state['accounts'].import_from_tezos_client()
+    state['market'] = Market(state['accounts'], state['config'])
     return state
 
 if __name__ == "__main__":
