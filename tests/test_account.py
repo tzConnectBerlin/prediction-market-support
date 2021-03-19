@@ -24,7 +24,6 @@ def finance_account(key: str):
 def test_user_is_imported_from_folder(input):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_folder("tests/users")
-    accounts["donald"]
     assert "donald" in accounts
 
 @pytest.mark.parametrize("input", ["donald"])
@@ -47,7 +46,6 @@ def test_users_is_imported_to_tezos_client(input):
 def test_users_is_imported_from_tezos_client(input):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{input}.json", input)
-    accounts.import_to_tezos_client(input)
     accounts2 = Accounts(config["endpoint"])
     accounts2.import_from_tezos_client()
     assert input in accounts2

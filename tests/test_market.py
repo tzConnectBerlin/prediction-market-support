@@ -17,8 +17,8 @@ config = Config(config_file="tests/oracle.ini")
 
 def new_market():
     test_accounts = Accounts(endpoint=config["endpoint"])
+    test_accounts.import_from_folder("tests/users")
     new_market = Market(test_accounts, config)
-    print(new_market.pm_contracts)
     return new_market
 
 accounts = [
@@ -48,13 +48,14 @@ def rand(mul=100):
 
 def finance_account(key: str):
     client = pytezos.using(
-            shell="http://localhost:20000",
+            shell=config["endpoint"],
             key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
     )
     res = client.transaction(key, amount=Decimal(500)) \
             .autofill().sign().inject()
     print(res)
     sleep(3)
+
 
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_fund_stablecoin(account, market, data):
@@ -138,7 +139,6 @@ def test_burn_token(account, market, data):
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
     sleep(2)
     market.bid_auction(ipfs_hash, account["name"], 100, 10)
-    #market.bid_auction(ipfs_hash, account["name"], 100, 10)
     sleep(1)
     amount = 1000
     balance = stablecoins.storage["ledger"][account["key"]]()
