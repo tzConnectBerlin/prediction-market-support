@@ -27,7 +27,7 @@ app = typer.Typer()
 
 state = {
         "accounts": None,
-        "config": Config(config_file="oracle.ini"),
+        "config": None,
         "market": None
 }
 
@@ -39,35 +39,53 @@ def check_account_loaded(account):
 
 @app.command()
 def manage_accounts(
+        user: List[str],
         activate: bool = typer.Option(False, "--activate", "-a"),
         reveal: bool = typer.Option(False, "--reveal", "-r"),
-        import_accounts: bool = typer.Option(False, "--import", "-i")
+        import_accounts: bool = typer.Option(False, "--import", "-i"),
+        all: List[str] = typer.Option(False, "--all")
         ):
     """
     management of accounts in the user folder
     """
-    with typer.progressbar(state["accounts"].names()) as progress:
+    account_list = user
+    if all == True:
+        account_list = account_list + state['accounts'].names()
+    with typer.progressbar(account_list) as progress:
         for user in progress:
             if import_accounts:
                 if user == None:
-                    print("please add user")
-                    return
-                state["accounts"].import_to_tezos_client(user)
+                    print('please add user')
+                    continue
+                state['accounts'].import_to_tezos_client(user)
             if activate:
-                state["accounts"].activate_account(user)
+                state['accounts'].activate_account(user)
             if reveal:
-                state["accounts"].reveal_account(user)
-    market = Market(state["accounts"], state["config"])
+                state['accounts'].reveal_account(user)
+
+@app.command()
+def list_accounts(
+        with_funds: bool = typer.Option(False)
+    ):
+    """
+    list all of the accounts
+    """
+    accounts = state['accounts']
+    account_list = accounts.names()
+    for account_name in account_list:
+        print(
+            f'name: {account_name}   balance: {accounts[account_name].balance()}'
+        )
 
 @app.command()
 def ask_question(
         question: str,
         answer: str,
         user: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT),
-        auction_end_date: int = typer.Option(30),
-        market_end_date: int = typer.Option(50)
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1,99) * PERCENT),
+        auction_end_date: float = typer.Argument(30),
+        market_end_date: float = typer.Argument(50)
     ):
     """
     create a question in IPFS
@@ -93,8 +111,9 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Option(1000000000)
-    ):
+        users: List[str],
+        value: int = typer.Argument(1000000000)
+):
     """
     fund all accounts with a random quantity of tezos
 
@@ -105,8 +124,8 @@ def fund_stablecoin(
 
 @app.command()
 def transfer_stablecoin(
-        dest: str,
-        value: int = typer.Option(1000000000)
+        user: str,
+        value: int = typer.Argument(1000000000)
     ):
     """
     transfer a certain amount of coins toward an user address
@@ -115,14 +134,14 @@ def transfer_stablecoin(
     """
     check_account_loaded(user)
     print(f"Transferring stablecoin")
-    state["market"].transfer_stablecoin_to_user(dest, value)
+    state["market"].transfer_stablecoin_to_user(user, value)
 
 @app.command()
 def bid_auction(
         ipfs_hash: str,
         user: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1,99) * PERCENT)
     ):
     """
     launch a bid on an auction
@@ -139,19 +158,21 @@ def bid_auction(
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
+        users: List[str],
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1,99) * PERCENT)
     ):
     """
-    launch random bid on a auction from
-    all of the user contained in the state["accounts"].names() folder
+    launch random bid on a auction for
+    all of the chosen users folder
 
     ipfs_hash: Contract on which the bid are made
     """
     if len(state["accounts"].names()) == 0:
         print("Please add some accounts before using this functionality")
     print("placing random bids")
-    with typer.progressbar(state["accounts"].names()) as progress:
+    user_list = users
+    with typer.progressbar(user_list) as progress:
         for user in progress:
             state["market"].bid_auction(
                 ipfs_hash,
@@ -175,7 +196,7 @@ def close_auction(ipfs_hash: str, user: str):
 def close_market(
         ipfs_hash: str,
         user: str,
-        token_type: bool = typer.Option(True)
+        token_type: bool = typer.Argument(True)
     ):
     """
     close the market
@@ -194,7 +215,7 @@ def close_market(
 
 @app.callback()
 def main(
-        import_accounts: Optional[List[str]] = typer.Option(None, "--with-accounts", "-w"),
+        import_accounts: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
