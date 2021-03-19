@@ -1,8 +1,8 @@
 import ast
 import json
+import os
 
 from pytezos import pytezos
-
 
 def get_public_key(account):
     """
@@ -32,3 +32,11 @@ def submit_transaction(transaction, count=None, tries=None, error_func=None):
         if error_func != None:
             error_func(splited_error_message)
         print(e)
+        
+def get_tezos_client_path():
+    """
+    Obtain a tezos path
+    """
+    return os.path.expanduser(
+        os.path.join('~/.tezos-client', 'secret_keys')
+    )

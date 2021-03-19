@@ -27,7 +27,6 @@ class Config:
         self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
         privkey = admin_account_key or config['Tezos']['privkey']
         try:
-            print(self["endpoint"])
             self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
         except:
             print(f'Something went wrong with instantiating the shell object on endpoint {self["endpoint"]}')

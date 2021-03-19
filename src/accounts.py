@@ -5,7 +5,7 @@ import subprocess
 import glob
 from pytezos import pytezos, Key
 
-from src.utils.utils import submit_transaction
+from src.utils.utils import submit_transaction, get_tezos_client_path
 
 class Accounts:
     """
@@ -22,10 +22,10 @@ class Accounts:
 
     def __contains__(self, key):
         return key in self.accounts 
-        
+
     def names(self):
         return list(self.accounts.keys())
-    
+
     def import_from_folder(self, accounts_folder):
         """
         Get all the account data from the account folder account
@@ -49,7 +49,7 @@ class Accounts:
         """
         Import account from tezos client
         """
-        path = os.path.expanduser(os.path.join('~/.tezos-client', 'secret_keys'))
+        path = get_tezos_client_path()
         with open(path, 'r') as f:
             try:
                 data = json.loads(f.read())
@@ -61,7 +61,6 @@ class Accounts:
                 self.import_from_file(Key.from_encoded_key(sk), x['name'])
             except:
                 print(f"something went wrong with account {x['name']}")
-        
 
     def import_to_tezos_client(self, account_name: str):
         """
@@ -69,7 +68,6 @@ class Accounts:
         """
         env = dict(os.environ)
         host = self.endpoint
-        print(self.endpoint)
         subprocess.run(
             [
                 'tezos-client',

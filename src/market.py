@@ -76,7 +76,7 @@ class Market:
             value: int
         ):
         """
-        Transfer a certain amount of stablcoins towards an user address
+        Transfer a certain amount of stablecoin towards an user address
 
         user address that will receive the funds
         """
@@ -93,23 +93,23 @@ class Market:
             value: int
         ):
         """
-        fund all accounts with a random quantity of tezos
+        fund all accounts with a random quantity of stablecoin
 
-        value: the amont of tezos funded
+        value: the amont of stablecoin funded
         """
-        operation_list = []
+        operations_list = ()
         if len(self.accounts.names()) == 0:
             return
+        stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
         for user in self.accounts.names():
-            stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
             operation = stablecoin.transfer({
             'from': get_public_key(self.config["admin_account"]),
             'to': get_public_key(self.accounts[user]),
             'value': value
             })
-            operation_list.append(operation.as_transaction())
-        bulk_operations = pytezos.bulk(operation_list)
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+            operations_list = (*operations_list, operation)
+        bulk_operations = self.config["admin_account"].bulk(*operations_list)
+        submit_transaction(bulk_operations, error_func=raise_error)
 
     def bid_auction(
             self,
@@ -132,7 +132,7 @@ class Market:
                 'rate': rate
         }
         operation = self.pm_contracts[user].bid(data)
-        result = submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction())
     
     def multiple_bids(
             self,
@@ -146,7 +146,7 @@ class Market:
 
         ipfs_hash: Contract on which the bid are made
         """
-        operation_list = []
+        operations_list = []
         for user in self.accounts.names():
             data = {
                     'quantity': quantity,
@@ -154,9 +154,9 @@ class Market:
                     'rate': rate
             }
             operation = self.pm_contracts[user].bid(data)
-            operation_list.append(operation.as_transaction())
-        bulk_operations = pytezos.bulk((operation))
-        result = submit_transaction(operation.as_transaction(), error_func=raise_error)
+            operations_list.append(operation.as_transaction())
+        bulk_operations = self.config["admin_account"].bulk(*operations_list)
+        submit_transaction(bulk_operations, error_func=raise_error)
     
     def withdraw_auction(
             self,
@@ -166,7 +166,7 @@ class Market:
         operation = self.pm_contracts[user].withdrawAuction(
                 question
         )
-        result = submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=raise_error)
 
 
     def close_auction(self, ipfs_hash: str, user):
