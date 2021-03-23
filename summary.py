@@ -43,7 +43,7 @@ def get_question_data(data):
 
 def get_questions(id):
     """ Load and parse the questions bigmap"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
     js = load_json(url)
     ls = list(map(lambda x : {
         x['data']['key']['value'] : get_question_data(x['data']['value']['children'])
@@ -66,14 +66,14 @@ def get_storage_internal(js):
 def get_storage(id):
     """ Get all the storage for a contract and pass its children
     to @get_storage_internal """
-    url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size=10000"
+    url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size=10"
     js = load_json(url)
-    storage = get_storage_internal(js['children'])
+    storage = get_storage_internal(js[0]['children'])
     return storage
 
 def get_ledger(id):
     """ Get the ledger and pass it to jq to make the keys friendlier"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
     js = load_json(url)
     result = jq.first(r'map({ "\(.data.key.children[0].value).\(.data.key.children[1].value)": .data.value.children[0].value }) | add', js)
     if result is None:
@@ -81,19 +81,20 @@ def get_ledger(id):
     return result
 
 def get_stablecoin_ledger(id):
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
+    print(url)
     js = load_json(url)
-    result = jq.first('map({ (.data.key.value): (.data.value.children[1].value) }) | add', js)
+    result = jq.first('map({ (.data.key.value): (.data.value.children[0].value) }) | add', js)
     return result
 
 def get_total_supply(id):
     """ Get the total supply bigmap and flatten it"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
     js = load_json(url)
     return jq.all('map({ (.data.key.value): (.data.value.value) }) | add', js)
 
 def get_ledger_balances(id):
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10000"
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys"
     js = load_json(url)
     results = jq.first(r'map({ (.data.key.children[1].value): { (.data.key.children[0].value): .data.value.children[0].value } })', js)
     if results is None:

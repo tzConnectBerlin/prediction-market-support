@@ -15,8 +15,9 @@ all_questions = {}
 
 for question_hash in questions.keys():
     question = questions[question_hash]
-    uniswap_yes_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['yes_token_id']}")
-    uniswap_no_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['no_token_id']}")
+    uniswap_yes_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['yes_token_id']}") or 1
+    uniswap_no_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['no_token_id']}") or 1
+
     if uniswap_no_balance is not None and uniswap_yes_balance is not None:
         yes = int(uniswap_yes_balance)
         no = int(uniswap_no_balance)
@@ -24,5 +25,6 @@ for question_hash in questions.keys():
     else:
         question['price_yes'] = None
     all_questions.update({question_hash: question})
+
 
 print(json.dumps(all_questions))
