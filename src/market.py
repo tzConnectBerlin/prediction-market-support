@@ -6,17 +6,17 @@ from datetime import datetime, timedelta
 
 import ipfshttpclient
 import pytz
-from pytezos import pytezos
 
 from src.accounts import Accounts
 from src.config import Config
-from src.utils import summary
-from src.utils.utils import get_public_key, get_stablecoin, raise_error, submit_transaction
+from src.utils import get_public_key, get_stablecoin, print_error, submit_transaction
+
 
 class Market:
     """
     Market Class
     """
+
     def __init__(self, accounts: Accounts, config: Config):
         """
         Create a Market object
@@ -29,15 +29,15 @@ class Market:
         self.pm_contracts = accounts.contract_accounts(self.contract)
 
     def ask_question(
-        self,
-        question: str,
-        answer: str,
-        user: str,
-        quantity: int,
-        rate: int,
-        auction_end_date: float = 5.0,
-        market_end_date: float = 10.0
-        ):
+            self,
+            question: str,
+            answer: str,
+            user: str,
+            quantity: int,
+            rate: int,
+            auction_end_date: float = 5.0,
+            market_end_date: float = 10.0
+    ):
         """
         Create a question in IPFS
 
@@ -51,12 +51,12 @@ class Market:
         auction_end_date = timenow + timedelta(minutes=auction_end_date)
         market_close_date = timenow + timedelta(minutes=market_end_date)
         param = {
-                'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                'iconURL':
+            'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            'iconURL':
                 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-                'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                'question': question,
-                'yesAnswer': answer,
+            'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+            'question': question,
+            'yesAnswer': answer,
         }
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
@@ -67,14 +67,14 @@ class Market:
             'question': ipfs_hash,
             'rate': rate
         })
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
         return ipfs_hash
 
     def transfer_stablecoin_to_user(
             self,
             user: str,
             value: int
-        ):
+    ):
         """
         Transfer a certain amount of stablecoin towards an user address
 
@@ -86,12 +86,12 @@ class Market:
             'to': get_public_key(self.accounts[user]),
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def fund_stablecoin(
             self,
             value: int
-        ):
+    ):
         """
         fund all accounts with a random quantity of stablecoin
 
@@ -103,13 +103,13 @@ class Market:
         stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
         for user in self.accounts.names():
             operation = stablecoin.transfer({
-            'from': get_public_key(self.config["admin_account"]),
-            'to': get_public_key(self.accounts[user]),
-            'value': value
+                'from': get_public_key(self.config["admin_account"]),
+                'to': get_public_key(self.accounts[user]),
+                'value': value
             })
             operations_list = (*operations_list, operation)
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        submit_transaction(bulk_operations, error_func=raise_error)
+        submit_transaction(bulk_operations, error_func=print_error)
 
     def bid_auction(
             self,
@@ -117,7 +117,7 @@ class Market:
             user: str,
             quantity: int = 5,
             rate: int = 10
-        ):
+    ):
         """
         Launch a bid on an auction
 
@@ -127,47 +127,45 @@ class Market:
         rate: What is rate?
         """
         data = {
-                'quantity': quantity,
-                'question': ipfs_hash,
-                'rate': rate
+            'quantity': quantity,
+            'question': ipfs_hash,
+            'rate': rate
         }
         operation = self.pm_contracts[user].bid(data)
         submit_transaction(operation.as_transaction())
-    
+
     def multiple_bids(
             self,
             ipfs_hash: str,
             quantity: int = 5,
             rate: int = 10
-            ):
+    ):
         """
-        launch multiples bid on a auction for
-        all of the user contained in the accounts Class
+        Launch multiples bid on a auction for all of the user contained in the accounts Class
 
         ipfs_hash: Contract on which the bid are made
         """
         operations_list = []
         for user in self.accounts.names():
             data = {
-                    'quantity': quantity,
-                    'question': ipfs_hash,
-                    'rate': rate
+                'quantity': quantity,
+                'question': ipfs_hash,
+                'rate': rate
             }
             operation = self.pm_contracts[user].bid(data)
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        submit_transaction(bulk_operations, error_func=raise_error)
-    
+        submit_transaction(bulk_operations, error_func=print_error)
+
     def withdraw_auction(
             self,
             question: str,
             user: str
-        ):
+    ):
         operation = self.pm_contracts[user].withdrawAuction(
-                question
+            question
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
-
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def close_auction(self, ipfs_hash: str, user):
         """
@@ -177,14 +175,14 @@ class Market:
         user: user closing the auction (owner)
         """
         operation = self.pm_contracts[user].closeAuction(ipfs_hash)
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def close_market(
             self,
             question: str,
             token_type: bool,
             user: str
-        ):
+    ):
         """
         Close the market
 
@@ -196,8 +194,8 @@ class Market:
             question,
             token_type
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
-    
+        submit_transaction(operation.as_transaction(), error_func=print_error)
+
     def buy_token(
             self,
             question: str,
@@ -213,18 +211,18 @@ class Market:
         user: user whose token are bought
         """
         operation = self.pm_contracts[user].buyToken(
-                question,
-                token_type,
-                token_quantity
-            )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
-    
+            question,
+            token_type,
+            token_quantity
+        )
+        submit_transaction(operation.as_transaction(), error_func=print_error)
+
     def burn(
             self,
             question: str,
             token_quantity: int,
             user: str
-        ):
+    ):
         """
         Burn the token
 
@@ -233,20 +231,20 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts[user].burn(
-                question,
-                token_quantity
+            question,
+            token_quantity
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def claim_winnings(
             self,
             question: str,
             user: str
-        ):
+    ):
         operation = self.pm_contracts[user].claimWinnings(
-                question
+            question
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def update_liquidity(
             self,
@@ -254,24 +252,24 @@ class Market:
             add_lqt: bool,
             lqt_amount: int,
             user: str
-        ):
+    ):
         operation = self.pm_contracts[user].updateLiquidity(
-                question,
-                add_lqt,
-                lqt_amount
+            question,
+            add_lqt,
+            lqt_amount
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def swap(
             self,
-            questions: str,
+            question: str,
             token_in_type: bool,
             fixed_token_in: int,
             user: str
-        ):
+    ):
         operation = self.pm_contracts[user].swap(
-                question,
-                token_in_type,
-                fixed_token_in
+            question,
+            token_in_type,
+            fixed_token_in
         )
-        submit_transaction(operation.as_transaction(), error_func=raise_error)
+        submit_transaction(operation.as_transaction(), error_func=print_error)

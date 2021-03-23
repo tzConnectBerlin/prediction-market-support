@@ -1,4 +1,4 @@
-error_messages = {
+contract_error = {
         "1": "err_ONLY_OWNER_OR_MANAGER",
         "2": "err_UNISWAP_NOT_FOUND",
         "3": "err_UNISWAP_NOT_SET",

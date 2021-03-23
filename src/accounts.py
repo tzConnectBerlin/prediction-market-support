@@ -5,7 +5,8 @@ import subprocess
 import glob
 from pytezos import pytezos, Key
 
-from src.utils.utils import submit_transaction, get_tezos_client_path
+from src.utils import submit_transaction, get_tezos_client_path
+
 
 class Accounts:
     """
@@ -38,14 +39,14 @@ class Accounts:
 
     def import_from_file(self, account_data: str, account_name: str):
         account = pytezos.using(
-            key = account_data,
-            shell = self.endpoint,
+            key=account_data,
+            shell=self.endpoint,
         )
         if account_name in self.accounts:
             print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self):
+    def import_from_tezos_client(self, ignored_accounts):
         """
         Import account from tezos client
         """
@@ -56,11 +57,12 @@ class Accounts:
             except:
                 raise Exception('there is something wrong with the key file')
         for x in data:
-            prefix, sk = x['value'].split(':', maxsplit=1)
-            try:
-                self.import_from_file(Key.from_encoded_key(sk), x['name'])
-            except:
-                print(f"something went wrong with account {x['name']}")
+            if x['name'] not in ignored_accounts:
+                prefix, sk = x['value'].split(':', maxsplit=1)
+                try:
+                    self.import_from_file(Key.from_encoded_key(sk), x['name'])
+                except:
+                    print(f'something went wrong with account {x["name"]}')
 
     def import_to_tezos_client(self, account_name: str):
         """
@@ -91,7 +93,6 @@ class Accounts:
         if self.accounts[account_name].balance() == 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
-
 
     def reveal_account(self, account_name: str):
         """
