@@ -11,7 +11,7 @@ from pytezos import pytezos, Key
 from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
-from src.utils import summary
+from src import summary
 
 config = Config(config_file="tests/oracle.ini")
 

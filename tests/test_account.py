@@ -6,7 +6,7 @@ import pytest
 from decimal import Decimal
 from pytezos import pytezos, Key
 
-import summary
+from src import summary
 from src.accounts import Accounts
 from src.config import Config
 
