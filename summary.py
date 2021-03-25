@@ -82,7 +82,6 @@ def get_ledger(id):
 
 def get_stablecoin_ledger(id):
     url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
-    print(url)
     js = load_json(url)
     result = jq.first('map({ (.data.key.value): (.data.value.children[0].value) }) | add', js)
     return result
