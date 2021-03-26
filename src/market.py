@@ -273,3 +273,13 @@ class Market:
             fixed_token_in
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
+
+    def withdraw_auction(
+            self,
+            question: str,
+            user: str
+    ):
+        operation = self.pm_contracts[user].withdrawAuction(
+            question
+        )
+        submit_transaction(operation.as_transaction(), error_func=print_error)

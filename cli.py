@@ -209,6 +209,29 @@ def close_market(
     )
 
 
+<<<<<<< HEAD
+=======
+@app.command()
+def claim_winnings(
+        question: str,
+        user: str
+    ):
+    state["market"].claim_winnings(
+        question,
+        user
+    )
+
+@app.command()
+def withdraw_auction(
+        question: str,
+        user: str
+    ):
+    state["market"].withdraw_auction(
+        question,
+        user
+    )
+
+>>>>>>> 680532f (claim withdraw)
 @app.callback()
 def main(
         import_accounts: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
@@ -222,12 +245,22 @@ def main(
     """
     High level option for the tool
     """
+<<<<<<< HEAD
+=======
+    state['accounts'] = Accounts(state["config"]["endpoint"])
+    if import_accounts != None:
+        for account in import_accounts:
+           account_name = typer.prompt("Please associate a name for this account")
+           state["accounts"].import_from_file(account, account_name)
+           typer.echo(f"{account_name} was imported")
+>>>>>>> 680532f (claim withdraw)
     state['config'] = Config(
             admin_account_key=admin_key,
             config_file=config_file,
             contract=contract,
             endpoint=endpoint,
         )
+<<<<<<< HEAD
     state['accounts'] = Accounts(state['config']['endpoint'])
     if import_accounts is not None:
         for account in import_accounts:
@@ -244,6 +277,9 @@ def main(
     state['market'] = Market(state['accounts'], state['config'])
     return state
 
+=======
+    state['market'] = Market(state["accounts"], state["config"])
+>>>>>>> 680532f (claim withdraw)
 
 if __name__ == "__main__":
     app()
