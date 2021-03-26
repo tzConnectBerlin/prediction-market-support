@@ -29,7 +29,10 @@ def raise_error(_err_message):
 def print_error(err_message):
     if 'with' in err_message and 'string' in err_message['with']:
         err_code = err_message['with']['string']
-        print(contract_error[err_code])
+        if err_code in contract_error:
+            print("Error:", contract_error[err_code])
+        else:
+            print("Error:", err_code)
     else:
         print(err_message)
     sys.exit()
@@ -51,7 +54,6 @@ def submit_transaction(transaction, count=None, tries=0, error_func=None):
         contract_count = transaction.shell.contracts[source].count()
         if count is not None and count < contract_count:
             count = contract_count
-        print(transaction.contents)
         if 'activate_account' in transaction.contents[0]['kind']:
             transaction = transaction.fill(counter=count, branch_offset=1)
         else:
