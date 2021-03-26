@@ -1,21 +1,21 @@
+import json
 import os
 import subprocess
 
 import glob
 from pytezos import pytezos, Key
 
-from src.utils.utils import submit_transaction
+from src.utils import submit_transaction, get_tezos_client_path
+
 
 class Accounts:
     """
     User Class for Handling tezos accounts
     """
 
-    def __init__(self, endpoint, folder="users"):
+    def __init__(self, endpoint):
         self.accounts = {}
         self.endpoint = endpoint
-        if folder != None:
-            self.import_from_folder(folder)
 
     def __getitem__(self, account_name: str):
         if account_name in self.accounts:
@@ -23,10 +23,10 @@ class Accounts:
 
     def __contains__(self, key):
         return key in self.accounts 
-        
+
     def names(self):
         return list(self.accounts.keys())
-    
+
     def import_from_folder(self, accounts_folder):
         """
         Get all the account data from the account folder account
@@ -39,20 +39,30 @@ class Accounts:
 
     def import_from_file(self, account_data: str, account_name: str):
         account = pytezos.using(
-            key = account_data,
-            shell = self.endpoint,
+            key=account_data,
+            shell=self.endpoint,
         )
         if account_name in self.accounts:
             print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, account_name: str):
+    def import_from_tezos_client(self, ignored_accounts=None):
         """
         Import account from tezos client
         """
-        key = Key.from_alias(account_name)
-        self.import_from_file(key.public_key_hash(), account_name)
-        
+        path = get_tezos_client_path()
+        with open(path, 'r') as f:
+            try:
+                data = json.loads(f.read())
+            except:
+                raise Exception('there is something wrong with the key file')
+        for x in data:
+            if x['name'] not in ignored_accounts:
+                prefix, sk = x['value'].split(':', maxsplit=1)
+                try:
+                    self.import_from_file(Key.from_encoded_key(sk), x['name'])
+                except:
+                    print(f'something went wrong with account {x["name"]}')
 
     def import_to_tezos_client(self, account_name: str):
         """
@@ -83,7 +93,6 @@ class Accounts:
         if self.accounts[account_name].balance() == 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
-
 
     def reveal_account(self, account_name: str):
         """

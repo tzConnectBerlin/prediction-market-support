@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    volumes:
+      - ./user/.tezos-client:/root/.tezos-client
+      - ./users:/cli/users
+    image: my_image
+    stdin_open: true
+    tty: true

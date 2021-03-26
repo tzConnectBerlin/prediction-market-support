@@ -4,7 +4,7 @@ from pathlib import Path
 from subprocess import Popen, PIPE
 from time import sleep
 
-from pytezos import pytezos, ContractInterface, Key, OperationResult
+from pytezos import pytezos, ContractInterface, Key
 from requests.exceptions import ConnectionError
 
 ligo_cmd = (
@@ -54,12 +54,12 @@ def compile_storage():
     return result
 
 def launch_sandbox():
-    command = "sh test/start_sandbox.sh"
+    compile_command = "sh tests/start_sandbox.sh"
     result = run_command(compile_command)
     return result
 
 def stop_sandbox():
-    command = "sh test/stop_sandbox.sh"
+    compile_command = "sh tests/stop_sandbox.sh"
     result = run_command(compile_command)
     return result
 
@@ -77,7 +77,7 @@ def wait_next_block(block_time, client):
         else:
             return current_block_hash
 
-
+""""
 def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
     for i in range(num_block_wait):
         wait_next_block(block_time, client)
@@ -93,7 +93,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
             return contract_id
-
+"""
 
 def setup_contract():
     print("compiling contract...")
@@ -112,5 +112,3 @@ def setup_contract():
     contract_id = get_contract_id(client, 2, operation_hash)
     print(contract_id)
     return(contract_id)
-
-setup_contract()

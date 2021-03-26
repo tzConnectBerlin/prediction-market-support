@@ -3,16 +3,11 @@
 Tooling for prediction markets market
 """
 
-import json
 import random
-import sys
-from time import sleep
 from typing import List, Optional
 
-import configparser
 import typer
 
-##### Local Script
 from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
@@ -26,10 +21,8 @@ PERCENT = 10000000000000000
 app = typer.Typer()
 
 state = {
-        "accounts": None,
-        "config": Config(config_file="oracle.ini"),
-        "market": None
 }
+
 
 def check_account_loaded(account):
     if account not in state["accounts"]:
@@ -37,38 +30,53 @@ def check_account_loaded(account):
         print(state["accounts"].names())
         raise typer.Exit()
 
+
 @app.command()
 def manage_accounts(
         activate: bool = typer.Option(False, "--activate", "-a"),
         reveal: bool = typer.Option(False, "--reveal", "-r"),
-        import_accounts: bool = typer.Option(False, "--import", "-i")
+        import_accounts: bool = typer.Option(False, "--import", "-i"),
         ):
     """
     management of accounts in the user folder
     """
-    with typer.progressbar(state["accounts"].names()) as progress:
+    account_list = state["accounts"].names()
+    with typer.progressbar(account_list) as progress:
         for user in progress:
             if import_accounts:
-                if user == None:
-                    print("please add user")
-                    return
-                state["accounts"].import_to_tezos_client(user)
+                if user is None:
+                    print('please add user')
+                    continue
+                state['accounts'].import_to_tezos_client(user)
             if activate:
-                state["accounts"].activate_account(user)
+                state['accounts'].activate_account(user)
             if reveal:
-                state["accounts"].reveal_account(user)
-    market = Market(state["accounts"], state["config"])
+                state['accounts'].reveal_account(user)
+
+
+@app.command()
+def list_accounts():
+    """
+    list all of the accounts
+    """
+    accounts = state['accounts']
+    account_list = accounts.names()
+    for account_name in account_list:
+        print(
+            f'name: {account_name}   balance: {accounts[account_name].balance()}'
+        )
+
 
 @app.command()
 def ask_question(
         question: str,
         answer: str,
         user: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT),
-        auction_end_date: int = typer.Option(30),
-        market_end_date: int = typer.Option(50)
-    ):
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1, 99) * PERCENT),
+        auction_end_date: float = typer.Argument(30),
+        market_end_date: float = typer.Argument(50)
+        ):
     """
     create a question in IPFS
 
@@ -91,10 +99,11 @@ def ask_question(
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
 
+
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Option(1000000000)
-    ):
+        value: int = typer.Argument(1000000000)
+        ):
     """
     fund all accounts with a random quantity of tezos
 
@@ -103,11 +112,12 @@ def fund_stablecoin(
     print("Transferring stablecoin to accounts:", state["accounts"].names())
     state["market"].fund_stablecoin(value)
 
+
 @app.command()
 def transfer_stablecoin(
-        dest: str,
-        value: int = typer.Option(1000000000)
-    ):
+        user: str,
+        value: int = typer.Argument(1000000000)
+        ):
     """
     transfer a certain amount of coins toward an user address
 
@@ -115,15 +125,16 @@ def transfer_stablecoin(
     """
     check_account_loaded(user)
     print(f"Transferring stablecoin")
-    state["market"].transfer_stablecoin_to_user(dest, value)
+    state["market"].transfer_stablecoin_to_user(user, value)
+
 
 @app.command()
 def bid_auction(
         ipfs_hash: str,
         user: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
-    ):
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1, 99) * PERCENT)
+        ):
     """
     launch a bid on an auction
 
@@ -136,23 +147,26 @@ def bid_auction(
     print(f"bidding auction for {user}")
     state["market"].bid_auction(ipfs_hash, user, quantity, rate)
 
+
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Option(50000),
-        rate: int = typer.Option(random.randint(1,99) * PERCENT)
-    ):
+        quantity: int = typer.Argument(50000),
+        rate: int = typer.Argument(random.randint(1, 99) * PERCENT),
+        ):
     """
-    launch random bid on a auction from
-    all of the user contained in the state["accounts"].names() folder
+    launch random bid on a auction for
+    all of the chosen users folder
 
     ipfs_hash: Contract on which the bid are made
     """
     if len(state["accounts"].names()) == 0:
         print("Please add some accounts before using this functionality")
     print("placing random bids")
-    with typer.progressbar(state["accounts"].names()) as progress:
+    user_list = state["acounts"].names()
+    with typer.progressbar(user_list) as progress:
         for user in progress:
+            print(f"generating bids for accounts {user}")
             state["market"].bid_auction(
                 ipfs_hash,
                 user,
@@ -160,6 +174,7 @@ def random_bids(
                 rate
             )
         print("\n")
+
 
 @app.command()
 def close_auction(ipfs_hash: str, user: str):
@@ -171,12 +186,13 @@ def close_auction(ipfs_hash: str, user: str):
     print(f"closing action {ipfs_hash} for {user}")
     state["market"].close_auction(ipfs_hash, user)
 
+
 @app.command()
 def close_market(
         ipfs_hash: str,
         user: str,
-        token_type: bool = typer.Option(True)
-    ):
+        token_type: bool = typer.Argument(True)
+        ):
     """
     close the market
 
@@ -192,16 +208,38 @@ def close_market(
             user
     )
 
+
+@app.command()
+def claim_winnings(
+        question: str,
+        user: str
+    ):
+    state["market"].claim_winnings(
+        question,
+        user
+    )
+
+@app.command()
+def withdraw_auction(
+        question: str,
+        user: str
+    ):
+    state["market"].withdraw_auction(
+        question,
+        user
+    )
+
+
 @app.callback()
 def main(
-        import_accounts: Optional[List[str]] = typer.Option(None),
+        import_accounts: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
+        ignored_accounts: Optional[List[str]] = typer.Option(None, "--ignore-account"),
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
         config_file: str = typer.Option("oracle.ini"),
-        user_folder: str = typer.Option(None),
-        import_from_client: Optional[List[str]] = typer.Option(None)
-    ):
+        force: bool = typer.Option(None, "--force", "-f")
+        ):
     """
     High level option for the tool
     """
@@ -210,20 +248,23 @@ def main(
             config_file=config_file,
             contract=contract,
             endpoint=endpoint,
-            user_folder=user_folder
         )
-    state['accounts'] = Accounts(state["config"]["endpoint"], state["config"]["user_folder"])
-    if import_accounts != None:
+    state['accounts'] = Accounts(state['config']['endpoint'])
+    if import_accounts is not None:
         for account in import_accounts:
-           account_name = typer.prompt("Please associate a name for this account")
-           state["accounts"].import_from_file(account, account_name)
-           typer.echo(f"{account_name} was imported")
-    if import_from_client != None:
-        for account_name in import_from_client:
-           state['accounts'].import_from_tezos_client(account_name)
-
-    state['market'] = Market(state["accounts"], state["config"])
+            account_name = typer.prompt("Please associate a name for this account")
+            state['accounts'].import_from_file(account, account_name)
+            if force is not None:
+                state["accounts"].import_to_tezos_client(account_name)
+                typer.echo(f"{account_name} was imported")
+                state["accounts"].activate_account(account_name)
+                typer.echo(f"{account_name} was activated")
+                state["accounts"].reveal_account(account_name)
+                typer.echo(f"{account_name} was revealed")
+    state['accounts'].import_from_tezos_client(ignored_accounts)
+    state['market'] = Market(state['accounts'], state['config'])
     return state
+
 
 if __name__ == "__main__":
     app()

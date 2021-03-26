@@ -17,8 +17,10 @@ from cli import app
 
 config = Config(config_file="tests/oracle.ini")
 
-def new_market():
-    test_accounts = Accounts(folder="tests/users", endpoint="http://localhost:20000")
+def new_market(account):
+    test_accounts = Accounts(endpoint=config["endpoint"])
+    test_accounts.import_from_folder("tests/users")
+    test_accounts.reveal_account(account["name"])
     new_market = Market(test_accounts, config)
     return new_market
 
@@ -32,7 +34,7 @@ questions = [
 ]
 
 test_data = [
-    (accounts[0], new_market(), questions[0])
+    (accounts[0], new_market(accounts[0]), questions[0])
 ]
 
 client = config["admin_account"]
@@ -46,15 +48,15 @@ def rand(mul=100):
 
 def finance_account(key: str):
     client = pytezos.using(
-            shell="http://localhost:20000",
+            shell= config["endpoint"],
             key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
     )
     client.transaction(key, amount=Decimal(10)) \
-            .autofill().sign().inject()
+        .autofill().sign().inject()
     sleep(3)
 
 app_options = [
-        "--config-file", "tests/oracle.ini", "--user-folder", "tests/users"
+        "--config-file", "tests/oracle.ini"
 ]
 
 @pytest.mark.parametrize("account", accounts)
@@ -62,9 +64,8 @@ def test_fund_stablecoin(account):
     finance_account(account["key"])
     balance = stablecoins.storage["ledger"][account["key"]]()
     result = runner.invoke(app, app_options + ["fund-stablecoin"])
-    sleep(3)
-    amount = rand(100)
-    sleep(3)
+    print(balance)
+    sleep(10)
     new_balance = stablecoins.storage["ledger"][account["key"]]()
     assert stablecoins.storage["ledger"][account["key"]]()
     assert balance["balance"] < new_balance["balance"]
@@ -74,9 +75,8 @@ def test_transfer_stablecoin(account):
     finance_account(account["key"])
     balance = stablecoins.storage["ledger"][account["key"]]()
     result = runner.invoke(app, app_options + ["transfer-stablecoin", account["name"]])
-    sleep(3)
-    amount = rand(100)
-    sleep(3)
+    print(result.stdout)
+    sleep(10)
     new_balance = stablecoins.storage["ledger"][account["key"]]()
     assert stablecoins.storage["ledger"][account["key"]]()
     assert balance["balance"] < new_balance["balance"]
@@ -84,11 +84,17 @@ def test_transfer_stablecoin(account):
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_ask_question(account, market, data):
     finance_account(account["key"])
-    result = runner.invoke(app, app_options + ["ask-question"] + data)
+    #make sure only string are passed to the runner
+    question_data = list(map(str, data))
+    result = runner.invoke(app, app_options + ["ask-question"] + question_data)
+    #I take the second one to ensure the ipfs_hash is taken. A regex could be used here
+    ipfs_hash = result.stdout.split()[2]
+
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
     market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
     sleep(3)
     question = contract.storage["questions"][ipfs_hash]()
+    assert result.exit_code == 0
     assert question['total_auction_quantity'] == data[3]
     assert question['state'] == "questionAuctionOpen"
     assert question['owner'] == account["key"]
@@ -123,9 +129,8 @@ def test_close_market(account,market,data):
     finance_account(account["key"])
     sleep(3)
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    result = runner.invoke(app, app_options + ["close-market", ipfs_hash, account["name"]])
     sleep(data[6] * 60 + 60)
-    market.close_market(ipfs_hash, True, account["name"])
-    sleep(3)
     question = contract.storage["questions"][ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"

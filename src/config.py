@@ -25,7 +25,6 @@ class Config:
         self.data["contract"] = contract or config['Tezos']['pm_contract']
         self.data["endpoint"] = endpoint or config['Tezos']['endpoint']
         self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
-        self.data["user_folder"] = user_folder or "users"
         privkey = admin_account_key or config['Tezos']['privkey']
         try:
             self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
