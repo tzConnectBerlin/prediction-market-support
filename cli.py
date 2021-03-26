@@ -11,9 +11,9 @@ import typer
 from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
+from src.utils import get_stablecoin, get_public_key
 
-PERCENT = 10000000000000000
-
+MULTIPLIER = 10 ** 18
 ##################
 # Setup
 ##################
@@ -73,7 +73,7 @@ def ask_question(
         answer: str,
         user: str,
         quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * PERCENT),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         auction_end_date: float = typer.Argument(30),
         market_end_date: float = typer.Argument(50)
         ):
@@ -127,20 +127,35 @@ def transfer_stablecoin(
     print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(user, value)
 
+@app.command()
+def stablecoin_balance(
+        user: str
+        ):
+    """
+    get balance for user
+    """
+    user_address = get_public_key(state['accounts'][user])
+    balance = int(get_stablecoin(state['config']['admin_account'],
+                                 state['config']['contract']).getBalance(
+                                 { 'owner' : user_address, 'contract_1' : None }).view())
+    balance /= MULTIPLIER
+    print(f"{balance}")
+
+
 
 @app.command()
 def bid_auction(
         ipfs_hash: str,
         user: str,
         quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * PERCENT)
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
         ):
     """
-    launch a bid on an auction
+    Bid on an auction
 
-    ipfs_hash: the contract concerned by the bid
-    user: string representing the user which is bidding during the auction
-    quantity: Integer representing quantity of stable coins bid during the auction
+    ipfs_hash: the contract to use
+    user: string representing the user who is bidding
+    quantity: quantity of stable coins bid during the auction
     rate: What is rate?
     """
     check_account_loaded(user)
@@ -152,7 +167,7 @@ def bid_auction(
 def random_bids(
         ipfs_hash: str,
         quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * PERCENT),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         ):
     """
     launch random bid on a auction for
@@ -181,7 +196,7 @@ def close_auction(ipfs_hash: str, user: str):
     """
     close the auction
 
-    ipfs_hash: the hash of the concerned contract
+    ipfs_hash: the hash of the question
     """
     print(f"closing action {ipfs_hash} for {user}")
     state["market"].close_auction(ipfs_hash, user)
@@ -237,11 +252,11 @@ def main(
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
-        config_file: str = typer.Option("oracle.ini"),
+        config_file: str = typer.Option("cli.ini"),
         force: bool = typer.Option(None, "--force", "-f")
         ):
     """
-    High level option for the tool
+    High level options
     """
     state['config'] = Config(
             admin_account_key=admin_key,
