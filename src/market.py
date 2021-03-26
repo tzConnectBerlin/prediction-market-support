@@ -104,11 +104,12 @@ class Market:
         for user in self.accounts.names():
             operation = stablecoin.transfer({
                 'from': get_public_key(self.config["admin_account"]),
-                'to': get_public_key(self.accounts[user]),
+                'to': get_public_key(self.ounts[user]),
                 'value': value
             })
             operations_list = (*operations_list, operation)
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
+        print(bulk_operations)
         submit_transaction(bulk_operations, error_func=print_error)
 
     def bid_auction(

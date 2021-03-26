@@ -70,6 +70,7 @@ def test_fund_stablecoin(account, market, data):
     assert stablecoins.storage["ledger"][account["key"]]()
     assert balance["balance"] + amount == new_balance["balance"]
 
+"""
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_ask_question(account, market, data):
     finance_account(account["key"])
@@ -119,6 +120,7 @@ def test_close_market(account, market, data):
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
 
+"""
 """
 @pytest.mark.parametrize("account,market,data", test_data)
 def test_buy_token(account,market,data):
