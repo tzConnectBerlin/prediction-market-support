@@ -46,7 +46,7 @@ class Accounts:
             print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, ignored_accounts=None):
+    def import_from_tezos_client(self, ignored_accounts=[]):
         """
         Import account from tezos client
         """
@@ -57,6 +57,7 @@ class Accounts:
             except:
                 raise Exception('there is something wrong with the key file')
         for x in data:
+            print(x)
             if x['name'] not in ignored_accounts:
                 prefix, sk = x['value'].split(':', maxsplit=1)
                 try:
