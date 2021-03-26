@@ -46,7 +46,7 @@ class Accounts:
             print(f"user {account_name} as aready been imported, reimporting it")
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, ignored_accounts):
+    def import_from_tezos_client(self, ignored_accounts=None):
         """
         Import account from tezos client
         """
