@@ -2,7 +2,7 @@ from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
 
 from src.compile import *
-from src.utils.utils import submit_transaction
+from src.utils import submit_transaction
 
 from time import sleep
 
@@ -13,7 +13,7 @@ admin = {
 }
 
 Migration = {
-        'path': './contracts/ligo/Migration.ligo',
+        'path': './contracts/ligo/Migrations.ligo',
         'storage': {
             'last_completed_migration': 0,
             'owner': admin['pkh']
@@ -73,7 +73,6 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
                 raise Exception("Operation was not applied")
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
-            print(contract_id)
             return contract_id
 
 
@@ -82,15 +81,17 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
-    res = submit_transaction(operation, "")
-    get_contract_id(client, 2, res["hash"])
+    res = submit_transaction(operation)
+    if res is not None and res["hash"]:
+        return get_contract_id(client, 2, res["hash"])
 
 def deploy_market(key=admin['sk']):
-    print("migration was deployed")
     deploy_from_file(Migration['path'], key)
-    print("stablecoin was deployed")
+    print("migration was deployed")
     stablecoin_id  = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
-    Market['stablecoin'] = stablecoin_id
+    print(f"stablecoin was deployed at {stablecoin_id}")
+    Market['storage']['stablecoin'] = stablecoin_id
+    print(Market)
     print("market was deployed")
     market_id = deploy_from_file(Market['path'], key, Market['storage'])
     return market_id
