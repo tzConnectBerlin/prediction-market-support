@@ -26,8 +26,8 @@ USDtzLeger = {
             'totalSupply': 0,
             'ledger': {
                 admin['pkh']: {
-                    balance: 1000000000000000
-                    allocances: {}
+                    'balance': 100000000000000000000,
+                    'allowances': {}
                 }
             }
         }
