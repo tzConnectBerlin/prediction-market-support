@@ -33,7 +33,7 @@ app_options = [
         "--config-file", "tests/oracle.ini"
 ]
 
-"""
+
 @pytest.mark.parametrize("account", accounts)
 def test_fund_stablecoin(account, stablecoin_storage):
     balance = stablecoin_storage[account["key"]]()
@@ -93,7 +93,7 @@ def test_close_auction(account, market, data, questions_storage):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionAuctionWithdrawOpen"
-"""
+
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_market(account, market, data, questions_storage):
