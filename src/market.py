@@ -97,7 +97,7 @@ class Market:
 
         value: the amont of stablecoin funded
         """
-        operations_list = ()
+        operations_list = []
         if len(self.accounts.names()) == 0:
             return
         stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
@@ -107,7 +107,7 @@ class Market:
                 'to': get_public_key(self.accounts[user]),
                 'value': value
             })
-            operations_list = (*operations_list, operation)
+            operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         submit_transaction(bulk_operations, error_func=print_error)
 
@@ -157,16 +157,6 @@ class Market:
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         submit_transaction(bulk_operations, error_func=print_error)
 
-    def withdraw_auction(
-            self,
-            question: str,
-            user: str
-    ):
-        operation = self.pm_contracts[user].withdrawAuction(
-            question
-        )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
     def close_auction(self, ipfs_hash: str, user):
         """
         Close the auction
@@ -175,6 +165,16 @@ class Market:
         user: user closing the auction (owner)
         """
         operation = self.pm_contracts[user].closeAuction(ipfs_hash)
+        submit_transaction(operation.as_transaction(), error_func=print_error)
+
+    def withdraw_auction(
+            self,
+            question: str,
+            user: str
+    ):
+        operation = self.pm_contracts[user].withdrawAuction(
+            question
+        )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def close_market(
@@ -194,7 +194,8 @@ class Market:
             question,
             token_type
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        res = submit_transaction(operation.as_transaction(), error_func=print_error)
+        print(res)
 
     def buy_token(
             self,
@@ -271,15 +272,5 @@ class Market:
             question,
             token_in_type,
             fixed_token_in
-        )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
-    def withdraw_auction(
-            self,
-            question: str,
-            user: str
-    ):
-        operation = self.pm_contracts[user].withdrawAuction(
-            question
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)

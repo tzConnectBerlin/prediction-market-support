@@ -24,7 +24,12 @@ USDtzLeger = {
         'path': './contracts/ligo/third-party/FA12Permissive.ligo',
         'storage': {
             'totalSupply': 0,
-            'ledger': {}
+            'ledger': {
+                admin['pkh']: {
+                    'balance': 100000000000000000000,
+                    'allowances': {}
+                }
+            }
         }
 }
 
