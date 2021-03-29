@@ -113,6 +113,7 @@ def test_buy_token(account,market,data, stablecoin_storage):
     assert stablecoin_storage[account["key"]]()
     assert balance["balance"] - amount == new_balance["balance"]
 
+
 @pytest.mark.parametrize("account,data", test_data)
 def test_burn_token(account, market, data, stablecoin_storage):
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])

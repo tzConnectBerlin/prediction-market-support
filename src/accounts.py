@@ -57,7 +57,6 @@ class Accounts:
             except:
                 raise Exception('there is something wrong with the key file')
         for x in data:
-            print(x)
             if x['name'] not in ignored_accounts:
                 prefix, sk = x['value'].split(':', maxsplit=1)
                 try:
@@ -113,3 +112,4 @@ class Accounts:
         for account_name in self.accounts:
             contract_clients[account_name] = self.accounts[account_name].contract(contract)
         return contract_clients
+

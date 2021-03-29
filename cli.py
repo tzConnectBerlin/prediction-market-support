@@ -72,8 +72,8 @@ def ask_question(
         question: str,
         answer: str,
         user: str,
-        quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
+        quantity: int = typer.Argument(500000),
+        rate: int = typer.Argument(random.randint(1, 99) * 1000),
         auction_end_date: float = typer.Argument(30),
         market_end_date: float = typer.Argument(50)
         ):
@@ -102,7 +102,7 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Argument(1000000000)
+        value: int = typer.Argument(1000000)
         ):
     """
     fund all accounts with a random quantity of tezos
@@ -116,7 +116,7 @@ def fund_stablecoin(
 @app.command()
 def transfer_stablecoin(
         user: str,
-        value: int = typer.Argument(1000000000)
+        value: int = typer.Argument(1000000)
         ):
     """
     transfer a certain amount of coins toward an user address
@@ -148,7 +148,7 @@ def bid_auction(
         ipfs_hash: str,
         user: str,
         quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
+        rate: int = typer.Argument(random.randint(1, 99) * 1000)
         ):
     """
     Bid on an auction
@@ -166,7 +166,7 @@ def bid_auction(
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Argument(50000),
+        quantity: int = typer.Argument(50000 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         ):
     """

@@ -27,8 +27,15 @@ def raise_error(_err_message):
 
 
 def print_error(err_message):
-    if 'with' in err_message and 'string' in err_message['with']:
-        err_code = err_message['with']['string']
+    if 'with' in err_message:
+        if 'string' in err_message['with']:
+            err_code = err_message['with']['string']
+        elif 'int' in err_message['with']:
+            err_code = err_message['with']['int']
+        else:
+            print(err_message)
+            sys.exit()
+
         if err_code in contract_error:
             print("Error:", contract_error[err_code])
         else:
@@ -48,7 +55,6 @@ def print_and_ignore(err_message):
 
 
 def submit_transaction(transaction, count=None, tries=0, error_func=None):
-    res = None
     try:
         source = transaction.key.public_key_hash()
         contract_count = transaction.shell.contracts[source].count()
@@ -59,6 +65,7 @@ def submit_transaction(transaction, count=None, tries=0, error_func=None):
         else:
             transaction = transaction.autofill(counter=count, branch_offset=1)
         res = transaction.sign().inject()
+        return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])
         if err_message['id'] == 'proto.alpha.contract.counter_in_the_past' and tries > 0:
@@ -68,7 +75,6 @@ def submit_transaction(transaction, count=None, tries=0, error_func=None):
             submit_transaction(transaction, count=count - 1, tries=tries - 1, error_func=error_func)
         if error_func is not None:
             error_func(err_message)
-    return res
 
 
 def get_tezos_client_path():
