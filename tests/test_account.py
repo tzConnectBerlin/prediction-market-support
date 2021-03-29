@@ -21,13 +21,13 @@ def test_user_is_imported_from_file(input, config):
     assert input in accounts
 
 
-@pytest.mark.parametrize("name,key", test_accounts)
-def test_users_is_imported_to_tezos_client(name, key, config):
+@pytest.mark.parametrize("name,pbkey", test_accounts)
+def test_users_is_imported_to_tezos_client(name, pbkey, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{name}.json", name)
     accounts.import_to_tezos_client(name)
     key = Key.from_alias(name)
-    assert key.public_key_hash() == key
+    assert key.public_key_hash() == pbkey
 
 
 @pytest.mark.parametrize("input", ["donald"])

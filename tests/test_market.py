@@ -37,8 +37,9 @@ def rand(mul=100):
     return random.randint(1,99) * mul
 
 
-@pytest.mark.parametrize("accounts,data", test_data)
+@pytest.mark.parametrize("account,data", test_data)
 def test_fund_stablecoin(account, market, data, stablecoin_storage):
+    sleep(3)
     market.transfer_stablecoin_to_user(account["name"], rand())
     sleep(3)
     balance = stablecoin_storage[account["key"]]()
@@ -52,6 +53,7 @@ def test_fund_stablecoin(account, market, data, stablecoin_storage):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage):
+    sleep(3)
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
     market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
@@ -66,6 +68,7 @@ def test_ask_question(account, market, data, questions_storage):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_bid_auction(account, market, data, questions_storage):
+    sleep(3)
     ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
     sleep(3)
     question = questions_storage[ipfs_hash]()

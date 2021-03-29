@@ -70,6 +70,7 @@ def submit_transaction(transaction, count=None, tries=0, error_func=None):
             error_func(err_message)
     return res
 
+
 def get_tezos_client_path():
     """
     Obtain a tezos path
