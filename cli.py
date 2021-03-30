@@ -13,7 +13,7 @@ from src.config import Config
 from src.market import Market
 from src.utils import get_stablecoin, get_public_key
 
-MULTIPLIER = 10 ** 18
+MULTIPLIER = 10 ** 6
 ##################
 # Setup
 ##################
@@ -72,8 +72,8 @@ def ask_question(
         question: str,
         answer: str,
         user: str,
-        quantity: int = typer.Argument(500000),
-        rate: int = typer.Argument(random.randint(1, 99) * 1000),
+        quantity: int = typer.Argument(5000 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         auction_end_date: float = typer.Argument(30),
         market_end_date: float = typer.Argument(50)
         ):
@@ -102,7 +102,7 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Argument(1000000)
+        value: int = typer.Argument(10000 * MULTIPLIER)
         ):
     """
     fund all accounts with a random quantity of tezos
@@ -116,7 +116,7 @@ def fund_stablecoin(
 @app.command()
 def transfer_stablecoin(
         user: str,
-        value: int = typer.Argument(1000000)
+        value: int = typer.Argument(10000 * MULTIPLIER)
         ):
     """
     transfer a certain amount of coins toward an user address
@@ -147,8 +147,8 @@ def stablecoin_balance(
 def bid_auction(
         ipfs_hash: str,
         user: str,
-        quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * 1000)
+        quantity: int = typer.Argument(500 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
         ):
     """
     Bid on an auction
@@ -166,7 +166,7 @@ def bid_auction(
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Argument(50000 * MULTIPLIER),
+        quantity: int = typer.Argument(500 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         ):
     """
@@ -234,6 +234,7 @@ def claim_winnings(
         user
     )
 
+
 @app.command()
 def withdraw_auction(
         question: str,
@@ -243,6 +244,16 @@ def withdraw_auction(
         question,
         user
     )
+
+
+@app.command()
+def list_markets():
+    state["market"].list_market()
+
+
+@app.command()
+def list_bids(question: str):
+    state["market"].list_bids(question)
 
 
 @app.callback()

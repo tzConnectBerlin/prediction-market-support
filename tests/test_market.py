@@ -1,16 +1,10 @@
 import random
-import sys
 from datetime import datetime, timedelta
 from time import sleep
 
-import configparser
 import pytest
-from decimal import Decimal
-from pytezos import pytezos, Key
 
-from src.accounts import Accounts
 from src.config import Config
-from src.market import Market
 
 config = Config(config_file="tests/oracle.ini")
 

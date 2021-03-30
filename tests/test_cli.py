@@ -3,12 +3,8 @@ from datetime import datetime, timedelta
 from time import sleep
 
 import pytest
-from decimal import Decimal
-from pytezos import pytezos, Key
 from typer.testing import CliRunner
 
-
-from src.config import Config
 from cli import app
 
 accounts = [
@@ -102,7 +98,7 @@ def test_close_market(account, market, data, questions_storage):
     market.close_auction(ipfs_hash, account["name"])
     sleep(data[6] * 30 + 10)
     market.withdraw_auction(ipfs_hash, account["name"])
-    sleep(data[6] * 30 + 20)
+    sleep(data[6] * 60 + 60)
     result = runner.invoke(app, app_options + ["close-market", ipfs_hash, account["name"]])
     print(result)
     question = questions_storage[ipfs_hash]()
