@@ -7,6 +7,7 @@ import random
 from typing import List, Optional
 
 import typer
+import ipfshttpclient
 
 from src.accounts import Accounts
 from src.config import Config
@@ -102,7 +103,7 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Argument(10000 * MULTIPLIER)
+        value: int = typer.Argument(100000 * MULTIPLIER)
         ):
     """
     fund all accounts with a random quantity of tezos
@@ -116,7 +117,7 @@ def fund_stablecoin(
 @app.command()
 def transfer_stablecoin(
         user: str,
-        value: int = typer.Argument(10000 * MULTIPLIER)
+        value: int = typer.Argument(100000 * MULTIPLIER)
         ):
     """
     transfer a certain amount of coins toward an user address
@@ -126,6 +127,7 @@ def transfer_stablecoin(
     check_account_loaded(user)
     print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(user, value)
+    stablecoin_balance(user)
 
 @app.command()
 def stablecoin_balance(
@@ -134,12 +136,14 @@ def stablecoin_balance(
     """
     get balance for user
     """
+    check_account_loaded(user)
     user_address = get_public_key(state['accounts'][user])
     balance = int(get_stablecoin(state['config']['admin_account'],
                                  state['config']['contract']).getBalance(
                                  { 'owner' : user_address, 'contract_1' : None }).view())
     balance /= MULTIPLIER
-    print(f"{balance}")
+    print("balances:")
+    print(f"{user}: {balance}")
 
 
 
@@ -229,6 +233,7 @@ def claim_winnings(
         question: str,
         user: str
     ):
+    check_account_loaded(user)
     state["market"].claim_winnings(
         question,
         user
@@ -240,8 +245,9 @@ def withdraw_auction(
         question: str,
         user: str
     ):
+    check_account_loaded(user)
     state["market"].withdraw_auction(
-        question,
+    question,
         user
     )
 
@@ -254,6 +260,16 @@ def list_markets():
 @app.command()
 def list_bids(question: str):
     state["market"].list_bids(question)
+
+
+@app.command()
+def get_question_data(
+        question: str
+    ):
+    ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
+    data = ipfsclient.get_json(question)
+    if data != None:
+        print(data)
 
 
 @app.callback()
