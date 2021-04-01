@@ -10,6 +10,7 @@ from src.accounts import Accounts
 from src.config import Config
 from src.deploy import deploy_market
 from src.market import Market
+from src.utils import get_stablecoin, get_public_key
 
 
 def mock_get_tezos_client_path():
@@ -38,7 +39,7 @@ def contract_id():
 
 @pytest.fixture(scope="session", autouse=True)
 def config(contract_id):
-    config = Config(config_file="tests/oracle.ini", contract=contract_id)
+    config = Config(config_file="tests/cli.ini", contract=contract_id)
     return config
 
 
@@ -73,11 +74,17 @@ def questions_storage(client, config):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def finance_accounts(client, accounts, config: Config):
+def finance_accounts(client, accounts, config: Config, contract_id: str):
     for account in accounts:
         client.transaction(
             account['key'], amount=Decimal(10)
         ).autofill().sign().inject()
+        stablecoin = get_stablecoin(config['admin_account'], contract_id)
+        stablecoin.transfer({
+            'from': get_public_key(config['admin_account']),
+            'to': account['key'],
+            'value': 100000
+        }).as_transaction().autofill().sign().inject()
     sleep(3)
 
 
