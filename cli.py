@@ -129,6 +129,7 @@ def transfer_stablecoin(
     state["market"].transfer_stablecoin_to_user(user, value)
     stablecoin_balance(user)
 
+
 @app.command()
 def stablecoin_balance(
         user: str
@@ -247,7 +248,7 @@ def withdraw_auction(
     ):
     check_account_loaded(user)
     state["market"].withdraw_auction(
-    question,
+        question,
         user
     )
 

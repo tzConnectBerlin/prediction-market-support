@@ -49,6 +49,7 @@ Market = {
     }
 }
 
+
 def wait_next_block(block_time, client):
     header = client.shell.head.header()
     block_hash = client.shell.head.hash()
@@ -90,12 +91,18 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     if res is not None and res["hash"]:
         return get_contract_id(client, 2, res["hash"])
 
+
 def deploy_market(key=admin['sk']):
+    print("deploying markets")
+    sleep(10)
     deploy_from_file(Migration['path'], key)
+    sleep(10)
     print("migration was deployed")
     stablecoin_id  = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
+    sleep(3)
     print(f"stablecoin was deployed at {stablecoin_id}")
     Market['storage']['stablecoin'] = stablecoin_id
+    sleep(3)
     print(Market)
     print("market was deployed")
     market_id = deploy_from_file(Market['path'], key, Market['storage'])

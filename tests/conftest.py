@@ -8,6 +8,7 @@ from time import sleep
 
 from src.accounts import Accounts
 from src.config import Config
+from src.deploy import deploy_market
 from src.market import Market
 
 
@@ -31,10 +32,13 @@ def accounts():
     ]
     return accounts
 
+@pytest.fixture(scope="session", autouse=True)
+def contract_id():
+    return deploy_market()
 
 @pytest.fixture(scope="session", autouse=True)
-def config():
-    config = Config(config_file="tests/oracle.ini")
+def config(contract_id):
+    config = Config(config_file="tests/oracle.ini", contract=contract_id)
     return config
 
 
