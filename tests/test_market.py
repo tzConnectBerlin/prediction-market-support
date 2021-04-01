@@ -93,7 +93,7 @@ def test_close_market(account, market, data, questions_storage):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
-"""
+
 """
 @pytest.mark.parametrize("account,data", test_data)
 def test_buy_token(account,market,data, stablecoin_storage):
@@ -121,3 +121,4 @@ def test_burn_token(account, market, data, stablecoin_storage):
     new_balance = [account["key"]]()
     assert stablecoin_storage[account["key"]]()
     assert balance["balance"] == new_balance["balance"] + amount
+"""

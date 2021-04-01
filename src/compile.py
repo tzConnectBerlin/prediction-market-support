@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 
 from pytezos import pytezos, ContractInterface
 
+#Absolute path to the contract
 WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] or '"$PWD"'
 
 ligo_cmd = (
