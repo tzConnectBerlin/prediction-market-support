@@ -13,7 +13,7 @@ admin = {
 }
 
 Migration = {
-        'path': 'Migrations.ligo',
+        'path': 'contracts/Migrations.ligo',
         'storage': {
             'last_completed_migration': 0,
             'owner': admin['pkh']
@@ -21,7 +21,7 @@ Migration = {
         }
 
 USDtzLeger = {
-        'path': 'third-party/FA12Permissive.ligo',
+        'path': 'contracts/third-party/FA12Permissive.ligo',
         'storage': {
             'totalSupply': 0,
             'ledger': {
@@ -34,7 +34,7 @@ USDtzLeger = {
 }
 
 Market = {
-        'path': 'Market.mligo',
+        'path': 'contracts/Market.mligo',
         'storage': {
         'last_token_created': 0,
         'owner': admin['pkh'],
