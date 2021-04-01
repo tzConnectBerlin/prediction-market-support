@@ -1,3 +1,5 @@
+import os
+
 from datetime import datetime
 from io import TextIOWrapper
 from pathlib import Path
@@ -5,8 +7,10 @@ from subprocess import Popen, PIPE
 
 from pytezos import pytezos, ContractInterface
 
+WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] or '"$PWD"'
+
 ligo_cmd = (
-        f'docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.7.1 "$@"'
+        f'docker run --rm -v {WORKING_DIRECTORY}:{WORKING_DIRECTORY} -w {WORKING_DIRECTORY} ligolang/ligo:0.7.1 "$@"'
 )
 
 def run_command(command):
