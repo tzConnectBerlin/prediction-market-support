@@ -7,13 +7,14 @@ import random
 from typing import List, Optional
 
 import typer
+import ipfshttpclient
 
 from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
 from src.utils import get_stablecoin, get_public_key
 
-MULTIPLIER = 10 ** 18
+MULTIPLIER = 10 ** 6
 ##################
 # Setup
 ##################
@@ -72,8 +73,8 @@ def ask_question(
         question: str,
         answer: str,
         user: str,
-        quantity: int = typer.Argument(500000),
-        rate: int = typer.Argument(random.randint(1, 99) * 1000),
+        quantity: int = typer.Argument(5000 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         auction_end_date: float = typer.Argument(30),
         market_end_date: float = typer.Argument(50)
         ):
@@ -102,7 +103,7 @@ def ask_question(
 
 @app.command()
 def fund_stablecoin(
-        value: int = typer.Argument(1000000)
+        value: int = typer.Argument(100000 * MULTIPLIER)
         ):
     """
     fund all accounts with a random quantity of tezos
@@ -116,7 +117,7 @@ def fund_stablecoin(
 @app.command()
 def transfer_stablecoin(
         user: str,
-        value: int = typer.Argument(1000000)
+        value: int = typer.Argument(100000 * MULTIPLIER)
         ):
     """
     transfer a certain amount of coins toward an user address
@@ -126,6 +127,8 @@ def transfer_stablecoin(
     check_account_loaded(user)
     print(f"Transferring stablecoin")
     state["market"].transfer_stablecoin_to_user(user, value)
+    stablecoin_balance(user)
+
 
 @app.command()
 def stablecoin_balance(
@@ -134,12 +137,14 @@ def stablecoin_balance(
     """
     get balance for user
     """
+    check_account_loaded(user)
     user_address = get_public_key(state['accounts'][user])
     balance = int(get_stablecoin(state['config']['admin_account'],
                                  state['config']['contract']).getBalance(
                                  { 'owner' : user_address, 'contract_1' : None }).view())
     balance /= MULTIPLIER
-    print(f"{balance}")
+    print("balances:")
+    print(f"{user}: {balance}")
 
 
 
@@ -147,8 +152,8 @@ def stablecoin_balance(
 def bid_auction(
         ipfs_hash: str,
         user: str,
-        quantity: int = typer.Argument(50000),
-        rate: int = typer.Argument(random.randint(1, 99) * 1000)
+        quantity: int = typer.Argument(500 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
         ):
     """
     Bid on an auction
@@ -166,7 +171,7 @@ def bid_auction(
 @app.command()
 def random_bids(
         ipfs_hash: str,
-        quantity: int = typer.Argument(50000 * MULTIPLIER),
+        quantity: int = typer.Argument(500 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         ):
     """
@@ -229,20 +234,43 @@ def claim_winnings(
         question: str,
         user: str
     ):
+    check_account_loaded(user)
     state["market"].claim_winnings(
         question,
         user
     )
+
 
 @app.command()
 def withdraw_auction(
         question: str,
         user: str
     ):
+    check_account_loaded(user)
     state["market"].withdraw_auction(
         question,
         user
     )
+
+
+@app.command()
+def list_markets():
+    state["market"].list_market()
+
+
+@app.command()
+def list_bids(question: str):
+    state["market"].list_bids(question)
+
+
+@app.command()
+def get_question_data(
+        question: str
+    ):
+    ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
+    data = ipfsclient.get_json(question)
+    if data != None:
+        print(data)
 
 
 @app.callback()

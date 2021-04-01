@@ -6,7 +6,7 @@ class Config:
     def __init__(
             self,
             admin_account_key: str = None,
-            config_file="oracle.ini",
+            config_file="cli.ini",
             contract: str = "",
             endpoint: str = "",
             ipfs_server: str = None,

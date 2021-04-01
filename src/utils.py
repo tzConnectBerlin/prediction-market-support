@@ -84,3 +84,14 @@ def get_tezos_client_path():
     return os.path.expanduser(
         os.path.join('~/.tezos-client', 'secret_keys')
     )
+
+
+def questions_storage(client, contract_id):
+    contract = client.contract(contract_id)
+    return contract.storage['questions']
+
+
+def stablecoin_storage(client, contract_id):
+    contract = client.contract(contract_id)
+    stablecoin = client.contract(contract.storage['stablecoin']())
+    return stablecoin.storage['ledger']
