@@ -1,9 +1,12 @@
 import os
+
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
+WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] or '"$PWD"'
+
 ligo_cmd = (
-    f'docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.7.1 "$@"'
+        f'docker run --rm -v {WORKING_DIRECTORY}:{WORKING_DIRECTORY} -w {WORKING_DIRECTORY} ligolang/ligo:0.7.1 "$@"'
 )
 
 
