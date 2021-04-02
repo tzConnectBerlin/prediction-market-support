@@ -8,6 +8,7 @@ from time import sleep
 
 from src.accounts import Accounts
 from src.config import Config
+from src.compile import launch_sandbox, stop_sandbox
 from src.deploy import deploy_market
 from src.market import Market
 from src.utils import get_stablecoin, get_public_key
@@ -99,7 +100,8 @@ def pytest_configure(config):
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    #launch_sandbox()
+    launch_sandbox()
+    sleep(20)
     
 
 
@@ -122,4 +124,4 @@ def pytest_unconfigure(config):
     """
     called before test process is exited.
     """
-    #stop_sandbox()
+    stop_sandbox()

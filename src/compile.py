@@ -35,9 +35,8 @@ def compile_contract(file):
     :param file: path to the contract
     :return:
     """
-    if os.path.exists(file) is False:
-        raise Exception("File not found")
-
+    print(WORKING_DIRECTORY)
+    print(file)
     compile_command = f"{ligo_cmd} compile-contract {file} main"
     result = run_command(compile_command)
     return result
@@ -62,7 +61,7 @@ def launch_sandbox():
 
     :return:
     """
-    command = "sh test/start_sandbox.sh"
+    command = "sh tests/start_sandbox.sh"
     result = run_command(command)
     return result
 
@@ -73,6 +72,6 @@ def stop_sandbox():
 
     :return:
     """
-    command = "sh test/stop_sandbox.sh"
+    command = "sh tests/stop_sandbox.sh"
     result = run_command(command)
     return result

@@ -104,9 +104,7 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     :param shell: where to deploy the contract
     :return:
     """
-    file_path = os.path.dirname(__file__) + file
-    print()
-    contract = compile_contract(file_path)
+    contract = compile_contract(file)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
