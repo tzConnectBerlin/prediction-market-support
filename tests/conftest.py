@@ -20,16 +20,19 @@ def mock_get_tezos_client_path():
 @pytest.fixture(autouse=True)
 def mock_functions(monkeypatch):
     monkeypatch.setattr(
-        # api_call is from slow.py but imported to main.py
         'src.utils.get_tezos_client_path',
-        lambda  x: mock_get_tezos_client_path
+        lambda _x: mock_get_tezos_client_path
     )
 
 
 @pytest.fixture(scope="session")
 def accounts():
     accounts = [
-        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"}
+        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
+        {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx"},
+        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"},
+        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u"},
+        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"}
     ]
     return accounts
 
@@ -79,7 +82,9 @@ def finance_accounts(client, accounts, config: Config, contract_id: str):
         client.transaction(
             account['key'], amount=Decimal(10)
         ).autofill().sign().inject()
+
         stablecoin = get_stablecoin(config['admin_account'], contract_id)
+
         stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],

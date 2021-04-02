@@ -1,3 +1,6 @@
+import os.path
+from datetime import datetime
+
 from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
 
@@ -65,7 +68,16 @@ def wait_next_block(block_time, client):
             return current_block_hash
 
 
-def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
+def get_contract_id(client, block_time, opg_hash, num_block_wait=5):
+    """
+    Return an hash for the deployed contract given a operation hash
+
+    :param client: client for the current chains
+    :param block_time: time between blocks baking
+    :param opg_hash: hash of the operation injected
+    :param num_block_wait: Num of blocks to wait until failing
+    :return:
+    """
     for i in range(num_block_wait):
         wait_next_block(block_time, client)
         try:
@@ -83,7 +95,18 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=2):
 
 
 def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
-    contract = compile_contract(file)
+    """
+    Compile and deploy a ligo contract
+
+    :param file: path the the ligo file
+    :param key: account key for the deployer
+    :param storage: storage for the file contract
+    :param shell: where to deploy the contract
+    :return:
+    """
+    file_path = os.path.dirname(__file__) + file
+    print()
+    contract = compile_contract(file_path)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
@@ -92,17 +115,17 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
         return get_contract_id(client, 2, res["hash"])
 
 
-def deploy_market(key=admin['sk']):
+def deploy_market(key=admin['sk'], shell=None):
+    """
+    Deploy the complete market on the specified shell
+
+    :param key:
+    :return: None
+    """
     print("deploying markets")
-    sleep(10)
-    deploy_from_file(Migration['path'], key)
-    sleep(10)
-    print("migration was deployed")
-    stablecoin_id  = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
-    sleep(3)
+    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
     print(f"stablecoin was deployed at {stablecoin_id}")
     Market['storage']['stablecoin'] = stablecoin_id
-    sleep(3)
     print(Market)
     print("market was deployed")
     market_id = deploy_from_file(Market['path'], key, Market['storage'])
