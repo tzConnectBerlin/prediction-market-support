@@ -115,7 +115,7 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
         return get_contract_id(client, 2, res["hash"])
 
 
-def deploy_market(key=admin['sk'], shell=None):
+def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
     """
     Deploy the complete market on the specified shell
 
