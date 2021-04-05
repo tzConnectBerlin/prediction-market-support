@@ -30,6 +30,8 @@ class Config:
             self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
         except:
             print(f'Something went wrong with instantiating the shell object on endpoint {self["endpoint"]}')
+        #contract = self.data['admin_account'].contract(self.data['contract'])
+        #self.data['stablecoin'] = contract.storage['stablecoin']()
 
     def __getitem__(self, key):
         if key in self.data:

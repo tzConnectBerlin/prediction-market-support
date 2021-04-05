@@ -20,6 +20,7 @@ def mock_get_tezos_client_path():
 
 @pytest.fixture(autouse=True)
 def mock_functions(monkeypatch):
+    print("mock_function")
     monkeypatch.setattr(
         'src.utils.get_tezos_client_path',
         lambda _x: mock_get_tezos_client_path
@@ -101,7 +102,7 @@ def pytest_configure(config):
     file after command line options have been parsed.
     """
     launch_sandbox()
-    sleep(20)
+    sleep(60)
     
 
 
@@ -122,6 +123,6 @@ def pytest_sessionfinish(session, exitstatus):
 
 def pytest_unconfigure(config):
     """
-    called before test process is exited.
+    Called before test process is exited.
     """
     stop_sandbox()

@@ -12,6 +12,7 @@ import ipfshttpclient
 from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
+from src.stablecoin import Stablecoin
 from src.utils import get_stablecoin, get_public_key
 
 MULTIPLIER = 10 ** 6
@@ -37,7 +38,7 @@ def manage_accounts(
         activate: bool = typer.Option(False, "--activate", "-a"),
         reveal: bool = typer.Option(False, "--reveal", "-r"),
         import_accounts: bool = typer.Option(False, "--import", "-i"),
-        ):
+):
     """
     management of accounts in the user folder
     """
@@ -77,7 +78,7 @@ def ask_question(
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         auction_end_date: float = typer.Argument(30),
         market_end_date: float = typer.Argument(50)
-        ):
+):
     """
     create a question in IPFS
 
@@ -89,14 +90,14 @@ def ask_question(
     """
     check_account_loaded(user)
     ipfs_hash = state["market"].ask_question(
-                question,
-                answer,
-                user,
-                quantity,
-                rate,
-                auction_end_date,
-                market_end_date
-            )
+        question,
+        answer,
+        user,
+        quantity,
+        rate,
+        auction_end_date,
+        market_end_date
+    )
     print(f"Created market {ipfs_hash} in PM contract")
     return ipfs_hash
 
@@ -104,7 +105,7 @@ def ask_question(
 @app.command()
 def fund_stablecoin(
         value: int = typer.Argument(100000 * MULTIPLIER)
-        ):
+):
     """
     fund all accounts with a random quantity of tezos
 
@@ -118,7 +119,7 @@ def fund_stablecoin(
 def transfer_stablecoin(
         user: str,
         value: int = typer.Argument(100000 * MULTIPLIER)
-        ):
+):
     """
     transfer a certain amount of coins toward an user address
 
@@ -133,7 +134,7 @@ def transfer_stablecoin(
 @app.command()
 def stablecoin_balance(
         user: str
-        ):
+):
     """
     get balance for user
     """
@@ -141,11 +142,10 @@ def stablecoin_balance(
     user_address = get_public_key(state['accounts'][user])
     balance = int(get_stablecoin(state['config']['admin_account'],
                                  state['config']['contract']).getBalance(
-                                 { 'owner' : user_address, 'contract_1' : None }).view())
+        {'owner': user_address, 'contract_1': None}).view())
     balance /= MULTIPLIER
     print("balances:")
     print(f"{user}: {balance}")
-
 
 
 @app.command()
@@ -154,7 +154,7 @@ def bid_auction(
         user: str,
         quantity: int = typer.Argument(500 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
-        ):
+):
     """
     Bid on an auction
 
@@ -173,7 +173,7 @@ def random_bids(
         ipfs_hash: str,
         quantity: int = typer.Argument(500 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
-        ):
+):
     """
     launch random bid on a auction for
     all of the chosen users folder
@@ -212,7 +212,7 @@ def close_market(
         ipfs_hash: str,
         user: str,
         token_type: bool = typer.Argument(True)
-        ):
+):
     """
     close the market
 
@@ -223,9 +223,9 @@ def close_market(
     check_account_loaded(user)
     print(f"closing market {ipfs_hash}")
     state["market"].close_market(
-            ipfs_hash,
-            token_type,
-            user
+        ipfs_hash,
+        token_type,
+        user
     )
 
 
@@ -233,7 +233,7 @@ def close_market(
 def claim_winnings(
         question: str,
         user: str
-    ):
+):
     check_account_loaded(user)
     state["market"].claim_winnings(
         question,
@@ -245,12 +245,21 @@ def claim_winnings(
 def withdraw_auction(
         question: str,
         user: str
-    ):
+):
     check_account_loaded(user)
     state["market"].withdraw_auction(
         question,
         user
     )
+
+
+@app.command()
+def approve_balance(
+        user: str,
+        amount: int
+):
+    check_account_loaded(user)
+    state["stablecoin"].approve(user, amount)
 
 
 @app.command()
@@ -266,7 +275,7 @@ def list_bids(question: str):
 @app.command()
 def get_question_data(
         question: str
-    ):
+):
     ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
     data = ipfsclient.get_json(question)
     if data != None:
@@ -282,16 +291,16 @@ def main(
         admin_key: str = typer.Option(None),
         config_file: str = typer.Option("cli.ini"),
         force: bool = typer.Option(None, "--force", "-f")
-        ):
+):
     """
     High level options
     """
     state['config'] = Config(
-            admin_account_key=admin_key,
-            config_file=config_file,
-            contract=contract,
-            endpoint=endpoint,
-        )
+        admin_account_key=admin_key,
+        config_file=config_file,
+        contract=contract,
+        endpoint=endpoint,
+    )
     state['accounts'] = Accounts(state['config']['endpoint'])
     if import_accounts is not None:
         for account in import_accounts:
@@ -306,6 +315,7 @@ def main(
                 typer.echo(f"{account_name} was revealed")
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
+    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 

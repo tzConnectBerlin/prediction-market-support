@@ -68,7 +68,7 @@ def wait_next_block(block_time, client):
             return current_block_hash
 
 
-def get_contract_id(client, block_time, opg_hash, num_block_wait=5):
+def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
     """
     Return an hash for the deployed contract given a operation hash
 
@@ -80,6 +80,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=5):
     """
     for i in range(num_block_wait):
         wait_next_block(block_time, client)
+        print(i)
         try:
             pending_opg = client.shell.mempool.pending_operations[opg_hash]
             if not OperationResult.is_applied(pending_opg):
@@ -91,6 +92,10 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=5):
                 raise Exception("Operation was not applied")
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
+            print(metadata)
+            print(contract_id)
+            if contract_id is None:
+                raise
             return contract_id
 
 
@@ -109,6 +114,7 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
     res = submit_transaction(operation)
+    print(res)
     if res is not None and res["hash"]:
         return get_contract_id(client, 2, res["hash"])
 
@@ -122,6 +128,8 @@ def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
     """
     print("deploying markets")
     stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
+    if stablecoin_id is None:
+        raise Exception("deploiement failed")
     print(f"stablecoin was deployed at {stablecoin_id}")
     Market['storage']['stablecoin'] = stablecoin_id
     print(Market)

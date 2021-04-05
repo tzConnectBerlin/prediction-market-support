@@ -8,24 +8,31 @@ from src.config import Config
 
 config = Config(config_file="tests/cli.ini")
 
+#accounts used for test
 accounts = [
-        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"}
+    {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
+    {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"}
 ]
 
+#questions data to test functions
 questions = [
-        ["who", "why", "donald", 300, 50, 0.1, 0.2],
-        ["who", "why", "donald", 300, 50, 1, 2],
+    ["who", "why", "donald", 300, 50, 0.1, 0.2],
+    ["who", "why", "mala", 300, 50, 0.1, 0.2],
+    ["who", "why", "donald", 300, 50, 0.2, 0.4],
+    ["who", "why", "mala", 300, 50, 0.2, 0.4],
+    ["who", "why", "donald", 300, 50, 0.5, 0.8],
+    ["who", "why", "mala", 300, 50, 0.5, 0.8],
 ]
 
-expected = [
-        []
-]
-
+#testdata mix for easier use a parametrised
 test_data = [
     [accounts[0], questions[0]],
-    [accounts[0], questions[1]]
+    [accounts[1], questions[1]],
+    [accounts[0], questions[2]],
+    [accounts[1], questions[3]],
+    [accounts[0], questions[4]],
+    [accounts[1], questions[5]]
 ]
-
 
 def rand(mul=100):
     return random.randint(1,99) * mul

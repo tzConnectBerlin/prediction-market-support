@@ -4,18 +4,23 @@ from pytezos import Key
 from src.accounts import Accounts
 
 test_accounts = [
-    ('donald', 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2')
+    ('donald', 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'),
+    ('clara', 'tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx'),
+    ('mala', 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'),
+    ('marty', 'tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u'),
+    ('palu', 'tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR')
 ]
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_user_is_imported_from_folder(input, config):
+
+@pytest.mark.parametrize("input,key", test_accounts)
+def test_user_is_imported_from_folder(input, key, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_folder("tests/users")
-    assert "donald" in accounts
+    assert input in accounts
 
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_user_is_imported_from_file(input, config):
+@pytest.mark.parametrize("input,key", test_accounts)
+def test_user_is_imported_from_file(input, key, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{input}.json", input)
     assert input in accounts
@@ -30,8 +35,10 @@ def test_users_is_imported_to_tezos_client(name, pbkey, config):
     assert key.public_key_hash() == pbkey
 
 
-@pytest.mark.parametrize("input", ["donald"])
-def test_users_is_imported_from_tezos_client(input, config):
+@pytest.mark.parametrize("input,key",
+                         test_accounts
+                         )
+def test_users_is_imported_from_tezos_client(input, key, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{input}.json", input)
     accounts2 = Accounts(config["endpoint"])
@@ -40,28 +47,20 @@ def test_users_is_imported_from_tezos_client(input, config):
 
 
 @pytest.mark.parametrize("input,key",
-    test_accounts
-)
-def test_user_is_activated(input,key, config):
+                         test_accounts
+                         )
+def test_user_is_activated(input, key, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{input}.json", input)
     accounts.activate_account(input)
     assert accounts[input].balance() > 0
 
 
-
 @pytest.mark.parametrize("input,key",
-    test_accounts
-)
-def test_user_is_revealed(input,key, config):
+                         test_accounts
+                         )
+def test_user_is_revealed(input, key, config):
     accounts = Accounts(config["endpoint"])
     accounts.import_from_file(f"tests/users/{input}.json", input)
     accounts.activate_account(input)
     accounts.reveal_account(input)
-
-
-@pytest.mark.parametrize("input,contract_id", [
-])
-def test_get_accounts(input, contract_id, config):
-    accounts = Accounts(config["endpoint"])
-    contract = accounts.contract_accounts(contract_id)

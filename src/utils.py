@@ -54,21 +54,18 @@ def print_and_ignore(err_message):
     sys.exit()
 
 
-def submit_transaction(transaction, count=None, tries=0, error_func=None):
+def submit_transaction(transaction, count=None, tries=3, error_func=None):
     try:
         source = transaction.key.public_key_hash()
         contract_count = transaction.shell.contracts[source].count()
         if count is not None and count < contract_count:
             count = contract_count
-        if 'activate_account' in transaction.contents[0]['kind']:
-            transaction = transaction.fill(counter=count, branch_offset=1)
-        else:
-            transaction = transaction.autofill(counter=count, branch_offset=1)
+        transaction = transaction.autofill(counter=count, ttl=56)
         res = transaction.sign().inject()
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])
-        if err_message['id'] == 'proto.alpha.contract.counter_in_the_past' and tries > 0:
+        if 'id' in err_message and 'counter_in_the_past' in err_message['id'] and tries > 0:
             submit_transaction(transaction, count=count + 1, tries=tries - 1, error_func=error_func)
             return
         elif err_message['id'] == 'proto.alpha.contract.counter_in_the_future':
