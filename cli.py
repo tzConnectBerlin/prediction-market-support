@@ -149,6 +149,13 @@ def stablecoin_balance(
 
 
 @app.command()
+def test(
+        user: str
+):
+    state['stablecoin'].get_allowance(user)
+
+
+@app.command()
 def bid_auction(
         ipfs_hash: str,
         user: str,
@@ -183,7 +190,7 @@ def random_bids(
     if len(state["accounts"].names()) == 0:
         print("Please add some accounts before using this functionality")
     print("placing random bids")
-    user_list = state["acounts"].names()
+    user_list = state["accounts"].names()
     with typer.progressbar(user_list) as progress:
         for user in progress:
             print(f"generating bids for accounts {user}")
@@ -254,7 +261,7 @@ def withdraw_auction(
 
 
 @app.command()
-def approve_balance(
+def approve_market(
         user: str,
         amount: int
 ):
@@ -264,7 +271,7 @@ def approve_balance(
 
 @app.command()
 def list_markets():
-    state["market"].list_market()
+    state["market"].list_markets()
 
 
 @app.command()
@@ -278,7 +285,7 @@ def get_question_data(
 ):
     ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
     data = ipfsclient.get_json(question)
-    if data != None:
+    if data is not None:
         print(data)
 
 
@@ -315,7 +322,7 @@ def main(
                 typer.echo(f"{account_name} was revealed")
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
-    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
+    state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 
