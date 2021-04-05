@@ -102,7 +102,7 @@ def pytest_configure(config):
     file after command line options have been parsed.
     """
     launch_sandbox()
-    sleep(60)
+    sleep(70)
     
 
 

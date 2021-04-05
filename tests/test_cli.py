@@ -59,7 +59,7 @@ def test_ask_question(account, market, data, questions_storage, contract_id):
 
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
     market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
-    sleep(5)
+    sleep(3)
     question = questions_storage[ipfs_hash[0]]()
     assert result.exit_code == 0
     assert question['total_auction_quantity'] == data[3]
@@ -73,7 +73,7 @@ def test_ask_question(account, market, data, questions_storage, contract_id):
 def test_fund_stablecoin(account, stablecoin_storage, contract_id):
     balance = stablecoin_storage[account["key"]]()
     runner.invoke(app, app_options + [contract_id] + ["fund-stablecoin"])
-    sleep(10)
+    sleep(6)
     new_balance = stablecoin_storage[account["key"]]()
     assert stablecoin_storage[account["key"]]()
     assert balance["balance"] < new_balance["balance"]
@@ -83,7 +83,7 @@ def test_fund_stablecoin(account, stablecoin_storage, contract_id):
 def test_transfer_stablecoin(account, stablecoin_storage, contract_id):
     balance = stablecoin_storage[account["key"]]()
     runner.invoke(app, app_options + [contract_id] + ["transfer-stablecoin", account["name"]])
-    sleep(10)
+    sleep(6)
     new_balance = stablecoin_storage[account["key"]]()
     assert stablecoin_storage[account["key"]]()
     assert balance["balance"] < new_balance["balance"]
