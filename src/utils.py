@@ -57,19 +57,22 @@ def print_and_ignore(err_message):
 def submit_transaction(transaction, count=None, tries=3, error_func=None):
     try:
         source = transaction.key.public_key_hash()
-        contract_count = transaction.shell.contracts[source].count()
-        if count is not None and count < contract_count:
-            count = contract_count
-        transaction = transaction.autofill(counter=count, ttl=56)
-        res = transaction.sign().inject()
+        transaction_ = transaction.autofill(ttl=56)
+        res = transaction_.sign().inject()
+        transaction_.shell.wait_next_block()
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])
-        if 'id' in err_message and 'counter_in_the_past' in err_message['id'] and tries > 0:
-            submit_transaction(transaction, count=count + 1, tries=tries - 1, error_func=error_func)
-            return
-        elif err_message['id'] == 'proto.alpha.contract.counter_in_the_future':
-            submit_transaction(transaction, count=count - 1, tries=tries - 1, error_func=error_func)
+        if 'id' in err_message and tries >= 0:
+            tries = tries - 1
+            if 'counter_in_the_past' in err_message['id']:
+                if 'expected' in err_message:
+                    count = int(err_message['expected'])
+                return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
+            elif 'counter_in_the_future' in err_message['id']:
+                if 'expected' in err_message:
+                    count = int(err_message['expected'])
+                return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
         if error_func is not None:
             error_func(err_message)
 

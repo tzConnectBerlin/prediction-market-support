@@ -281,7 +281,7 @@ class Market:
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    def list_market(
+    def list_markets(
             self
     ):
         contract = self.config['admin_account'].contract(self.contract)
@@ -303,4 +303,3 @@ class Market:
         for bids in question:
             data = question[bids]
             print(f"{bids} - {data}")
-

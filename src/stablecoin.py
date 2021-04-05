@@ -1,3 +1,5 @@
+from pytezos import Undefined
+
 from src.accounts import Accounts
 from src.config import Config
 from src.utils import get_public_key, submit_transaction, print_error
@@ -11,39 +13,46 @@ class Stablecoin:
             self,
             accounts: Accounts,
             config: Config,
-            contract_id
     ):
         self.accounts = accounts
         self.config = config
-        self.contract = contract_id
+        self.market_id = config['contract']
         self.client = config['admin_account'].contract(config['stablecoin'])
 
-    def approve(self, spender: str, value: int):
-        spender_address = get_public_key(self.accounts[spender])
-        operation = self.client.approve(
-           spender_address,
+
+    def pm_contracts(
+            self,
+            user: str
+    ):
+        return self.accounts[user].contract(self.config['stablecoin'])
+
+    def approve_market(self, spender: str, value: int):
+        """
+        Approve usage of tokens by market for spenser
+        """
+        operation = self.pm_contracts(spender).approve(
+           self.market_id,
            value
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def burn(self, dest: str, value: int):
-        dest_address = get_public_key(self.accounts[dest])
+        dest_address = self.accounts[dest].key.public_key_hash()
         operation = self.client.burn({
             'from': dest_address,
             'value': value
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    def get_allowance(self, spender: str):
+    def get_allowance(self, owner: str):
         """
-        Check how much can be spend
+        Check how much can be spent
         """
-        spender_address = get_public_key(self.accounts[spender])
-        owner_address = self.client.key.public_key_hash()
+        owner_address = self.accounts[owner].key.public_key_hash()
         operation = self.client.getAllowance({
             'owner': owner_address,
-            'spender': spender_address,
-            'contract': self.contract
+            'spender': self.market_id,
+            'contract_2': Undefined
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
@@ -51,7 +60,7 @@ class Stablecoin:
         """
         Mint stablecoin for account to
         """
-        to_address = get_public_key(self.accounts[to])
+        to_address = self.accounts[to].key.public_key_hash()
         operation = self.client.mint({
             'to': to_address,
             'value': value
@@ -62,8 +71,8 @@ class Stablecoin:
         """
         Transfer stablecoin between two adresses
         """
-        src_address = get_public_key(self.accounts[src])
-        dest_address = get_public_key(self.accounts[dest])
+        src_address = self.accounts[src].key.public_key_hash()
+        dest_address = self.accounts[dest].key.public_key_hash()
         operation = self.client.transfer({
             'from': src_address,
             'to': dest_address,
@@ -76,7 +85,7 @@ class Stablecoin:
         Fund a account with stablecoin
         """
         src_address = self.client.key.public_key_hash()
-        dest_address = get_public_key(self.accounts[dest])
+        dest_address = self.accounts[dest].key.public_key_hash()
         operation = self.client.transfer({
             'from': src_address,
             'to': dest_address,
