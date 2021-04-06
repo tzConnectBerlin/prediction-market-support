@@ -26,11 +26,11 @@ class Stablecoin:
     ):
         return self.accounts[user].contract(self.config['stablecoin'])
 
-    def approve_market(self, spender: str, value: int):
+    def approve_market(self, owner: str, value: int):
         """
-        Approve usage of tokens by market for spenser
+        Approve usage of tokens by market for owner
         """
-        operation = self.pm_contracts(spender).approve(
+        operation = self.pm_contracts(owner).approve(
            self.market_id,
            value
         )

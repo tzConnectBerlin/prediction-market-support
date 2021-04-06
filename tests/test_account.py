@@ -7,8 +7,6 @@ test_accounts = [
     ('donald', 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'),
     ('clara', 'tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx'),
     ('mala', 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'),
-    ('marty', 'tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u'),
-    ('palu', 'tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR')
 ]
 
 

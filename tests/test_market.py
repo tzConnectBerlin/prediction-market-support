@@ -13,8 +13,6 @@ accounts = [
 #questions data to test functions
 questions = [
     ["who", "why", "donald", 300, 50, 0.1, 0.2],
-    ["who", "why", "mala", 300, 50, 0.1, 0.2],
-    ["who", "why", "donald", 300, 50, 1, 2],
     ["who", "why", "mala", 300, 50, 1, 2],
 ]
 
@@ -22,8 +20,6 @@ questions = [
 test_data = [
     [accounts[0], questions[0]],
     [accounts[1], questions[1]],
-    [accounts[0], questions[2]],
-    [accounts[1], questions[3]],
 ]
 
 def rand(mul=100):

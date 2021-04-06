@@ -148,11 +148,13 @@ def stablecoin_balance(
     print(f"{user}: {balance}")
 
 
+"""
 @app.command()
 def test(
         user: str
 ):
     state['stablecoin'].get_allowance(user)
+"""
 
 
 @app.command()

@@ -16,17 +16,14 @@ accounts = [
 #questions data to test functions
 questions = [
     ["who", "why", "donald", 300, 50, 0.1, 0.2],
-    ["who", "why", "mala", 300, 50, 0.1, 0.2],
-    ["who", "why", "donald", 300, 50, 1, 2],
     ["who", "why", "mala", 300, 50, 1, 2],
 ]
 
+"""
 #testdata mix for easier use a parametrised
 test_data = [
     (accounts[0], questions[0]),
     (accounts[1], questions[1]),
-    (accounts[0], questions[2]),
-    (accounts[1], questions[3]),
 ]
 
 runner = CliRunner()
@@ -116,3 +113,4 @@ def test_close_market(account, market, data, questions_storage, contract_id ):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
+"""
