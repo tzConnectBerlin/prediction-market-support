@@ -50,7 +50,7 @@ class Accounts:
         """
         Import account from tezos client
         """
-        path = get_tezos_client_path()
+        path = os.path.join(get_tezos_client_path(), 'secret_keys')
         with open(path, 'r') as f:
             try:
                 data = json.loads(f.read())

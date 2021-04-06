@@ -81,9 +81,7 @@ def get_tezos_client_path():
     """
     Obtain a tezos path
     """
-    return os.path.expanduser(
-        os.path.join('~/.tezos-client', 'secret_keys')
-    )
+    return os.path.expanduser('~/.tezos-client')
 
 
 def questions_storage(client, contract_id):

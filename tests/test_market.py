@@ -14,10 +14,8 @@ accounts = [
 questions = [
     ["who", "why", "donald", 300, 50, 0.1, 0.2],
     ["who", "why", "mala", 300, 50, 0.1, 0.2],
-    ["who", "why", "donald", 300, 50, 0.2, 0.4],
-    ["who", "why", "mala", 300, 50, 0.2, 0.4],
-    ["who", "why", "donald", 300, 50, 0.5, 0.8],
-    ["who", "why", "mala", 300, 50, 0.5, 0.8],
+    ["who", "why", "donald", 300, 50, 1, 2],
+    ["who", "why", "mala", 300, 50, 1, 2],
 ]
 
 #testdata mix for easier use a parametrised
@@ -26,8 +24,6 @@ test_data = [
     [accounts[1], questions[1]],
     [accounts[0], questions[2]],
     [accounts[1], questions[3]],
-    [accounts[0], questions[4]],
-    [accounts[1], questions[5]]
 ]
 
 def rand(mul=100):

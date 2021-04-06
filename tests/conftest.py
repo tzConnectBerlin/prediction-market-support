@@ -18,12 +18,12 @@ def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def mock_functions(monkeypatch):
     print("mock_function")
     monkeypatch.setattr(
         'src.utils.get_tezos_client_path',
-        lambda _x: mock_get_tezos_client_path
+        lambda: os.path.join('tests/users', 'secret_keys')
     )
 
 

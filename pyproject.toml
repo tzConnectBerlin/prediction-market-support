@@ -29,6 +29,8 @@ pytest-regtest = "^1.4.5"
 pytest-timeout = "^1.4.2"
 pytest-lazy-fixture = "^0.6.3"
 zmq = "^0.0.0"
+pytest-mock = "^3.5.1"
+mock = "^4.0.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
