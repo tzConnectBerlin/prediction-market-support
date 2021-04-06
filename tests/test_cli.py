@@ -19,7 +19,7 @@ questions = [
     ["who", "why", "mala", 300, 50, 1, 2],
 ]
 
-"""
+
 #testdata mix for easier use a parametrised
 test_data = [
     (accounts[0], questions[0]),
@@ -113,4 +113,3 @@ def test_close_market(account, market, data, questions_storage, contract_id ):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
-"""
