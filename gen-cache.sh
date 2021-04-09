@@ -15,6 +15,5 @@ while true; do
     python3 ledger-balances.py > ledger-balances.json
     echo -n .
     mv ledger-balances.json ../pmcache.newby.org/ledger-balances.json
-    sleep 10
     echo "Loop"
 done

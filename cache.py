@@ -15,13 +15,15 @@ all_questions = {}
 
 for question_hash in questions.keys():
     question = questions[question_hash]
+#    print(question)
     uniswap_yes_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['yes_token_id']}") or 1
     uniswap_no_balance = ledger.get(f"{summary.CONTRACT_ID}.{question['tokens']['no_token_id']}") or 1
-
+#    print(f"yes{uniswap_yes_balance} no{uniswap_no_balance}\n\n")
     if uniswap_no_balance is not None and uniswap_yes_balance is not None:
         yes = int(uniswap_yes_balance)
         no = int(uniswap_no_balance)
         question['price_yes'] = no / (yes + no )
+#        print(f"price_yes{question['price_yes']}")
     else:
         question['price_yes'] = None
     all_questions.update({question_hash: question})

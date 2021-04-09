@@ -25,6 +25,7 @@ def admin_account():
         )
 
 def load_json(url):
+    #print(url)
     """ Load JSON from given URL and return as Python object"""
     with urllib.request.urlopen(url) as u:
         data = json.loads(u.read().decode())
@@ -36,6 +37,7 @@ def get_bcd(url):
     while True:
         u = f"{url}&offset={offset}"
         d = load_json(u)
+        print(d)
         if len(d) == 0:
             break
         data.extend(d)
@@ -82,7 +84,7 @@ def get_storage(id):
     """ Get all the storage for a contract and pass its children
     to @get_storage_internal """
     url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size={MAX_SIZE}"
-    js = get_bcd(url)
+    js = load_json(url)
     storage = get_storage_internal(js[0]['children'])
     return storage
 
