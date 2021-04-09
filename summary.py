@@ -12,8 +12,10 @@ config.read('oracle.ini')
 
 BCD_URL = "https://api.better-call.dev/v1/"
 NETWORK = "edo2net"
+MAX_SIZE=10
 
 CONTRACT_ID = config['Tezos']['pm_contract']
+
 
 def admin_account():
     import pytezos
@@ -27,6 +29,19 @@ def load_json(url):
     with urllib.request.urlopen(url) as u:
         data = json.loads(u.read().decode())
         return data
+
+def get_bcd(url):
+    offset = 0
+    data = []
+    while True:
+        u = f"{url}&offset={offset}"
+        d = load_json(u)
+        if len(d) == 0:
+            break
+        data.extend(d)
+        offset += MAX_SIZE
+    print(data)
+    return data
 
 def get_question_data(data):
     """ If this object has a value, return it. If it has children,
@@ -43,8 +58,8 @@ def get_question_data(data):
 
 def get_questions(id):
     """ Load and parse the questions bigmap"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
-    js = load_json(url)
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size={MAX_SIZE}"
+    js = get_bcd(url)
     ls = list(map(lambda x : {
         x['data']['key']['value'] : get_question_data(x['data']['value']['children'])
     }, js))
@@ -66,35 +81,35 @@ def get_storage_internal(js):
 def get_storage(id):
     """ Get all the storage for a contract and pass its children
     to @get_storage_internal """
-    url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size=10"
-    js = load_json(url)
+    url = f"{BCD_URL}/contract/{NETWORK}/{id}/storage?size={MAX_SIZE}"
+    js = get_bcd(url)
     storage = get_storage_internal(js[0]['children'])
     return storage
 
 def get_ledger(id):
     """ Get the ledger and pass it to jq to make the keys friendlier"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
-    js = load_json(url)
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size={MAX_SIZE}"
+    js = get_bcd(url)
     result = jq.first(r'map({ "\(.data.key.children[0].value).\(.data.key.children[1].value)": .data.value.children[0].value }) | add', js)
     if result is None:
         result = {}
     return result
 
 def get_stablecoin_ledger(id):
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
-    js = load_json(url)
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size={MAX_SIZE}"
+    js = get_bcd(url)
     result = jq.first('map({ (.data.key.value): (.data.value.children[0].value) }) | add', js)
     return result
 
 def get_total_supply(id):
     """ Get the total supply bigmap and flatten it"""
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size=10"
-    js = load_json(url)
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size={MAX_SIZE}"
+    js = get_bcd(url)
     return jq.all('map({ (.data.key.value): (.data.value.value) }) | add', js)
 
 def get_ledger_balances(id):
-    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys"
-    js = load_json(url)
+    url = f"{BCD_URL}bigmap/{NETWORK}/{id}/keys?size={MAX_SIZE}"
+    js = get_bcd(url)
     results = jq.first(r'map({ (.data.key.children[1].value): { (.data.key.children[0].value): .data.value.children[0].value } })', js)
     if results is None:
         return {}
