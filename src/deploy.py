@@ -92,7 +92,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
                 raise Exception("Operation was not applied")
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
-            print(metadata)
+            #print(metadata)
             print(contract_id)
             if contract_id is None:
                 raise
@@ -114,7 +114,7 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
     res = submit_transaction(operation)
-    print(res)
+    #print(res)
     if res is not None and res["hash"]:
         return get_contract_id(client, 2, res["hash"])
 

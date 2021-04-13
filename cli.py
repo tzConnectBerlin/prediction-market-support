@@ -241,8 +241,11 @@ def close_market(
 @app.command()
 def claim_winnings(
         question: str,
-        user: str
+        user: str,
 ):
+    """
+    Claim winnings for user
+    """
     check_account_loaded(user)
     state["market"].claim_winnings(
         question,
@@ -252,9 +255,12 @@ def claim_winnings(
 
 @app.command()
 def withdraw_auction(
-        question: str,
-        user: str
+        user: str,
+        question: str
 ):
+    """
+    Withdraw an auction
+    """
     check_account_loaded(user)
     state["market"].withdraw_auction(
         question,
@@ -264,21 +270,48 @@ def withdraw_auction(
 
 @app.command()
 def approve_market(
-        user: str,
-        amount: int
+        amount: int,
+        user: str
 ):
+    """"
+    Approve a quantity of stablecoin to be use by the market
+    """
     check_account_loaded(user)
-    state["stablecoin"].approve(user, amount)
+    state["stablecoin"].approve_market(user, amount)
 
 
 @app.command()
-def list_markets():
+def list_auctions():
+    """
+    List all current available questions
+    """
     state["market"].list_markets()
 
 
 @app.command()
 def list_bids(question: str):
+    """
+    Mist all the current bids on a question
+    """
     state["market"].list_bids(question)
+
+
+@app.command()
+def mint(value: int, user: str):
+    """
+    Mint a quantity of stablecoin for user
+    """
+    check_account_loaded(user)
+    state["stablecoin"].mint(user, value)
+
+
+@app.command()
+def burn(value: int, user: str):
+    """
+    Burn a quantity stablecoin for account
+    """
+    check_account_loaded(user)
+    state["stablecoin"].burn(user, value)
 
 
 @app.command()
@@ -322,6 +355,8 @@ def main(
                 typer.echo(f"{account_name} was activated")
                 state["accounts"].reveal_account(account_name)
                 typer.echo(f"{account_name} was revealed")
+    #test ignored accounts
+    #test they are in accounts
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
     state['stablecoin'] = Stablecoin(state['accounts'], state['config'])

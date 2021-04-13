@@ -44,6 +44,7 @@ class Stablecoin:
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
+    #Not working, check with shubendu
     def get_allowance(self, owner: str):
         """
         Check how much can be spent
@@ -52,7 +53,7 @@ class Stablecoin:
         operation = self.client.getAllowance({
             'owner': owner_address,
             'spender': self.market_id,
-            'contract_2': Undefined
+            'contract_2': self.market_id
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
