@@ -248,6 +248,12 @@ class Market:
             question: str,
             user: str
     ):
+        """
+        Claim winnings
+
+        question: Concerned question
+        user: user buying the tokens
+        """
         operation = self.pm_contracts(user).claimWinnings(
             question
         )

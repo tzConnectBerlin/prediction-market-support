@@ -44,7 +44,6 @@ class Stablecoin:
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    #Not working, check with shubendu
     def get_allowance(self, owner: str):
         """
         Check how much can be spent

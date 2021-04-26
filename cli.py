@@ -40,7 +40,7 @@ def manage_accounts(
         import_accounts: bool = typer.Option(False, "--import", "-i"),
 ):
     """
-    management of accounts in the user folder
+    Management of accounts in the user folder
     """
     account_list = state["accounts"].names()
     with typer.progressbar(account_list) as progress:
@@ -59,7 +59,7 @@ def manage_accounts(
 @app.command()
 def list_accounts():
     """
-    list all of the accounts
+    List all of the accounts
     """
     accounts = state['accounts']
     account_list = accounts.names()
@@ -80,7 +80,7 @@ def ask_question(
         market_end_date: float = typer.Argument(50)
 ):
     """
-    create a question in IPFS
+    Create a question in IPFS
 
     question: string representing the answer asked
     answer: string representing the possible answer
@@ -107,7 +107,7 @@ def fund_stablecoin(
         value: int = typer.Argument(100000 * MULTIPLIER)
 ):
     """
-    fund all accounts with a random quantity of tezos
+    Fund all accounts with a random quantity of tezos
 
     value: the amont of tezos funded
     """
@@ -121,7 +121,7 @@ def transfer_stablecoin(
         value: int = typer.Argument(100000 * MULTIPLIER)
 ):
     """
-    transfer a certain amount of coins toward an user address
+    Transfer a certain amount of coins toward an user address
 
     dest: user address that will receive the funds
     """
@@ -136,7 +136,7 @@ def stablecoin_balance(
         user: str
 ):
     """
-    get balance for user
+    Get balance for user
     """
     check_account_loaded(user)
     user_address = get_public_key(state['accounts'][user])
@@ -184,8 +184,7 @@ def random_bids(
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
 ):
     """
-    launch random bid on a auction for
-    all of the chosen users folder
+    Launch random bid on a auction for all of the chosen users folder
 
     ipfs_hash: Contract on which the bid are made
     """
@@ -208,7 +207,7 @@ def random_bids(
 @app.command()
 def close_auction(ipfs_hash: str, user: str):
     """
-    close the auction
+    Close the auction
 
     ipfs_hash: the hash of the question
     """
@@ -223,7 +222,7 @@ def close_market(
         token_type: bool = typer.Argument(True)
 ):
     """
-    close the market
+    Close the market
 
     ipfs_hash: the hash of the concerned market
     token_type: type of the token
@@ -291,7 +290,7 @@ def list_auctions():
 @app.command()
 def list_bids(question: str):
     """
-    Mist all the current bids on a question
+    List all the current bids on a question
     """
     state["market"].list_bids(question)
 
