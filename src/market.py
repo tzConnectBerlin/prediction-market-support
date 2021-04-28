@@ -2,6 +2,7 @@
 Market management helper
 """
 import json
+import random
 from datetime import datetime, timedelta
 
 import ipfshttpclient
@@ -42,7 +43,6 @@ class Market:
             quantity: int,
             rate: int,
             auction_end_date: float = 5.0,
-            market_end_date: float = 10.0
     ):
         """
         Create a question in IPFS
@@ -55,26 +55,32 @@ class Market:
         """
         timenow = datetime.now().astimezone(pytz.utc)
         auction_end_date = timenow + timedelta(minutes=auction_end_date)
-        market_close_date = timenow + timedelta(minutes=market_end_date)
         param = {
             'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
             'iconURL':
                 'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-            'marketCloseDate': market_close_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
             'question': question,
             'yesAnswer': answer,
         }
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
+        market_id = random.randint(10, 100000000)
         ipfs_hash = ipfs.add_str(json.dumps(param))
-        operation = self.pm_contracts(user).createQuestion({
-            'auction_end': int(auction_end_date.timestamp()),
-            'market_close': int(market_close_date.timestamp()),
-            'quantity': quantity,
-            'question': ipfs_hash,
-            'rate': rate
+        operation = self.pm_contracts(user).marketCreate({
+            'auction_period_end': int(auction_end_date.timestamp()),
+            'bet': {
+                'quantity': quantity,
+                'predicted_probability': rate
+            },
+            'market_id': market_id,
+            'metadata': {
+                'ipfs_hash': ipfs_hash,
+                'adjudicator': get_public_key(self.accounts[user]),
+                'currency': {'fa12': 'KT1BBMukAqXWzAFa8gDPTDr4JWitqWGBTrLH'},
+                'description': question + answer
+            }
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
-        return ipfs_hash
+        return market_id
 
     def transfer_stablecoin_to_user(
             self,
@@ -119,7 +125,7 @@ class Market:
 
     def bid_auction(
             self,
-            ipfs_hash: str,
+            market_id: int,
             user: str,
             quantity: int = 5,
             rate: int = 10
@@ -133,16 +139,40 @@ class Market:
         rate: What is rate?
         """
         data = {
-            'quantity': quantity,
-            'question': ipfs_hash,
-            'rate': rate
+            'market_id': market_id,
+            'bet': {
+                'quantity': quantity,
+                'predicted_probability': rate
+            }
+        }
+        operation = self.pm_contracts(user).bid(data)
+        submit_transaction(operation.as_transaction())
+
+    def auction_clear(
+            self,
+            user,
+            market_id: int
+    ):
+        data = {
+            'market_id': market_id,
+        }
+        operation = self.pm_contracts(user).bid(data)
+        submit_transaction(operation.as_transaction())
+
+    def auction_withdraw(
+            self,
+            user,
+            market_id: int
+    ):
+        data = {
+            'market_id': market_id,
         }
         operation = self.pm_contracts(user).bid(data)
         submit_transaction(operation.as_transaction())
 
     def multiple_bids(
             self,
-            ipfs_hash: str,
+            market_id: int,
             quantity: int = 5,
             rate: int = 10
     ):
@@ -154,9 +184,11 @@ class Market:
         operations_list = []
         for user in self.accounts.names():
             data = {
+            'market_id': market_id,
+            'bet': {
                 'quantity': quantity,
-                'question': ipfs_hash,
-                'rate': rate
+                'predicted_probability': rate
+                }
             }
             operation = self.pm_contracts(user).bid(data)
             operations_list.append(operation.as_transaction())
@@ -203,31 +235,34 @@ class Market:
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
         print(res)
 
-    def buy_token(
+    def mint(
             self,
-            question: str,
-            token_type: bool,
-            token_quantity: int,
-            user: str):
+            market_id: int,
+            amount: int,
+            user: str
+    ):
         """
-        Buy the token
+        mint the token
 
         question: Concerned question
         token_type: type of tokens (yes or no)
         token_quantity: quantity of tokens to buy
         user: user whose token are bought
         """
-        operation = self.pm_contracts(user).buyToken(
-            question,
-            token_type,
-            token_quantity
+        operation = self.pm_contracts(user).marketEnterExit({
+            'direction': 'PayOut',
+                'params': {
+                    'market_id': market_id,
+                    'amount': amount
+                }
+            }
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def burn(
             self,
-            question: str,
-            token_quantity: int,
+            market_id: int,
+            amount: int,
             user: str
     ):
         """
@@ -237,15 +272,19 @@ class Market:
         coin_quantity: quantity of tokens to burn
         user: user buying the tokens
         """
-        operation = self.pm_contracts(user).burn(
-            question,
-            token_quantity
+        operation = self.pm_contracts(user).marketEnterExit({
+                'direction': 'PayIn',
+                'params': {
+                    'market_id': market_id,
+                    'amount': amount
+                }
+            }
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def claim_winnings(
             self,
-            question: str,
+            market_id: int,
             user: str
     ):
         """
@@ -255,38 +294,54 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts(user).claimWinnings(
-            question
+            market_id
         )
+        submit_transaction(operation.as_transaction(), error_func=print_error)
+
+    def resolve_market(
+            self,
+            market_id: int,
+            user: str,
+            winning_prediction: str
+    ):
+        operation = self.pm_contracts(user).claimWinnings({
+            'market_id': market_id,
+            'winning_prediction': winning_prediction
+        })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def update_liquidity(
             self,
-            question: str,
-            add_lqt: bool,
-            lqt_amount: int,
+            direction: str,
+            market_id: int,
+            amount: int,
             user: str
     ):
-        operation = self.pm_contracts(user).updateLiquidity(
-            question,
-            add_lqt,
-            lqt_amount
-        )
+        operation = self.pm_contracts(user).swapLiquidity({
+            'direction': direction,
+            'params': {
+                'market_id': market_id,
+                'amount': amount
+            }
+        })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    def swap(
+    def swap_tokens(
             self,
-            question: str,
-            token_in_type: bool,
-            fixed_token_in: int,
+            token_to_sell: str,
+            market_id: int,
+            amount: int,
             user: str
     ):
-        operation = self.pm_contracts(user).swap(
-            question,
-            token_in_type,
-            fixed_token_in
-        )
+        operation = self.pm_contracts(user).swapTokens({
+            'token_to_sell': token_to_sell,
+            'params': {
+                'market_id': market_id,
+                'amount': amount
+            }
+        })
         submit_transaction(operation.as_transaction(), error_func=print_error)
-
+"""
     def list_markets(
             self
     ):
@@ -299,7 +354,8 @@ class Market:
             market_end = questions[question]['market_close']
             bids = len(questions[question]['auction_bids'])
             print(f'{question} - {list(state.keys())[0]} close: {auction_close} market_end: {market_end} bids: {bids}')
-
+"""
+"""
     def list_bids(
             self,
             question: str
@@ -309,3 +365,4 @@ class Market:
         for bids in question:
             data = question[bids]
             print(f"{bids} - {data}")
+"""

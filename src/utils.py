@@ -13,11 +13,10 @@ def get_public_key(account):
     return account.key.public_key_hash()
 
 
-def get_stablecoin(account, contract: str):
+def get_stablecoin(account, stablecoin_contract: str):
     """
-    Return an reference to the stablecoin storage  for account
+    Return an reference to the stablecoin contract for account
     """
-    stablecoin_contract = account.contract(contract).storage["stablecoin"]()
     stablecoin_client = account.contract(stablecoin_contract)
     return stablecoin_client
 
@@ -85,11 +84,16 @@ def get_tezos_client_path():
 
 
 def questions_storage(client, contract_id):
+    """
+    Return storage for questions
+    """
     contract = client.contract(contract_id)
-    return contract.storage['questions']
+    return contract.storage['business_storage']['markets']['market_map']
 
 
 def stablecoin_storage(client, contract_id):
-    contract = client.contract(contract_id)
-    stablecoin = client.contract(contract.storage['stablecoin']())
+    """
+    Return storage for stablecoin
+    """
+    stablecoin = get_stablecoin(client, contract_id)
     return stablecoin.storage['ledger']
