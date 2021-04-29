@@ -27,6 +27,8 @@ class Config:
         self.data["endpoint"] = endpoint or config['Tezos']['endpoint']
         self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
         self.data["stablecoin"] = stablecoin or config['Tezos']['stablecoin']
+        self.data["contract_path"] = config['Tezos']['contract_path']
+        self.data["stablecoin_path"] = config['Tezos']['stablecoin_path']
         privkey = admin_account_key or config['Tezos']['privkey']
         try:
             self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])

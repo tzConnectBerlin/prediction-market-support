@@ -5,11 +5,14 @@ from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
 
 from src.compile import *
+from src.config import Config
 from src.utils import submit_transaction
 
 from time import sleep
 
 WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
+
+config = Config()
 
 admin = {
         'pkh': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
@@ -17,16 +20,8 @@ admin = {
         'pk': 'edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn',
 }
 
-Migration = {
-        'path': 'contracts/Migrations.ligo',
-        'storage': {
-            'last_completed_migration': 0,
-            'owner': admin['pkh']
-            }
-        }
-
 USDtzLeger = {
-        'path': 'contracts/third-party/FA12Permissive.ligo',
+        'path': config['stablecoin_path'],
         'storage': {
             'totalSupply': 0,
             'ledger': {
@@ -39,27 +34,13 @@ USDtzLeger = {
 }
 
 binary_contract = {
-    'path': 'container/main.mligo.m4',
+    'path': config['contract_path'],
     'storage': {
         'sender_addres': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
     }
 }
 
-Market = {
-        'path': 'contracts/Market.mligo',
-        'storage': {
-        'last_token_created': 0,
-        'owner': admin['pkh'],
-        'questions': {},
-        'stablecoin': 'KT1VK3kD6Xu7rmmD467M168rcR3Th82HbLra',
-        'tokens': {
-            'ledger': {},
-            'operators': {},
-            'token_metadata': {},
-            'token_total_supply': {},
-        }
-    }
-}
+helper_directory = '/home/killua/prediction-market-contracts-lazy/m4_helpers'
 
 
 def wait_next_block(block_time, client):
@@ -126,6 +107,13 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
         return get_contract_id(client, 2, res["hash"])
 
 
+def deploy_stablecoin(key=admin['sk']):
+    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
+    if stablecoin_id is None:
+        raise Exception("deploiement failed")
+    print(f"stablecoin was deployed at {stablecoin_id}")
+
+
 def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
     """
     Deploy the complete market on the specified shell
@@ -134,20 +122,8 @@ def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
     :return: None
     """
     print("deploying markets")
-    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
-    if stablecoin_id is None:
-        raise Exception("deploiement failed")
-    print(f"stablecoin was deployed at {stablecoin_id}")
-    Market['storage']['stablecoin'] = stablecoin_id
-    #print(Market)
-    print("market was deployed")
-    #market_id = deploy_from_file(Market['path'], key, Market['storage'])
-    #return market_id
-
-
-def deploy_binary_market(key=admin['sk']):
     print("deploying binary market")
-    content = preprocess_file(binary_contract['path'], "m4_helpers")
+    content = preprocess_file(binary_contract['path'], helper_directory)
     path = "./compiled_contracts"
     try:
         os.mkdir(path)
@@ -155,7 +131,8 @@ def deploy_binary_market(key=admin['sk']):
         print("Creation of the directory %s failed" % path)
     else:
         print("Successfully created the directory %s " % path)
-    filepath = f"{WORKING_DIRECTORY}/{path}/main.mligo"
+    filepath = f"{path}/main.mligo"
+    print(filepath)
     write_to_file(content, filepath)
-    deploy_from_file(filepath, key, binary_contract['storage'])
-    print("binary market was deployed")
+    market_id = deploy_from_file(filepath, key, binary_contract['storage'])
+    return market_id

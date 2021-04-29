@@ -4,7 +4,6 @@ Market management helper
 import json
 import random
 from datetime import datetime, timedelta
-from typing import Tuple, Union
 
 import ipfshttpclient
 import pytz

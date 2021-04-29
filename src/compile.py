@@ -26,11 +26,7 @@ def run_command(command):
                 raise Exception(msg)
             else:
                 return output
-"""
-def preprocess_contract():
-    helper_directory = "/m4_helpers"
-    command = "m4 - P - I f{helper_directory} -D M4_WORKING_DIR={WORKING_DIRECTORY}"
-"""
+
 
 def compile_contract(file):
     """
@@ -40,9 +36,7 @@ def compile_contract(file):
     :return:
     """
     print(WORKING_DIRECTORY)
-    print(file)
     compile_command = f"{ligo_cmd} compile-contract {file} main"
-    print(compile_command)
     result = run_command(compile_command)
     return result
 
@@ -60,20 +54,16 @@ def compile_storage(file, storage):
     return result
 
 
-def preprocess_file(file, helper_directory):
+def preprocess_file(file, helper_directory=""):
     """
     Preprocess a file to be compiled
 WORKING_DIRECTORY + '/helper_directory'
     :param file: path to the preprocessing file
     :helper_directory: path to the folder containing the preprocessing files
     """
-    #print(WORKING_DIRECTORY + '/helper_directory')
-    #print(WORKING_DIRECTORY + '/' + file)
-    helper_directory = WORKING_DIRECTORY + '/helper_directory'
-    file = WORKING_DIRECTORY + '/' + file
+    print("helper directory = " + helper_directory)
+    file = file
     compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={file}" {file}'
-    #print(compile_command)
-    #print(WORKING_DIRECTORY)
     result = run_command(compile_command)
     return result
 
