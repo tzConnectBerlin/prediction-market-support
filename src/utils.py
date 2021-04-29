@@ -22,10 +22,16 @@ def get_stablecoin(account, stablecoin_contract: str):
 
 
 def raise_error(_err_message):
+    """
+    Receive an error message and raise it
+    """
     raise
 
 
 def print_error(err_message):
+    """
+    Receive an error message and print it
+    """
     if 'with' in err_message:
         if 'string' in err_message['with']:
             err_code = err_message['with']['string']
@@ -45,6 +51,9 @@ def print_error(err_message):
 
 
 def print_and_ignore(err_message):
+    """
+    Receive and error message, print it and ignore it
+    """
     if 'with' in err_message:
         err_code = err_message['with']['string']
         print(contract_error[err_code])
@@ -54,6 +63,9 @@ def print_and_ignore(err_message):
 
 
 def submit_transaction(transaction, count=None, tries=3, error_func=None):
+    """
+    Submit a transaction
+    """
     try:
         source = transaction.key.public_key_hash()
         transaction_ = transaction.autofill(ttl=56)
@@ -78,7 +90,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
 
 def get_tezos_client_path():
     """
-    Obtain a tezos path
+    Obtain the tezos client path
     """
     return os.path.expanduser('~/.tezos-client')
 
