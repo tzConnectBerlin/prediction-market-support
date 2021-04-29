@@ -4,6 +4,7 @@ Market management helper
 import json
 import random
 from datetime import datetime, timedelta
+from typing import Tuple, Union
 
 import ipfshttpclient
 import pytz
@@ -62,9 +63,19 @@ class Market:
             'question': question,
             'yesAnswer': answer,
         }
+        token_contract = self.config['stablecoin']
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         market_id = random.randint(10, 100000000)
         ipfs_hash = ipfs.add_str(json.dumps(param))
+        if type(token_contract) is str:
+            currency = {'fa12': token_contract}
+        else:
+            currency = {
+                'fa2': {
+                    'token_address': token_contract[0],
+                    'token_id': token_contract[1]
+                }
+            }
         operation = self.pm_contracts(user).marketCreate({
             'auction_period_end': int(auction_end_date.timestamp()),
             'bet': {
@@ -75,8 +86,8 @@ class Market:
             'metadata': {
                 'ipfs_hash': ipfs_hash,
                 'adjudicator': get_public_key(self.accounts[user]),
-                'currency': {'fa12': 'KT1BBMukAqXWzAFa8gDPTDr4JWitqWGBTrLH'},
-                'description': question + answer
+                'currency': currency,
+                'description': 'Question: ' + question + ' Answer: ' + answer
             }
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)

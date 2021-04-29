@@ -4,7 +4,7 @@ Tooling for prediction markets market
 """
 
 import random
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 import typer
 import ipfshttpclient
@@ -357,9 +357,12 @@ def stablecoin_balance(
     """
     check_account_loaded(user)
     user_address = get_public_key(state['accounts'][user])
-    balance = int(get_stablecoin(state['config']['admin_account'],
-                                 state['config']['contract']).getBalance(
-        {'owner': user_address, 'contract_1': None}).view())
+    balance = int(
+        get_stablecoin(state['config']['admin_account'],
+        state['config']['contract']).getBalance(
+            {'owner': user_address, 'contract_1': None}
+        ).view()
+    )
     balance /= MULTIPLIER
     print("balances:")
     print(f"{user}: {balance}")
@@ -401,7 +404,6 @@ def main(
     #test they are in accounts
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
-    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 

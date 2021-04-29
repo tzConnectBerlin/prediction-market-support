@@ -10,6 +10,7 @@ class Config:
             contract: str = "",
             endpoint: str = "",
             ipfs_server: str = None,
+            stablecoin: str = None,
             user_folder: str = None
         ):
         """
@@ -25,13 +26,13 @@ class Config:
         self.data["contract"] = contract or config['Tezos']['pm_contract']
         self.data["endpoint"] = endpoint or config['Tezos']['endpoint']
         self.data["ipfs_server"] = ipfs_server or config['IPFS']['server']
+        self.data["stablecoin"] = stablecoin or config['Tezos']['stablecoin']
         privkey = admin_account_key or config['Tezos']['privkey']
         try:
             self.data["admin_account"] = pytezos.using(key=privkey, shell=self["endpoint"])
         except:
             print(f'Something went wrong with instantiating the shell object on endpoint {self["endpoint"]}')
-        contract = self.data['admin_account'].contract(self.data['contract'])
-        #self.data['stablecoin'] = contract.storage['stablecoin']()
+        self.contract = self.data['admin_account'].contract(self.data['contract'])
 
     def __getitem__(self, key):
         if key in self.data:
