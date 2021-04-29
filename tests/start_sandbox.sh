@@ -8,4 +8,4 @@ port=20000
 
 #Instantation Dockerfile
 #docker run --rm --name $docker_name -e block_time=1 --detach -p $port:$port $flextesa_image flextesa key bob
-docker run --rm --name $docker_name -e block_time=0 --detach -p $port:$port $flextesa_image edobox start
+docker run --rm --name $docker_name -e block_time=1 --detach -p $port:$port $flextesa_image edobox start

@@ -42,6 +42,7 @@ def test_list_accounts(account, contract_id):
     assert account['name'] in result.stdout
 
 
+"""
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage, contract_id):
     #make sure only string are passed to the runner
@@ -113,3 +114,4 @@ def test_close_market(account, market, data, questions_storage, contract_id ):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
+"""

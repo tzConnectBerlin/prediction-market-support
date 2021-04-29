@@ -45,7 +45,7 @@ class Market:
             auction_end_date: float = 5.0,
     ):
         """
-        Create a question in IPFS
+        Generate a Market
 
         question: string representing the answer asked
         answer: string representing the possible answer
@@ -81,6 +81,70 @@ class Market:
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
         return market_id
+
+    def bid_auction(
+            self,
+            market_id: int,
+            user: str,
+            quantity: int = 5,
+            rate: int = 10
+    ):
+        """
+        Launch a bid on an auction
+
+        ipfs_hash: the contract concerned by the bid
+        user: string representing the user which is bidding during the auction
+        quantity: Integer representing quantity of stable coins bid during the auction
+        rate: What is rate?
+        """
+        data = {
+            'market_id': market_id,
+            'bet': {
+                'quantity': quantity,
+                'predicted_probability': rate
+            }
+        }
+        operation = self.pm_contracts(user).auctionBet(data)
+        submit_transaction(operation.as_transaction())
+
+    def auction_clear(
+            self,
+            user,
+            market_id: int
+    ):
+        data = {
+            'market_id': market_id,
+        }
+        operation = self.pm_contracts(user).auctionClear(data)
+        submit_transaction(operation.as_transaction())
+
+    def auction_withdraw(
+            self,
+            user,
+            market_id: int
+    ):
+        data = {
+            'market_id': market_id,
+        }
+        operation = self.pm_contracts(user).auctionWithdraw(data)
+        submit_transaction(operation.as_transaction())
+
+    def marketEnterExit(
+            self,
+            user,
+            direction: str,
+            market_id: int,
+            amount: int
+    ):
+        data = {
+            'direction': direction,
+            'params': {
+                'market_id': market_id,
+                'amount': amount
+            }
+        }
+        operation = self.pm_contracts(user).marketEnterExit(data)
+        submit_transaction(operation.as_transaction())
 
     def transfer_stablecoin_to_user(
             self,
@@ -122,53 +186,6 @@ class Market:
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         submit_transaction(bulk_operations, error_func=print_error)
-
-    def bid_auction(
-            self,
-            market_id: int,
-            user: str,
-            quantity: int = 5,
-            rate: int = 10
-    ):
-        """
-        Launch a bid on an auction
-
-        ipfs_hash: the contract concerned by the bid
-        user: string representing the user which is bidding during the auction
-        quantity: Integer representing quantity of stable coins bid during the auction
-        rate: What is rate?
-        """
-        data = {
-            'market_id': market_id,
-            'bet': {
-                'quantity': quantity,
-                'predicted_probability': rate
-            }
-        }
-        operation = self.pm_contracts(user).bid(data)
-        submit_transaction(operation.as_transaction())
-
-    def auction_clear(
-            self,
-            user,
-            market_id: int
-    ):
-        data = {
-            'market_id': market_id,
-        }
-        operation = self.pm_contracts(user).bid(data)
-        submit_transaction(operation.as_transaction())
-
-    def auction_withdraw(
-            self,
-            user,
-            market_id: int
-    ):
-        data = {
-            'market_id': market_id,
-        }
-        operation = self.pm_contracts(user).bid(data)
-        submit_transaction(operation.as_transaction())
 
     def multiple_bids(
             self,
@@ -217,21 +234,23 @@ class Market:
 
     def close_market(
             self,
-            question: str,
+            market_id: int,
             token_type: bool,
             user: str
     ):
         """
         Close the market
 
-        ipfs_hash: the hash of the concerned contract
+        market_id: the hash of the concerned contract
         token_type: type of tokens (yes or no)
         user: user closing the market (owner)
         """
-        operation = self.pm_contracts(user).closeMarket(
-            question,
-            token_type
-        )
+        winning_prediction = 'yes' if token_type is True else 'no'
+        operation = self.pm_contracts(user).marketResolve({
+            'market_id': market_id,
+            'winning_prediction': winning_prediction
+        })
+        submit_transaction(operation.as_transaction(), error_func=print_error)
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
         print(res)
 
@@ -296,18 +315,6 @@ class Market:
         operation = self.pm_contracts(user).claimWinnings(
             market_id
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
-    def resolve_market(
-            self,
-            market_id: int,
-            user: str,
-            winning_prediction: str
-    ):
-        operation = self.pm_contracts(user).claimWinnings({
-            'market_id': market_id,
-            'winning_prediction': winning_prediction
-        })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def update_liquidity(

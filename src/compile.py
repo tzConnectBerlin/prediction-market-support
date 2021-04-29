@@ -3,10 +3,10 @@ import os
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
-WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] or '"$PWD"'
+WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
 
 ligo_cmd = (
-        f'docker run --rm -v {WORKING_DIRECTORY}:{WORKING_DIRECTORY} -w {WORKING_DIRECTORY} ligolang/ligo:0.7.1 "$@"'
+        f'docker run --rm -v {WORKING_DIRECTORY}:{WORKING_DIRECTORY} -w {WORKING_DIRECTORY} ligolang/ligo:0.14.0 "$@"'
 )
 
 
@@ -26,7 +26,11 @@ def run_command(command):
                 raise Exception(msg)
             else:
                 return output
-
+"""
+def preprocess_contract():
+    helper_directory = "/m4_helpers"
+    command = "m4 - P - I f{helper_directory} -D M4_WORKING_DIR={WORKING_DIRECTORY}"
+"""
 
 def compile_contract(file):
     """
@@ -38,6 +42,7 @@ def compile_contract(file):
     print(WORKING_DIRECTORY)
     print(file)
     compile_command = f"{ligo_cmd} compile-contract {file} main"
+    print(compile_command)
     result = run_command(compile_command)
     return result
 
@@ -53,6 +58,36 @@ def compile_storage(file, storage):
     compile_command = f"{ligo_cmd} compile-storage {file} main '{storage}'"
     result = run_command(compile_command)
     return result
+
+
+def preprocess_file(file, helper_directory):
+    """
+    Preprocess a file to be compiled
+WORKING_DIRECTORY + '/helper_directory'
+    :param file: path to the preprocessing file
+    :helper_directory: path to the folder containing the preprocessing files
+    """
+    #print(WORKING_DIRECTORY + '/helper_directory')
+    #print(WORKING_DIRECTORY + '/' + file)
+    helper_directory = WORKING_DIRECTORY + '/helper_directory'
+    file = WORKING_DIRECTORY + '/' + file
+    compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={file}" {file}'
+    #print(compile_command)
+    #print(WORKING_DIRECTORY)
+    result = run_command(compile_command)
+    return result
+
+
+def write_to_file(content, filepath):
+    """
+    Write to a file
+
+    :param content: content to write to the file
+    :param filepath: file to Write
+    """
+    f = open(filepath, "w")
+    f.write(content)
+    f.close()
 
 
 def launch_sandbox():

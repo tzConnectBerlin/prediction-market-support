@@ -57,19 +57,6 @@ def manage_accounts(
 
 
 @app.command()
-def list_accounts():
-    """
-    List all of the accounts
-    """
-    accounts = state['accounts']
-    account_list = accounts.names()
-    for account_name in account_list:
-        print(
-            f'name: {account_name}   balance: {accounts[account_name].balance()}'
-        )
-
-
-@app.command()
 def ask_question(
         question: str,
         answer: str,
@@ -77,7 +64,6 @@ def ask_question(
         quantity: int = typer.Argument(5000 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
         auction_end_date: float = typer.Argument(30),
-        market_end_date: float = typer.Argument(50)
 ):
     """
     Create a question in IPFS
@@ -89,17 +75,248 @@ def ask_question(
     rate: rate
     """
     check_account_loaded(user)
-    ipfs_hash = state["market"].ask_question(
+    market_id = state["market"].ask_question(
         question,
         answer,
         user,
         quantity,
         rate,
-        auction_end_date,
-        market_end_date
+        auction_end_date
     )
-    print(f"Created market {ipfs_hash} in PM contract")
-    return ipfs_hash
+    print(f"Created market {market_id} in PM contract")
+    return market_id
+
+
+@app.command()
+def bid_auction(
+        market_id: int,
+        user: str,
+        quantity: int = typer.Argument(500 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
+):
+    """
+    Bid on an auction
+
+    market_id: the contract to use
+    user: string representing the user who is bidding
+    quantity: quantity of stable coins bid during the auction
+    rate: What is rate?
+    """
+    check_account_loaded(user)
+    print(f"bidding auction for {user}")
+    state["market"].bid_auction(market_id, user, quantity, rate)
+
+
+@app.command()
+def random_bids(
+        market_id: int,
+        quantity: int = typer.Argument(500 * MULTIPLIER),
+        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
+):
+    """
+    Launch random bid on a auction for all of the chosen users folder
+
+    market_id: Contract on which the bid are made
+    """
+    if len(state["accounts"].names()) == 0:
+        print("Please add some accounts before using this functionality")
+    print("placing random bids")
+    user_list = state["accounts"].names()
+    with typer.progressbar(user_list) as progress:
+        for user in progress:
+            print(f"generating bids for accounts {user}")
+            state["market"].bid_auction(
+                market_id,
+                user,
+                quantity,
+                rate
+            )
+        print("\n")
+
+
+@app.command()
+def clear_auction(market_id: int, user: str):
+    """
+    Clear the auction
+
+    market_id: the id of the question
+    """
+    print(f"Clear an auction {market_id} for {user}")
+    state["market"].auction_clear(market_id, user)
+
+
+@app.command()
+def withdraw_auction(market_id: int, user: str):
+    """
+    Withdraw the auction
+
+    market_id: the id of the question
+    """
+    print(f"Withdraw an auction {market_id} for {user}")
+    state["market"].auction_withdraw(market_id, user)
+
+
+@app.command()
+def enter_market(
+        market_id: int,
+        user: str,
+        amount: int
+):
+    state["market"].marketEnterExit(
+        user,
+        'PayIn',
+        market_id,
+        amount
+    )
+
+
+@app.command()
+def close_market(
+        market_id: int,
+        user: str,
+        token_type: bool = typer.Argument(True)
+):
+    """
+    Close the market
+
+    market_id: the id of the concerned market
+    token_type: type of the token
+    user: owner of the market
+    """
+    check_account_loaded(user)
+    print(f"closing market {market_id}")
+    state["market"].close_market(
+        market_id,
+        token_type,
+        user
+    )
+
+
+@app.command()
+def approve_market(
+        user: str,
+        amount: int
+):
+    """"
+    Approve a quantity of stablecoin to be use by the market
+    """
+    check_account_loaded(user)
+    state["stablecoin"].approve_market(user, amount)
+
+
+@app.command()
+def exit_market(
+        market_id: int,
+        user: str,
+        amount: int
+):
+    state["market"].marketEnterExit(
+        user,
+        'PayOut',
+        market_id,
+        amount
+    )
+
+
+@app.command()
+def swap_tokens(
+        market_id: int,
+        user: str,
+        token_to_sell: str,
+        amount: int
+):
+    state["market"].swapTokens(
+        token_to_sell,
+        market_id,
+        amount,
+        user
+    )
+
+
+def swap_liquidity(
+        market_id: int,
+        user: str,
+        direction: str,
+        amount: int
+):
+    state["market"].swapLiquidity(
+        direction,
+        market_id,
+        amount,
+        user
+    )
+
+
+@app.command()
+def claim_winnings(
+        market_id: int,
+        user: str,
+):
+    """
+    Claim winnings for user
+    """
+    check_account_loaded(user)
+    state["market"].claim_winnings(
+        market_id,
+        user
+    )
+
+
+#@app.command()
+def list_auctions():
+    """
+    List all current available questions
+    """
+    state["market"].list_markets()
+
+
+#@app.command()
+def list_bids(question: str):
+    """
+    List all the current bids on a question
+    """
+    state["market"].list_bids(question)
+
+
+@app.command()
+def mint(value: int, user: str):
+    """
+    Mint a quantity of stablecoin for user
+    """
+    check_account_loaded(user)
+    state["market"].mint(user, value)
+
+
+@app.command()
+def burn(value: int, user: str):
+    """
+    Burn a quantity stablecoin for account
+    """
+    check_account_loaded(user)
+    state["market"].burn(user, value)
+
+
+@app.command()
+def get_question_data(
+        question: str
+):
+    ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
+    data = ipfsclient.get_json(question)
+    if data is not None:
+        print(data)
+
+
+@app.command()
+def list_accounts():
+    """
+    List all of the accounts
+    """
+    accounts = state['accounts']
+    account_list = accounts.names()
+    for account_name in account_list:
+        print(
+            f'name: {account_name}   balance: {accounts[account_name].balance()}'
+        )
 
 
 @app.command()
@@ -148,180 +365,6 @@ def stablecoin_balance(
     print(f"{user}: {balance}")
 
 
-"""
-@app.command()
-def test(
-        user: str
-):
-    state['stablecoin'].get_allowance(user)
-"""
-
-
-@app.command()
-def bid_auction(
-        ipfs_hash: str,
-        user: str,
-        quantity: int = typer.Argument(500 * MULTIPLIER),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
-):
-    """
-    Bid on an auction
-
-    ipfs_hash: the contract to use
-    user: string representing the user who is bidding
-    quantity: quantity of stable coins bid during the auction
-    rate: What is rate?
-    """
-    check_account_loaded(user)
-    print(f"bidding auction for {user}")
-    state["market"].bid_auction(ipfs_hash, user, quantity, rate)
-
-
-@app.command()
-def random_bids(
-        ipfs_hash: str,
-        quantity: int = typer.Argument(500 * MULTIPLIER),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
-):
-    """
-    Launch random bid on a auction for all of the chosen users folder
-
-    ipfs_hash: Contract on which the bid are made
-    """
-    if len(state["accounts"].names()) == 0:
-        print("Please add some accounts before using this functionality")
-    print("placing random bids")
-    user_list = state["accounts"].names()
-    with typer.progressbar(user_list) as progress:
-        for user in progress:
-            print(f"generating bids for accounts {user}")
-            state["market"].bid_auction(
-                ipfs_hash,
-                user,
-                quantity,
-                rate
-            )
-        print("\n")
-
-
-@app.command()
-def close_auction(ipfs_hash: str, user: str):
-    """
-    Close the auction
-
-    ipfs_hash: the hash of the question
-    """
-    print(f"closing action {ipfs_hash} for {user}")
-    state["market"].close_auction(ipfs_hash, user)
-
-
-@app.command()
-def close_market(
-        ipfs_hash: str,
-        user: str,
-        token_type: bool = typer.Argument(True)
-):
-    """
-    Close the market
-
-    ipfs_hash: the hash of the concerned market
-    token_type: type of the token
-    user: owner of the market
-    """
-    check_account_loaded(user)
-    print(f"closing market {ipfs_hash}")
-    state["market"].close_market(
-        ipfs_hash,
-        token_type,
-        user
-    )
-
-
-@app.command()
-def claim_winnings(
-        question: str,
-        user: str,
-):
-    """
-    Claim winnings for user
-    """
-    check_account_loaded(user)
-    state["market"].claim_winnings(
-        question,
-        user
-    )
-
-
-@app.command()
-def withdraw_auction(
-        user: str,
-        question: str
-):
-    """
-    Withdraw an auction
-    """
-    check_account_loaded(user)
-    state["market"].withdraw_auction(
-        question,
-        user
-    )
-
-
-@app.command()
-def approve_market(
-        amount: int,
-        user: str
-):
-    """"
-    Approve a quantity of stablecoin to be use by the market
-    """
-    check_account_loaded(user)
-    state["stablecoin"].approve_market(user, amount)
-
-
-@app.command()
-def list_auctions():
-    """
-    List all current available questions
-    """
-    state["market"].list_markets()
-
-
-@app.command()
-def list_bids(question: str):
-    """
-    List all the current bids on a question
-    """
-    state["market"].list_bids(question)
-
-
-@app.command()
-def mint(value: int, user: str):
-    """
-    Mint a quantity of stablecoin for user
-    """
-    check_account_loaded(user)
-    state["stablecoin"].mint(user, value)
-
-
-@app.command()
-def burn(value: int, user: str):
-    """
-    Burn a quantity stablecoin for account
-    """
-    check_account_loaded(user)
-    state["stablecoin"].burn(user, value)
-
-
-@app.command()
-def get_question_data(
-        question: str
-):
-    ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
-    data = ipfsclient.get_json(question)
-    if data is not None:
-        print(data)
-
 
 @app.callback()
 def main(
@@ -358,7 +401,7 @@ def main(
     #test they are in accounts
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
-    state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
+    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 

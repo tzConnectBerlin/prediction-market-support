@@ -39,6 +39,7 @@ def accounts():
     return accounts
 
 @pytest.fixture(scope="session", autouse=True)
+#Change this to contract_id
 def contract_id():
     return deploy_market()
 
@@ -85,6 +86,7 @@ def finance_accounts(client, accounts, config: Config, contract_id: str):
             account['key'], amount=Decimal(10)
         ).autofill().sign().inject()
 
+        #modify that part to get the stablecoin
         stablecoin = get_stablecoin(config['admin_account'], contract_id)
 
         stablecoin.transfer({
@@ -101,8 +103,8 @@ def pytest_configure(config):
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
-    sleep(70)
+    #launch_sandbox()
+    #sleep(70)
     
 
 
@@ -125,4 +127,4 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    #stop_sandbox()

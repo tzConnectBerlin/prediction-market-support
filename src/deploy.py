@@ -9,6 +9,8 @@ from src.utils import submit_transaction
 
 from time import sleep
 
+WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
+
 admin = {
         'pkh': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
         'sk': 'edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq',
@@ -34,6 +36,13 @@ USDtzLeger = {
                 }
             }
         }
+}
+
+binary_contract = {
+    'path': 'container/main.mligo.m4',
+    'storage': {
+        'sender_addres': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
+    }
 }
 
 Market = {
@@ -92,8 +101,6 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
                 raise Exception("Operation was not applied")
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
-            #print(metadata)
-            print(contract_id)
             if contract_id is None:
                 raise
             return contract_id
@@ -110,11 +117,11 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     :return:
     """
     contract = compile_contract(file)
+    print(contract)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
     res = submit_transaction(operation)
-    #print(res)
     if res is not None and res["hash"]:
         return get_contract_id(client, 2, res["hash"])
 
@@ -132,7 +139,23 @@ def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
         raise Exception("deploiement failed")
     print(f"stablecoin was deployed at {stablecoin_id}")
     Market['storage']['stablecoin'] = stablecoin_id
-    print(Market)
+    #print(Market)
     print("market was deployed")
-    market_id = deploy_from_file(Market['path'], key, Market['storage'])
-    return market_id
+    #market_id = deploy_from_file(Market['path'], key, Market['storage'])
+    #return market_id
+
+
+def deploy_binary_market(key=admin['sk']):
+    print("deploying binary market")
+    content = preprocess_file(binary_contract['path'], "m4_helpers")
+    path = "./compiled_contracts"
+    try:
+        os.mkdir(path)
+    except OSError:
+        print("Creation of the directory %s failed" % path)
+    else:
+        print("Successfully created the directory %s " % path)
+    filepath = f"{WORKING_DIRECTORY}/{path}/main.mligo"
+    write_to_file(content, filepath)
+    deploy_from_file(filepath, key, binary_contract['storage'])
+    print("binary market was deployed")

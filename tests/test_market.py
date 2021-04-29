@@ -42,57 +42,60 @@ def test_fund_stablecoin(account, market, data, stablecoin_storage):
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage):
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
-    market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
-    assert question['total_auction_quantity'] == data[3]
-    assert question['state'] == "questionAuctionOpen"
-    assert question['owner'] == account["key"]
-    assert question['auction_end'] == int(auction_end)
-    assert question['market_close'] == int(market_close)
-
+    question = questions_storage[market_id]()
+    metadata = question['metadata']
+    assert 'auctionRunning' in question['state']
+    state = question['state']['auctionRunning']
+    assert metadata['total_auction_quantity'] == data[3]
+    assert metadata['description'] == data[0] + data[1]
+    assert metadata['adjudicator'] == account["key"]
+    #assert metadata['currency'] == {'FA12': address}
+    assert state['auction_period_end'] == int(auction_end)
+    assert state['quantity'] == data[3]
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_bid_auction(account, market, data, questions_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
-    market.bid_auction(ipfs_hash, account["name"], 100, 10)
+    question = questions_storage[market_id]()
+    market.bid_auction(market_id, account["name"], 100, 10)
     sleep(3)
     bids = question["auction_bids"]
     assert account["key"] in bids
 
 
+"""
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_auction(account, market, data, questions_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(data[5] * 60 + 60)
-    market.close_auction(ipfs_hash, account["name"])
+    market.close_auction(market_id, account["name"])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
+    question = questions_storage[market_id]()
     auction_state = question["state"]
     assert auction_state == "questionAuctionWithdrawOpen"
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_market(account, market, data, questions_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(data[6] * 60 + 60)
-    market.close_market(ipfs_hash, True, account["name"])
+    market.close_market(market_id, True, account["name"])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
+    question = questions_storage[market_id]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_buy_token(account, market, data, stablecoin_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(2)
     balance = stablecoin_storage[account["key"]]()
     amount = rand(10000000)
-    market.buy_token(ipfs_hash, True, amount, account["name"])
+    market.buy_token(market_id, True, amount, account["name"])
     sleep(2)
     new_balance = stablecoin_storage[account["key"]]()
     assert stablecoin_storage[account["key"]]()
@@ -101,11 +104,11 @@ def test_buy_token(account, market, data, stablecoin_storage):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_burn_token(account, market, data, stablecoin_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(2)
     amount = rand(90)
     balance = stablecoin_storage[account["key"]]()
-    market.burn(ipfs_hash, amount, account["name"])
+    market.burn(market_id, amount, account["name"])
     sleep(2)
     new_balance = [account["key"]]()
     assert stablecoin_storage[account["key"]]()
@@ -114,14 +117,14 @@ def test_burn_token(account, market, data, stablecoin_storage):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_update_liquidity(account, market, data, stablecoin_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(2)
     balance = stablecoin_storage[account["key"]]()
     amount = rand(1000)
-    market.update_liquidity(ipfs_hash, True, amount, account["name"])
+    market.update_liquidity(market_id, True, amount, account["name"])
     sleep(2)
     new_balance1 = stablecoin_storage[account["key"]]()
-    market.update_liquidity(ipfs_hash, False, amount, account['name'])
+    market.update_liquidity(market_id, False, amount, account['name'])
     sleep(2)
     new_balance2 = stablecoin_storage[account["key"]]()
     assert balance < new_balance1
@@ -130,5 +133,6 @@ def test_update_liquidity(account, market, data, stablecoin_storage):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_withdraw_auction(account, market, data, stablecoin_storage):
-    ipfs_hash = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(2)
+"""
