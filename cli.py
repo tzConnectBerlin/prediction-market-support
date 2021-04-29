@@ -163,9 +163,9 @@ def enter_market(
         amount: int
 ):
     state["market"].marketEnterExit(
-        user,
-        'PayIn',
         market_id,
+        user,
+        'payIn',
         amount
     )
 
@@ -211,9 +211,9 @@ def exit_market(
         amount: int
 ):
     state["market"].marketEnterExit(
-        user,
-        'PayOut',
         market_id,
+        user,
+        'payOut',
         amount
     )
 
@@ -225,25 +225,26 @@ def swap_tokens(
         token_to_sell: str,
         amount: int
 ):
-    state["market"].swapTokens(
-        token_to_sell,
+    state["market"].swap_tokens(
         market_id,
-        amount,
-        user
+        user,
+        token_to_sell,
+        amount
     )
 
 
+@app.command()
 def swap_liquidity(
         market_id: int,
         user: str,
         direction: str,
         amount: int
 ):
-    state["market"].swapLiquidity(
-        direction,
+    state["market"].update_liquidity(
         market_id,
-        amount,
-        user
+        user,
+        direction,
+        amount
     )
 
 

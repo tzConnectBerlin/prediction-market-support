@@ -119,31 +119,25 @@ class Market:
 
     def auction_clear(
             self,
-            user,
-            market_id: int
+            market_id: int,
+            user
     ):
-        data = {
-            'market_id': market_id,
-        }
-        operation = self.pm_contracts(user).auctionClear(data)
+        operation = self.pm_contracts(user).auctionClear(market_id)
         submit_transaction(operation.as_transaction())
 
     def auction_withdraw(
             self,
-            user,
-            market_id: int
+            market_id: int,
+            user
     ):
-        data = {
-            'market_id': market_id,
-        }
-        operation = self.pm_contracts(user).auctionWithdraw(data)
+        operation = self.pm_contracts(user).auctionWithdraw(market_id)
         submit_transaction(operation.as_transaction())
 
     def marketEnterExit(
             self,
+            market_id: int,
             user,
             direction: str,
-            market_id: int,
             amount: int
     ):
         data = {
@@ -329,10 +323,10 @@ class Market:
 
     def update_liquidity(
             self,
-            direction: str,
             market_id: int,
-            amount: int,
-            user: str
+            user: str,
+            direction: str,
+            amount: int
     ):
         operation = self.pm_contracts(user).swapLiquidity({
             'direction': direction,
@@ -345,10 +339,10 @@ class Market:
 
     def swap_tokens(
             self,
-            token_to_sell: str,
             market_id: int,
-            amount: int,
-            user: str
+            user: str,
+            token_to_sell: str,
+            amount: int
     ):
         operation = self.pm_contracts(user).swapTokens({
             'token_to_sell': token_to_sell,
