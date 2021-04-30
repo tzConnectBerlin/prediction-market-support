@@ -35,7 +35,6 @@ def compile_contract(file):
     :param file: path to the contract
     :return:
     """
-    print(WORKING_DIRECTORY)
     compile_command = f"{ligo_cmd} compile-contract {file} main"
     result = run_command(compile_command)
     return result
@@ -54,16 +53,28 @@ def compile_storage(file, storage):
     return result
 
 
-def preprocess_file(file, helper_directory=""):
+def compile_expression(file):
+    """
+    Compile a file as an expression in cameligo
+
+    :param file: path to the file to compile
+    """
+    compile_command = f"{ligo_cmd} compile-expression --init-file={file} cameligo f"
+    result = run_command(compile_command)
+    return result
+
+
+def preprocess_file(file, helper_directory="", work_dir=None):
     """
     Preprocess a file to be compiled
 WORKING_DIRECTORY + '/helper_directory'
     :param file: path to the preprocessing file
     :helper_directory: path to the folder containing the preprocessing files
     """
-    print("helper directory = " + helper_directory)
     file = file
-    compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={file}" {file}'
+    if work_dir is None:
+        work_dir = os.path.split(file)[0]
+    compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={work_dir}" {file}'
     result = run_command(compile_command)
     return result
 
