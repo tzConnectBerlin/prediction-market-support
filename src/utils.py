@@ -95,20 +95,20 @@ def get_tezos_client_path():
     return os.path.expanduser('~/.tezos-client')
 
 
-def get_market_map(client, contract_id, key):
+def get_market_map(client, contract_id):
     """
     Return storage for questions
     """
     contract = client.contract(contract_id)
-    return contract.storage['business_storage']['markets']['market_map'][key]()
+    return contract.storage['business_storage']['markets']['market_map']
 
 
-def get_question_liquidity_provider_map(client, contract_id, key):
+def get_question_liquidity_provider_map(client, contract_id):
     """
     Return storage for liquidity provider
     """
     contract = client.contract(contract_id)
-    return contract.storage['business_storage']['markets']['liquidity_provider_map'][key]()
+    return contract.storage['business_storage']['markets']['liquidity_provider_map']
 
 
 def stablecoin_storage(client, contract_id):
