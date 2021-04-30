@@ -9,9 +9,9 @@ from time import sleep
 from src.accounts import Accounts
 from src.config import Config
 from src.compile import launch_sandbox, stop_sandbox
-from src.deploy import deploy_market
+from src.deploy import deploy_market, deploy_stablecoin
 from src.market import Market
-from src.utils import get_stablecoin, get_public_key
+from src.utils import get_stablecoin, get_public_key, get_market_map, get_question_liquidity_provider_map
 
 
 def mock_get_tezos_client_path():
@@ -38,14 +38,19 @@ def accounts():
     ]
     return accounts
 
+
 @pytest.fixture(scope="session", autouse=True)
-#Change this to contract_id
 def contract_id():
     return deploy_market()
 
+
+def stablecoin_id():
+    return deploy_stablecoin()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def config(contract_id):
-    config = Config(config_file="tests/cli.ini", contract=contract_id)
+    config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id)
     return config
 
 
@@ -67,16 +72,19 @@ def client(config):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def stablecoin_storage(client, config):
-    contract = client.contract(config['contract'])
-    stablecoin = client.contract(contract.storage['stablecoin']())
+def stablecoin_storage(client, stablecoin_id):
+    stablecoin = client.contract(stablecoin_id)
     return stablecoin.storage['ledger']
 
 
 @pytest.fixture(scope="session", autouse=True)
 def questions_storage(client, config):
-    contract = client.contract(config['contract'])
-    return contract.storage['questions']
+    return get_market_map(client, config['contract'])
+
+
+@pytest.fixture(scope="session", autouse=True)
+def liquidity_storage(client, config):
+    return get_question_liquidity_provider_map(client, config['contract'])
 
 
 @pytest.fixture(scope="session", autouse=True)

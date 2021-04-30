@@ -2,7 +2,10 @@ import random
 from datetime import datetime, timedelta
 from time import sleep
 
+
 import pytest
+
+import src.utils as utils
 
 #accounts used for test
 accounts = [
@@ -22,6 +25,7 @@ test_data = [
     [accounts[1], questions[1]],
 ]
 
+
 def rand(mul=100):
     return random.randint(1, 99) * mul
 
@@ -40,7 +44,7 @@ def test_fund_stablecoin(account, market, data, stablecoin_storage):
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_ask_question(account, market, data, questions_storage):
+def test_ask_question(account, market, data, questions_storage, stablecoin_id):
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(3)
@@ -51,19 +55,23 @@ def test_ask_question(account, market, data, questions_storage):
     assert metadata['total_auction_quantity'] == data[3]
     assert metadata['description'] == data[0] + data[1]
     assert metadata['adjudicator'] == account["key"]
-    #assert metadata['currency'] == {'FA12': address}
+    assert metadata['currency'] == {'FA12': stablecoin_id}
     assert state['auction_period_end'] == int(auction_end)
     assert state['quantity'] == data[3]
 
+
 @pytest.mark.parametrize("account,data", test_data)
-def test_bid_auction(account, market, data, questions_storage):
+def test_bid_auction(account, market, data, liquidity_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(3)
-    question = questions_storage[market_id]()
     market.bid_auction(market_id, account["name"], 100, 10)
     sleep(3)
-    bids = question["auction_bids"]
-    assert account["key"] in bids
+    ledger = liquidity_storage[market_id]()
+    key = {'originator': account['key'], 'market_id': market_id}
+    assert key in ledger
+    bids = ledger[key]
+    assert 'bet' in bids
+    assert bids['bet']['quantity'] == 100
 
 
 """
