@@ -5,9 +5,12 @@ from subprocess import Popen, PIPE
 
 WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
 
-ligo_cmd = (
-        f'docker run --rm -v {WORKING_DIRECTORY}:{WORKING_DIRECTORY} -w {WORKING_DIRECTORY} ligolang/ligo:0.14.0 "$@"'
-)
+
+def ligo_cmd(wrkdir=WORKING_DIRECTORY):
+    if wrkdir == "":
+        wrkdir = "$PWD"
+    cmd = f'docker run --rm -v {wrkdir}:{wrkdir} -w {wrkdir} ligolang/ligo:0.14.0 "$@"'
+    return cmd
 
 
 def run_command(command):
@@ -28,19 +31,19 @@ def run_command(command):
                 return output
 
 
-def compile_contract(file):
+def compile_contract(file, wrkdir=""):
     """
     Compile a contract and return the result
 
     :param file: path to the contract
     :return:
     """
-    compile_command = f"{ligo_cmd} compile-contract {file} main"
+    compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
     result = run_command(compile_command)
     return result
 
 
-def compile_storage(file, storage):
+def compile_storage(file, storage, wrkdir=""):
     """
     Compile the storage for a contract
 
@@ -48,33 +51,32 @@ def compile_storage(file, storage):
     :param storage:
     :return:
     """
-    compile_command = f"{ligo_cmd} compile-storage {file} main '{storage}'"
+    compile_command = f"{ligo_cmd(wrkdir)} compile-storage {file} main '{storage}'"
     result = run_command(compile_command)
     return result
 
 
-def compile_expression(file):
+def compile_expression(file, wrkdir=""):
     """
     Compile a file as an expression in cameligo
 
     :param file: path to the file to compile
     """
-    compile_command = f"{ligo_cmd} compile-expression --init-file={file} cameligo f"
+    compile_command = f"{ligo_cmd(wrkdir)} compile-expression --init-file={file} cameligo f"
     result = run_command(compile_command)
     return result
 
 
-def preprocess_file(file, helper_directory="", work_dir=None):
+def preprocess_file(file, helper_directory="", wrkdir=""):
     """
     Preprocess a file to be compiled
-WORKING_DIRECTORY + '/helper_directory'
     :param file: path to the preprocessing file
     :helper_directory: path to the folder containing the preprocessing files
     """
     file = file
-    if work_dir is None:
-        work_dir = os.path.split(file)[0]
-    compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={work_dir}" {file}'
+    if wrkdir == "":
+        wrkdir = os.path.split(file)[0]
+    compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={wrkdir}" {file}'
     result = run_command(compile_command)
     return result
 

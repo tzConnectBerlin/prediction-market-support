@@ -94,7 +94,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
             return contract_id
 
 
-def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
+def deploy_from_file(file, key, wrkdir="", storage=None, shell="http://localhost:20000"):
     """
     Compile and deploy a ligo contract
 
@@ -104,7 +104,7 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     :param shell: where to deploy the contract
     :return:
     """
-    contract = compile_contract(file)
+    contract = compile_contract(file, wrkdir)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
@@ -114,7 +114,8 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
 
 
 def deploy_stablecoin(key=admin['sk']):
-    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
+    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/src/contracts'
+    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'])
     if stablecoin_id is None:
         raise Exception("deploiement failed")
     print(f"stablecoin was deployed at {stablecoin_id}")
@@ -158,7 +159,8 @@ def deploy_market(key=admin['sk'], shell='http://localhost:20000'):
         print("Successfully created the directory %s " % path)
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
-    market_id = deploy_from_file(filepath, key, binary_contract['storage'])
+    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/wolfram-oracle/'
+    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'])
     lazy_contracts_path = '/home/killua/prediction-market-contracts-lazy/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id)
     print(f"Binary market was deployed at {market_id}")
