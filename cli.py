@@ -359,7 +359,8 @@ def transfer_stablecoin(
 
     dest: user address that will receive the funds
     """
-    check_account_loaded(user)
+    check_account_loaded(dest)
+    check_account_loaded(src)
     print(f"Transferring stablecoin")
     state["market"].transfer(src, dest, value)
     stablecoin_balance(src)
