@@ -36,14 +36,6 @@ class Stablecoin:
         )
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    def burn(self, dest: str, value: int):
-        dest_address = self.accounts[dest].key.public_key_hash()
-        operation = self.client.burn({
-            'from': dest_address,
-            'value': value
-        })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
     def get_allowance(self, owner: str):
         """
         Check how much can be spent
@@ -53,17 +45,6 @@ class Stablecoin:
             'owner': owner_address,
             'spender': self.market_id,
             'contract_2': self.market_id
-        })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
-    def mint(self, to: str, value: int):
-        """
-        Mint stablecoin for account to
-        """
-        to_address = self.accounts[to].key.public_key_hash()
-        operation = self.client.mint({
-            'to': to_address,
-            'value': value
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
 
@@ -84,10 +65,9 @@ class Stablecoin:
         """
         Fund a account with stablecoin
         """
-        src_address = self.client.key.public_key_hash()
         dest_address = self.accounts[dest].key.public_key_hash()
         operation = self.client.transfer({
-            'from': src_address,
+            'from': get_public_key(self.config["admin_account"]),
             'to': dest_address,
             'value': value
         })

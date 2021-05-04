@@ -103,17 +103,37 @@ def get_market_map(client, contract_id):
     return contract.storage['business_storage']['markets']['market_map']
 
 
-def get_question_liquidity_provider_map(client, contract_id):
+def get_tokens_ledgermap(client, contract_id):
+    """
+    Return storage for tokens
+    """
+    contract = client.contract(contract_id)
+    return contract.storage['business_storage']['tokens']['ledger_map']
+
+
+def get_tokens_supplymap(client, contract_id):
+    """
+    Return storage for tokens
+    """
+    contract = client.contract(contract_id)
+    return contract.storage['business_storage']['tokens']['supply_map']
+
+
+def get_question_liquidity_provider_map(client, contract_id, market_id=None):
     """
     Return storage for liquidity provider
     """
     contract = client.contract(contract_id)
-    return contract.storage['business_storage']['markets']['liquidity_provider_map']
+    if market_id is None:
+        return contract.storage['business_storage']['markets']['liquidity_provider_map']
+    return contract.storage['business_storage']['markets']['liquidity_provider_map'][market_id]
 
 
-def stablecoin_storage(client, contract_id):
+def stablecoin_storage(client, contract_id, market_id=None):
     """
     Return storage for stablecoin
     """
     stablecoin = get_stablecoin(client, contract_id)
-    return stablecoin.storage['ledger']
+    if market_id is None:
+        return stablecoin.storage['ledger']
+    return stablecoin.storage['ledger'][market_id]

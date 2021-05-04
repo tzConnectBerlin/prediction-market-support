@@ -35,14 +35,14 @@ app_options = [
         "--config-file", "tests/cli.ini", "--contract"
 ]
 
-
+"""
 @pytest.mark.parametrize("account", accounts)
 def test_list_accounts(account, contract_id):
     result = runner.invoke(app, app_options + [contract_id] + ["list-accounts"])
     assert account['name'] in result.stdout
 
 
-"""
+
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage, contract_id):
     #make sure only string are passed to the runner

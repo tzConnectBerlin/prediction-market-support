@@ -62,8 +62,8 @@ def ask_question(
         answer: str,
         user: str,
         quantity: int = typer.Argument(5000 * MULTIPLIER),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
-        auction_end_date: float = typer.Argument(30),
+        rate: int = typer.Argument(random.randint(0, 2 ** 64)),
+        auction_end_date: float = typer.Argument(1),
 ):
     """
     Create a question in IPFS
@@ -83,6 +83,7 @@ def ask_question(
         rate,
         auction_end_date
     )
+    print(f'quandity : {quantity} + rate {rate}')
     print(f"Created market {market_id} in PM contract")
     return market_id
 
@@ -92,7 +93,7 @@ def bid_auction(
         market_id: int,
         user: str,
         quantity: int = typer.Argument(500 * MULTIPLIER),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER)
+        rate: int = typer.Argument(random.randint(0, 2 ** 64))
 ):
     """
     Bid on an auction
@@ -111,7 +112,7 @@ def bid_auction(
 def random_bids(
         market_id: int,
         quantity: int = typer.Argument(500 * MULTIPLIER),
-        rate: int = typer.Argument(random.randint(1, 99) * MULTIPLIER),
+        rate: int = -1,
 ):
     """
     Launch random bid on a auction for all of the chosen users folder
@@ -124,6 +125,7 @@ def random_bids(
     user_list = state["accounts"].names()
     with typer.progressbar(user_list) as progress:
         for user in progress:
+            actual_rate = rate if rate != -1 else random.randint(0, 2 ** 64)
             print(f"generating bids for accounts {user}")
             state["market"].bid_auction(
                 market_id,
@@ -135,13 +137,13 @@ def random_bids(
 
 
 @app.command()
-def clear_auction(market_id: int, user: str):
+def clear_market(market_id: int, user: str):
     """
     Clear the auction
 
     market_id: the id of the question
     """
-    print(f"Clear an auction {market_id} for {user}")
+    print(f"Clearing market {market_id} for {user}")
     state["market"].auction_clear(market_id, user)
 
 
@@ -162,7 +164,7 @@ def enter_market(
         user: str,
         amount: int
 ):
-    state["market"].marketEnterExit(
+    state["market"].market_enter_exit(
         market_id,
         user,
         'payIn',
@@ -187,8 +189,8 @@ def close_market(
     print(f"closing market {market_id}")
     state["market"].close_market(
         market_id,
-        token_type,
-        user
+        user,
+        token_type
     )
 
 
@@ -280,21 +282,29 @@ def list_bids(question: str):
 
 
 @app.command()
-def mint(value: int, user: str):
+def mint(
+        market_id: int,
+        user: str,
+        amount: int
+):
     """
     Mint a quantity of stablecoin for user
     """
     check_account_loaded(user)
-    state["market"].mint(user, value)
+    state["market"].mint(market_id, user, amount)
 
 
 @app.command()
-def burn(value: int, user: str):
+def burn(
+        market_id: int,
+        user: str,
+        amount: int
+):
     """
     Burn a quantity stablecoin for account
     """
     check_account_loaded(user)
-    state["market"].burn(user, value)
+    state["market"].burn(market_id, user, amount)
 
 
 @app.command()
@@ -329,13 +339,19 @@ def fund_stablecoin(
 
     value: the amont of tezos funded
     """
+    if len(state["accounts"].names()) == 0:
+        print("Please add some accounts before using this functionality")
+    user_list = state["accounts"].names()
     print("Transferring stablecoin to accounts:", state["accounts"].names())
-    state["market"].fund_stablecoin(value)
+    with typer.progressbar(user_list) as progress:
+        for user in progress:
+            state["stablecoin"].fund(user, value)
 
 
 @app.command()
 def transfer_stablecoin(
-        user: str,
+        src: str,
+        dest: str,
         value: int = typer.Argument(100000 * MULTIPLIER)
 ):
     """
@@ -345,8 +361,9 @@ def transfer_stablecoin(
     """
     check_account_loaded(user)
     print(f"Transferring stablecoin")
-    state["market"].transfer_stablecoin_to_user(user, value)
-    stablecoin_balance(user)
+    state["market"].transfer(src, dest, value)
+    stablecoin_balance(src)
+    stablecoin_balance(dest)
 
 
 @app.command()
@@ -405,6 +422,7 @@ def main(
     #test they are in accounts
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
+    state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 

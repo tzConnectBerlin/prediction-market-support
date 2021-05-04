@@ -115,7 +115,7 @@ class Market:
             }
         }
         operation = self.pm_contracts(user).auctionBet(data)
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def auction_clear(
             self,
@@ -123,7 +123,7 @@ class Market:
             user
     ):
         operation = self.pm_contracts(user).auctionClear(market_id)
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def auction_withdraw(
             self,
@@ -131,9 +131,9 @@ class Market:
             user
     ):
         operation = self.pm_contracts(user).auctionWithdraw(market_id)
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
-    def marketEnterExit(
+    def market_enter_exit(
             self,
             market_id: int,
             user,
@@ -148,7 +148,7 @@ class Market:
             }
         }
         operation = self.pm_contracts(user).marketEnterExit(data)
-        submit_transaction(operation.as_transaction())
+        submit_transaction(operation.as_transaction(), error_func=print_error)
 
     def transfer_stablecoin_to_user(
             self,
@@ -216,16 +216,6 @@ class Market:
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         submit_transaction(bulk_operations, error_func=print_error)
 
-    def close_auction(self, ipfs_hash: str, user):
-        """
-        Close the auction
-
-        ipfs_hash: the hash of the concerned contract
-        user: user closing the auction (owner)
-        """
-        operation = self.pm_contracts(user).closeAuction(ipfs_hash)
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
     def withdraw_auction(
             self,
             question: str,
@@ -239,8 +229,8 @@ class Market:
     def close_market(
             self,
             market_id: int,
-            token_type: bool,
-            user: str
+            user: str,
+            token_type: bool
     ):
         """
         Close the market
@@ -261,8 +251,8 @@ class Market:
     def mint(
             self,
             market_id: int,
-            amount: int,
-            user: str
+            user: str,
+            amount: int
     ):
         """
         mint the token
@@ -273,7 +263,7 @@ class Market:
         user: user whose token are bought
         """
         operation = self.pm_contracts(user).marketEnterExit({
-            'direction': 'PayOut',
+            'direction': 'payOut',
                 'params': {
                     'market_id': market_id,
                     'amount': amount
@@ -285,8 +275,8 @@ class Market:
     def burn(
             self,
             market_id: int,
-            amount: int,
-            user: str
+            user: str,
+            amount: int
     ):
         """
         Burn the token
@@ -296,7 +286,7 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts(user).marketEnterExit({
-                'direction': 'PayIn',
+                'direction': 'payIn',
                 'params': {
                     'market_id': market_id,
                     'amount': amount

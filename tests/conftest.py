@@ -11,7 +11,7 @@ from src.config import Config
 from src.compile import launch_sandbox, stop_sandbox
 from src.deploy import deploy_market, deploy_stablecoin
 from src.market import Market
-from src.utils import get_stablecoin, get_public_key, get_market_map, get_question_liquidity_provider_map
+from src.utils import *
 
 
 def mock_get_tezos_client_path():
@@ -41,15 +41,18 @@ def accounts():
 
 @pytest.fixture(scope="session", autouse=True)
 def contract_id():
-    return deploy_market()
-
-
-def stablecoin_id():
-    return deploy_stablecoin()
+    id = deploy_market()
+    return id
 
 
 @pytest.fixture(scope="session", autouse=True)
-def config(contract_id):
+def stablecoin_id():
+    id = deploy_stablecoin()
+    return id
+
+
+@pytest.fixture(scope="session", autouse=True)
+def config(contract_id, stablecoin_id):
     config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id)
     return config
 
@@ -88,14 +91,24 @@ def liquidity_storage(client, config):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def finance_accounts(client, accounts, config: Config, contract_id: str):
+def ledger_storage(client, config):
+    return get_tokens_ledgermap(client, config['contract'])
+
+
+@pytest.fixture(scope="session", autouse=True)
+def supply_storage(client, config):
+    return get_tokens_supplymap(client, config['contract'])
+
+
+@pytest.fixture(scope="session", autouse=True)
+def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
     for account in accounts:
         client.transaction(
             account['key'], amount=Decimal(10)
         ).autofill().sign().inject()
 
         #modify that part to get the stablecoin
-        stablecoin = get_stablecoin(config['admin_account'], contract_id)
+        stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
 
         stablecoin.transfer({
             'from': get_public_key(config['admin_account']),

@@ -10,6 +10,7 @@ test_accounts = [
 ]
 
 
+"""
 @pytest.mark.parametrize("input,key", test_accounts)
 def test_user_is_imported_from_folder(input, key, config):
     accounts = Accounts(config["endpoint"])
@@ -62,3 +63,4 @@ def test_user_is_revealed(input, key, config):
     accounts.import_from_file(f"tests/users/{input}.json", input)
     accounts.activate_account(input)
     accounts.reveal_account(input)
+"""
