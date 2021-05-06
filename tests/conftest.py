@@ -42,20 +42,6 @@ def accounts():
     return accounts
 
 
-@pytest.fixture(scope="session")
-def markets(accounts):
-    questions = [
-        ["who", "why", "donald"],
-        ["who", "why", "mala"],
-    ]
-    markets = []
-    for index in range(200):
-        quantity = random.randint(0, 900)
-        rate = random.randint(0, 2 ** 63)
-        end = random.uniform(0.0, 1.5)
-    return markets
-
-
 @pytest.fixture(scope="session", autouse=True)
 def contract_id():
     id = deploy_market()
@@ -80,6 +66,32 @@ def market(config):
     test_accounts.import_from_folder("tests/users")
     new_market = Market(test_accounts, config)
     return new_market
+
+
+@pytest.fixture(scope="session")
+def markets(accounts, config, market):
+    transactions = []
+    markets = []
+    print("generating markets")
+    for index in range(200):
+        quantity = random.randint(0, 900)
+        rate = random.randint(0, 2 ** 63)
+        end = random.uniform(0.0, 1.5)
+        market_id, transaction = market.ask_question(
+            id_generator(),
+            id_generator(),
+            random.choice(accounts),
+            quantity,
+            rate,
+            end
+        )
+        transactions.append(transaction)
+        markets.append(market_id)
+    bulk_transactions = config["admin_account"].bulk(*transactions)
+    submit_transaction(bulk_transactions, error_func=print_error)
+    sleep(120)
+    print("markets generated")
+    return markets
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -13,7 +13,7 @@ from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
 from src.stablecoin import Stablecoin
-from src.utils import get_public_key, get_stablecoin, print_error, submit_transaction
+from src.utils import *
 
 MULTIPLIER = 10 ** 6
 ##################
@@ -85,6 +85,7 @@ def ask_question(
     )
     print(f'quandity : {quantity} + rate {rate}')
     print(f"Created market {market_id} in PM contract")
+    print(transaction.json_payload())
     submit_transaction(transaction, error_func=print_error)
     return market_id
 
@@ -339,13 +340,34 @@ def burn(
 
 
 @app.command()
-def get_question_data(
-        question: str
+def get_market_metadata(
+        market_id: int
 ):
+    client = state["config"]["admin_account"]
+    contract = state["config"]["contact"]
+    data = get_market_map(client, contract, market_id)()
+    metadata = data['metadata']
     ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
-    data = ipfsclient.get_json(question)
-    if data is not None:
-        print(data)
+    for k, v in metadata.items():
+        print(k, v)
+    if metadata['ipfs_hash'] is not None:
+        print("ipfs data:")
+        data = ipfsclient.get_json(hash)
+        if data is not None:
+            print(data)
+
+
+@app.command()
+def get_market_liquidity(
+        market_id: int,
+        user: str
+):
+    client = state["config"]["admin_account"]
+    contract = state["config"]["contact"]
+    data = get_question_liquidity_provider_map(client, contract, market_id)
+    key = {'originator': get_public_key(state["account"][user]), 'market_id': market_id}
+    for k, v in data[key].items():
+        print(k, v)
 
 
 @app.command()

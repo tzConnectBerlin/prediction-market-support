@@ -1,10 +1,13 @@
 import ast
 import os
+import random
+import string
 import sys
 
 from pytezos.rpc.node import RpcError
 
 from src.errors import contract_error
+
 
 def get_public_key(account):
     """
@@ -137,3 +140,7 @@ def stablecoin_storage(client, contract_id, market_id=None):
     if market_id is None:
         return stablecoin.storage['ledger']
     return stablecoin.storage['ledger'][market_id]
+
+
+def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))

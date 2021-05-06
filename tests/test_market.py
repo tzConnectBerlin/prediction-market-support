@@ -3,8 +3,9 @@ import sys
 from datetime import datetime, timedelta
 from time import sleep
 
-
 import pytest
+
+from src.utils import print_error, submit_transaction
 
 MULTIPLIER = 10 ** 6
 
@@ -33,9 +34,10 @@ def rand(mul=100):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage, stablecoin_id):
-    auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
-    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
+    market_id, transaction = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
+    submit_transaction(transaction, error_func=print_error)
     sleep(3)
+    """
     question = questions_storage[market_id]()
     metadata = question['metadata']
     assert 'auctionRunning' in question['state']
@@ -60,7 +62,6 @@ def test_bid_auction(account, market, data, liquidity_storage):
     bids = liquidity_storage[key]()
     assert bids['bet'] is not None
     assert bids['bet']['quantity'] >= amount
-
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_auction_clear(account, market, data, questions_storage):
@@ -202,6 +203,7 @@ def test_update_liquidity(account, market, data, supply_storage):
     new_balance2 = supply_storage[account["key"]]()
     assert balance < new_balance1
     assert new_balance1 < new_balance2
+"""
 
 #swapToken
 #swapLiquidity
