@@ -1,4 +1,5 @@
 import random
+import sys
 from datetime import datetime, timedelta
 from time import sleep
 
@@ -15,8 +16,8 @@ accounts = [
 
 #questions data to test functions
 questions = [
-    ["who", "why", "donald", 300 * MULTIPLIER, 50 * MULTIPLIER, 0.1, 0.2],
-    ["who", "why", "mala", 300, 50 * MULTIPLIER, 1 * MULTIPLIER, 2],
+    ["who", "why", "donald", 300 * MULTIPLIER, random.randint(0, 2 * 63), 0.1],
+    ["who", "why", "mala", 300, 50 * MULTIPLIER, random.randint(0, 2 * 63), 1.1],
 ]
 
 #testdata mix for easier use a parametrised
@@ -52,7 +53,7 @@ def test_bid_auction(account, market, data, liquidity_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
     sleep(3)
     amount = rand(100)
-    rate = rand(10)
+    rate = random.randint(0, 2 ** 63)
     market.bid_auction(market_id, account["name"], amount, rate)
     sleep(3)
     key = {'originator': account['key'], 'market_id': market_id}
@@ -64,19 +65,26 @@ def test_bid_auction(account, market, data, liquidity_storage):
 @pytest.mark.parametrize("account,data", test_data)
 def test_auction_clear(account, market, data, questions_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(data[5] * 30 + 30)
+    sleep(90 + 90)
+    amount = rand(100)
+    rate = random.randint(0, 2 ** 63)
+    market.bid_auction(market_id, account["name"], amount, rate)
+    sleep(9)
     market.auction_clear(market_id, account["name"])
-    sleep(3)
+    sleep(9)
     question = questions_storage[market_id]()
     auction_state = question['state']
     assert 'marketBootstrapped' in auction_state
     assert auction_state['marketBootstrapped']['resolution'] is None
 
-
 @pytest.mark.parametrize("account,data", test_data)
 def test_auction_withdraw(account, market, data, questions_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(data[5] * 30 + 30)
+    sleep(90 + 90)
+    amount = rand(100)
+    rate = random.randint(0, 2 ** 63)
+    market.bid_auction(market_id, account["name"], amount, rate)
+    sleep(9)
     market.auction_clear(market_id, account["name"])
     sleep(3)
     market.auction_withdraw(market_id, account["name"])
@@ -89,32 +97,45 @@ def test_auction_withdraw(account, market, data, questions_storage):
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_market_yes(account, market, data, questions_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(data[6] * 20)
+    sleep(9)
+    amount = rand(100)
+    rate = random.randint(0, 2 ** 63)
+    market.bid_auction(market_id, account["name"], amount, rate)
+    sleep(60 + 60)
+    market.auction_clear(market_id, account["name"])
+    sleep(9)
     market.close_market(market_id, account["name"], True)
     sleep(3)
     question = questions_storage[market_id]()
-    auction_state = question["state"]
+    auction_state = question["state"]["marketBootstrapped"]
     assert 'yes' in auction_state['resolution']
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_market_no(account, market, data, questions_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(data[6] * 20)
+    sleep(9)
+    amount = rand(100)
+    rate = random.randint(0, 2 ** 63)
+    market.bid_auction(market_id, account["name"], amount, rate)
+    sleep(60 + 60)
+    market.auction_clear(market_id, account["name"])
+    sleep(9)
     market.close_market(market_id, account["name"], False)
     sleep(3)
     question = questions_storage[market_id]()
-    auction_state = question["state"]
+    auction_state = question["state"]["marketBootstrapped"]
     assert 'no' in auction_state['resolution']
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_market_enter_exist_payin(account, market, data, liquidity_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(data[6] * 20)
+    sleep(9)
     market.auction_clear(market_id, account['name'])
-    sleep(3)
+    sleep(60 * 60)
     market.market_enter_exit(market_id, account['name'], 'payIn', 100)
+    sleep(3)
     key = {'originator': account['key'], 'market_id': market_id}
     bids = liquidity_storage[key]
     print(bids)
@@ -124,7 +145,7 @@ def test_market_enter_exist_payin(account, market, data, liquidity_storage):
 @pytest.mark.parametrize("account,data", test_data)
 def test_mint_token(account, market, data, supply_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(9)
+    sleep(60 * 60)
     market.auction_clear(market_id, account["name"])
     sleep(9)
     amount = rand(100)
@@ -138,7 +159,7 @@ def test_mint_token(account, market, data, supply_storage):
 @pytest.mark.parametrize("account,data", test_data)
 def test_burn_token(account, market, data, supply_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(9)
+    sleep(60 * data[5] + 20)
     market.auction_clear(market_id, account["name"])
     sleep(9)
     amount = rand(100)
@@ -150,10 +171,30 @@ def test_burn_token(account, market, data, supply_storage):
 
 
 @pytest.mark.parametrize("account,data", test_data)
+def test_swap_tokens(account, market, data, supply_storage):
+    market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
+    sleep(9)
+    amount = rand(100)
+    rate = random.randint(0, 2 ** 63)
+    market.bid_auction(market_id, account["name"], amount, rate)
+    sleep(60 * data[5] + 20)
+    market.auction_clear(market_id, account["name"])
+    sleep(9)
+    balance = supply_storage[(market_id << 3) + 1]()
+    market.swap_tokens(market_id, account["name"], "yes", 150)
+    sleep(9)
+    new_balance = supply_storage[(market_id << 3) + 1]()
+    assert new_balance > balance
+
+
+@pytest.mark.parametrize("account,data", test_data)
 def test_update_liquidity(account, market, data, supply_storage):
     market_id = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
-    sleep(2)
+    sleep(60 * data[5] + 20)
+    market.auction_clear(market_id, account["name"])
+    sleep(9)
     amount = rand(1000)
+    balance = supply_storage[account["key"]]()
     market.update_liquidity(market_id, account["name"], "payIn", amount)
     new_balance1 = supply_storage[account["key"]]()
     market.update_liquidity(market_id, account["name"], "payOut", amount)
@@ -161,3 +202,7 @@ def test_update_liquidity(account, market, data, supply_storage):
     new_balance2 = supply_storage[account["key"]]()
     assert balance < new_balance1
     assert new_balance1 < new_balance2
+
+#swapToken
+#swapLiquidity
+#claimWinnings

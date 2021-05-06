@@ -35,7 +35,7 @@ app_options = [
         "--config-file", "tests/cli.ini", "--contract"
 ]
 
-"""
+
 @pytest.mark.parametrize("account", accounts)
 def test_list_accounts(account, contract_id):
     result = runner.invoke(app, app_options + [contract_id] + ["list-accounts"])
@@ -114,4 +114,3 @@ def test_close_market(account, market, data, questions_storage, contract_id ):
     question = questions_storage[ipfs_hash]()
     auction_state = question["state"]
     assert auction_state == "questionMarketClosed"
-"""

@@ -49,6 +49,8 @@ binary_contract = {
 
 helper_directory = '/home/killua/prediction-market-contracts-lazy/m4_helpers'
 
+shell = 'http://localhost:20000'
+
 
 def wait_next_block(block_time, client):
     header = client.shell.head.header()
@@ -94,7 +96,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
             return contract_id
 
 
-def deploy_from_file(file, key, wrkdir="", storage=None, shell="http://localhost:20000"):
+def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
     """
     Compile and deploy a ligo contract
 
@@ -113,16 +115,16 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell="http://localhost
         return get_contract_id(client, 2, res["hash"])
 
 
-def deploy_stablecoin(key=admin['sk']):
+def deploy_stablecoin(key=admin['sk'], shell=shell):
     wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/src/contracts'
-    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'])
+    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'], shell)
     if stablecoin_id is None:
         raise Exception("deploiement failed")
     print(f"stablecoin was deployed at {stablecoin_id}")
     return stablecoin_id
 
 
-def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts'):
+def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts', shell=shell):
     for file in os.listdir(path):
         macro_filepath = f'{path}/{file}'
         content = preprocess_file(macro_filepath, helper_directory)
@@ -131,7 +133,7 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
         write_to_file(content, filepath)
         print(f"{filepath} was generated")
         content = compile_expression(filepath)
-        client = pytezos.using(shell='http://localhost:20000', key=admin['sk'])
+        client = pytezos.using(shell=shell, key=admin['sk'])
         contract = client.contract(contract_id)
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
@@ -141,7 +143,7 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
     submit_transaction(operation.as_transaction())
 
 
-def deploy_market(key=admin['sk'], shell='http://localhost:20000'):
+def deploy_market(key=admin['sk'], shell=shell):
     """
     Deploy the complete market on the specified shell
 
@@ -160,7 +162,7 @@ def deploy_market(key=admin['sk'], shell='http://localhost:20000'):
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/wolfram-oracle/'
-    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'])
+    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
     lazy_contracts_path = '/home/killua/prediction-market-contracts-lazy/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id)
     print(f"Binary market was deployed at {market_id}")

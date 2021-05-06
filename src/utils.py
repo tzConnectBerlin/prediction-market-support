@@ -70,7 +70,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
         source = transaction.key.public_key_hash()
         transaction_ = transaction.autofill(ttl=56)
         res = transaction_.sign().inject()
-        transaction_.shell.wait_next_block()
+        transaction_.shell.wait_next_block(time_between_blocks=3)
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])

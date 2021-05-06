@@ -245,8 +245,6 @@ class Market:
             'winning_prediction': winning_prediction
         })
         submit_transaction(operation.as_transaction(), error_func=print_error)
-        res = submit_transaction(operation.as_transaction(), error_func=print_error)
-        print(res)
 
     def mint(
             self,

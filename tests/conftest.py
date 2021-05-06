@@ -1,6 +1,7 @@
 # content of conftest.py
 import os
 import pytest
+import random
 
 from decimal import Decimal
 from pytezos import pytezos
@@ -12,6 +13,8 @@ from src.compile import launch_sandbox, stop_sandbox
 from src.deploy import deploy_market, deploy_stablecoin
 from src.market import Market
 from src.utils import *
+
+MULTIPLIER = 10 ** 6
 
 
 def mock_get_tezos_client_path():
@@ -37,6 +40,20 @@ def accounts():
         {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"}
     ]
     return accounts
+
+
+@pytest.fixture(scope="session")
+def markets(accounts):
+    questions = [
+        ["who", "why", "donald"],
+        ["who", "why", "mala"],
+    ]
+    markets = []
+    for index in range(200):
+        quantity = random.randint(0, 900)
+        rate = random.randint(0, 2 ** 63)
+        end = random.uniform(0.0, 1.5)
+    return markets
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -113,7 +130,7 @@ def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
         stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],
-            'value': 100000
+            'value': 10 ** 16
         }).as_transaction().autofill().sign().inject()
     sleep(3)
 

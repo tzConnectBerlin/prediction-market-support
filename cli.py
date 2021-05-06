@@ -125,13 +125,13 @@ def random_bids(
     user_list = state["accounts"].names()
     with typer.progressbar(user_list) as progress:
         for user in progress:
-            actual_rate = rate if rate != -1 else random.randint(0, 2 ** 64)
+            actual_rate = rate if rate != -1 else random.randint(0, 2 ** 63)
             print(f"generating bids for accounts {user}")
             state["market"].bid_auction(
                 market_id,
                 user,
                 quantity,
-                rate
+                actual_rate
             )
         print("\n")
 
