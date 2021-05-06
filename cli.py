@@ -137,6 +137,8 @@ def random_bids(
                 actual_rate
             )
             transactions.append(transaction)
+        bulk_transactions = state["config"]["admin_account"].bulk(*transactions)
+        submit_transaction(bulk_transactions, error_func=print_error)
         print("\n")
 
 
@@ -372,9 +374,13 @@ def fund_stablecoin(
         print("Please add some accounts before using this functionality")
     user_list = state["accounts"].names()
     print("Transferring stablecoin to accounts:", state["accounts"].names())
+    transactions = []
     with typer.progressbar(user_list) as progress:
         for user in progress:
             transaction = state["stablecoin"].fund(user, value)
+            transactions.append(transaction)
+        bulk_transactions = state["config"]["admin_account"].bulk(*transactions)
+        submit_transaction(bulk_transactions, error_func=print_error)
 
 
 @app.command()
@@ -391,7 +397,7 @@ def transfer_stablecoin(
     check_account_loaded(dest)
     check_account_loaded(src)
     print(f"Transferring stablecoin")
-    transaction = state["market"].transfer(src, dest, value)
+    transaction = state["stablecoin"].transfer(src, dest, value)
     submit_transaction(transaction, error_func=print_error)
     stablecoin_balance(src)
     stablecoin_balance(dest)

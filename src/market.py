@@ -161,47 +161,6 @@ class Market:
         operation = self.pm_contracts(user).marketEnterExit(data)
         return operation.as_transaction()
 
-    def transfer_stablecoin_to_user(
-            self,
-            user: str,
-            value: int
-    ):
-        """
-        Transfer a certain amount of stablecoin towards an user address
-
-        user address that will receive the funds
-        """
-        stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
-        operation = stablecoin.transfer({
-            'from': get_public_key(self.config["admin_account"]),
-            'to': get_public_key(self.accounts[user]),
-            'value': value
-        })
-        return operation.as_transaction()
-
-    def fund_stablecoin(
-            self,
-            value: int
-    ):
-        """
-        Fund all accounts with a random quantity of stablecoin
-
-        value: the amont of stablecoin funded
-        """
-        operations_list = []
-        if len(self.accounts.names()) == 0:
-            return
-        stablecoin = get_stablecoin(self.config["admin_account"], self.contract)
-        for user in self.accounts.names():
-            operation = stablecoin.transfer({
-                'from': get_public_key(self.config["admin_account"]),
-                'to': get_public_key(self.accounts[user]),
-                'value': value
-            })
-            operations_list.append(operation.as_transaction())
-        bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        return operation.as_transaction()
-
     def multiple_bids(
             self,
             market_id: int,
@@ -225,7 +184,7 @@ class Market:
             operation = self.pm_contracts(user).bid(data)
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        return operation.as_transaction()
+        return bulk_operations
 
     def withdraw_auction(
             self,
