@@ -13,7 +13,7 @@ from src.accounts import Accounts
 from src.config import Config
 from src.market import Market
 from src.stablecoin import Stablecoin
-from src.utils import get_stablecoin, get_public_key
+from src.utils import get_public_key, get_stablecoin, print_error, submit_transaction
 
 MULTIPLIER = 10 ** 6
 ##################
@@ -75,7 +75,7 @@ def ask_question(
     rate: rate
     """
     check_account_loaded(user)
-    market_id = state["market"].ask_question(
+    market_id, transaction = state["market"].ask_question(
         question,
         answer,
         user,
@@ -85,6 +85,7 @@ def ask_question(
     )
     print(f'quandity : {quantity} + rate {rate}')
     print(f"Created market {market_id} in PM contract")
+    submit_transaction(transaction, error_func=print_error)
     return market_id
 
 
@@ -105,7 +106,8 @@ def bid_auction(
     """
     check_account_loaded(user)
     print(f"bidding auction for {user}")
-    state["market"].bid_auction(market_id, user, quantity, rate)
+    transaction = state["market"].bid_auction(market_id, user, quantity, rate)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -123,16 +125,18 @@ def random_bids(
         print("Please add some accounts before using this functionality")
     print("placing random bids")
     user_list = state["accounts"].names()
+    transactions = []
     with typer.progressbar(user_list) as progress:
         for user in progress:
             actual_rate = rate if rate != -1 else random.randint(0, 2 ** 63)
             print(f"generating bids for accounts {user}")
-            state["market"].bid_auction(
+            transaction = state["market"].bid_auction(
                 market_id,
                 user,
                 quantity,
                 actual_rate
             )
+            transactions.append(transaction)
         print("\n")
 
 
@@ -144,7 +148,8 @@ def clear_market(market_id: int, user: str):
     market_id: the id of the question
     """
     print(f"Clearing market {market_id} for {user}")
-    state["market"].auction_clear(market_id, user)
+    transaction = state["market"].auction_clear(market_id, user)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -155,7 +160,8 @@ def withdraw_auction(market_id: int, user: str):
     market_id: the id of the question
     """
     print(f"Withdraw an auction {market_id} for {user}")
-    state["market"].auction_withdraw(market_id, user)
+    transaction = state["market"].auction_withdraw(market_id, user)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -164,12 +170,16 @@ def enter_market(
         user: str,
         amount: int
 ):
-    state["market"].market_enter_exit(
+    """
+    Enter the market
+    """
+    transaction = state["market"].market_enter_exit(
         market_id,
         user,
         'payIn',
         amount
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -187,11 +197,12 @@ def close_market(
     """
     check_account_loaded(user)
     print(f"closing market {market_id}")
-    state["market"].close_market(
+    transaction = state["market"].close_market(
         market_id,
         user,
         token_type
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -199,11 +210,12 @@ def approve_market(
         user: str,
         amount: int
 ):
-    """"
+    """
     Approve a quantity of stablecoin to be use by the market
     """
     check_account_loaded(user)
-    state["stablecoin"].approve_market(user, amount)
+    transaction = state["stablecoin"].approve_market(user, amount)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -212,12 +224,16 @@ def exit_market(
         user: str,
         amount: int
 ):
-    state["market"].marketEnterExit(
+    """
+    Exit the market
+    """
+    transaction = state["market"].marketEnterExit(
         market_id,
         user,
         'payOut',
         amount
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -227,12 +243,18 @@ def swap_tokens(
         token_to_sell: str,
         amount: int
 ):
-    state["market"].swap_tokens(
+    """
+    Swap one outcome token through the liquidity pool for its opposing pair
+    as a fixed input swap operation
+
+    """
+    transaction = state["market"].swap_tokens(
         market_id,
         user,
         token_to_sell,
         amount
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -242,12 +264,16 @@ def swap_liquidity(
         direction: str,
         amount: int
 ):
-    state["market"].update_liquidity(
+    """
+    Update the liquidity for the market
+    """
+    transaction = state["market"].update_liquidity(
         market_id,
         user,
         direction,
         amount
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -259,10 +285,11 @@ def claim_winnings(
     Claim winnings for user
     """
     check_account_loaded(user)
-    state["market"].claim_winnings(
+    transaction = state["market"].claim_winnings(
         market_id,
         user
     )
+    submit_transaction(transaction, error_func=print_error)
 
 
 #@app.command()
@@ -291,7 +318,8 @@ def mint(
     Mint a quantity of stablecoin for user
     """
     check_account_loaded(user)
-    state["market"].mint(market_id, user, amount)
+    transaction = state["market"].mint(market_id, user, amount)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -304,7 +332,8 @@ def burn(
     Burn a quantity stablecoin for account
     """
     check_account_loaded(user)
-    state["market"].burn(market_id, user, amount)
+    transaction = state["market"].burn(market_id, user, amount)
+    submit_transaction(transaction, error_func=print_error)
 
 
 @app.command()
@@ -345,7 +374,7 @@ def fund_stablecoin(
     print("Transferring stablecoin to accounts:", state["accounts"].names())
     with typer.progressbar(user_list) as progress:
         for user in progress:
-            state["stablecoin"].fund(user, value)
+            transaction = state["stablecoin"].fund(user, value)
 
 
 @app.command()
@@ -362,7 +391,8 @@ def transfer_stablecoin(
     check_account_loaded(dest)
     check_account_loaded(src)
     print(f"Transferring stablecoin")
-    state["market"].transfer(src, dest, value)
+    transaction = state["market"].transfer(src, dest, value)
+    submit_transaction(transaction, error_func=print_error)
     stablecoin_balance(src)
     stablecoin_balance(dest)
 

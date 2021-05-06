@@ -34,7 +34,7 @@ class Stablecoin:
            self.market_id,
            value
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def get_allowance(self, owner: str):
         """
@@ -46,7 +46,7 @@ class Stablecoin:
             'spender': self.market_id,
             'contract_2': self.market_id
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def transfer(self, src: str, dest: str, value: int):
         """
@@ -59,7 +59,7 @@ class Stablecoin:
             'to': dest_address,
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def fund(self, dest: str, value: int):
         """
@@ -71,4 +71,4 @@ class Stablecoin:
             'to': dest_address,
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()

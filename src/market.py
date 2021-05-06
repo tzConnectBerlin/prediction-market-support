@@ -45,7 +45,7 @@ class Market:
             auction_end_date: float = 5.0,
     ):
         """
-        Generate a Market
+        Create a new prediction market
 
         question: string representing the answer asked
         answer: string representing the possible answer
@@ -89,8 +89,7 @@ class Market:
                 'description': 'Question: ' + question + ' Answer: ' + answer
             }
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-        return market_id
+        return market_id, operation.as_transaction()
 
     def bid_auction(
             self,
@@ -115,23 +114,32 @@ class Market:
             }
         }
         operation = self.pm_contracts(user).auctionBet(data)
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def auction_clear(
             self,
             market_id: int,
             user
     ):
+        """
+        Clear the market
+
+        """
         operation = self.pm_contracts(user).auctionClear(market_id)
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def auction_withdraw(
             self,
             market_id: int,
             user
     ):
+        """
+        Withdraw allocated tokens from a bet in the auction
+
+
+        """
         operation = self.pm_contracts(user).auctionWithdraw(market_id)
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def market_enter_exit(
             self,
@@ -140,6 +148,9 @@ class Market:
             direction: str,
             amount: int
     ):
+        """
+        Enter or exit the market by minting or burning outcome token pairs in exchange for market currency tokens
+        """
         data = {
             'direction': direction,
             'params': {
@@ -148,7 +159,7 @@ class Market:
             }
         }
         operation = self.pm_contracts(user).marketEnterExit(data)
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def transfer_stablecoin_to_user(
             self,
@@ -166,14 +177,14 @@ class Market:
             'to': get_public_key(self.accounts[user]),
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def fund_stablecoin(
             self,
             value: int
     ):
         """
-        fund all accounts with a random quantity of stablecoin
+        Fund all accounts with a random quantity of stablecoin
 
         value: the amont of stablecoin funded
         """
@@ -189,7 +200,7 @@ class Market:
             })
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        submit_transaction(bulk_operations, error_func=print_error)
+        return operation.as_transaction()
 
     def multiple_bids(
             self,
@@ -214,17 +225,22 @@ class Market:
             operation = self.pm_contracts(user).bid(data)
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
-        submit_transaction(bulk_operations, error_func=print_error)
+        return operation.as_transaction()
 
     def withdraw_auction(
             self,
             question: str,
             user: str
     ):
+        """
+        Swap one outcome token through the liquidity pool for its opposing pair
+        as a fixed input swap operation
+
+        """
         operation = self.pm_contracts(user).withdrawAuction(
             question
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def close_market(
             self,
@@ -244,7 +260,7 @@ class Market:
             'market_id': market_id,
             'winning_prediction': winning_prediction
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def mint(
             self,
@@ -253,7 +269,7 @@ class Market:
             amount: int
     ):
         """
-        mint the token
+        Mint the token
 
         question: Concerned question
         token_type: type of tokens (yes or no)
@@ -268,7 +284,7 @@ class Market:
                 }
             }
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def burn(
             self,
@@ -291,7 +307,7 @@ class Market:
                 }
             }
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def claim_winnings(
             self,
@@ -307,7 +323,7 @@ class Market:
         operation = self.pm_contracts(user).claimWinnings(
             market_id
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def update_liquidity(
             self,
@@ -316,6 +332,15 @@ class Market:
             direction: str,
             amount: int
     ):
+        """
+        Update the liquidity for the market
+
+        user:
+        direction: Union type of the following options add the liquidity
+        payIn to add liquidity to the pool to payOut remove liquidity
+        from the pool
+        amount: The amount of liquidity tokens to receive or burn
+        """
         operation = self.pm_contracts(user).swapLiquidity({
             'direction': direction,
             'params': {
@@ -323,7 +348,7 @@ class Market:
                 'amount': amount
             }
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def swap_tokens(
             self,
@@ -332,6 +357,14 @@ class Market:
             token_to_sell: str,
             amount: int
     ):
+        """
+        Swap one outcome token through the liquidity pool for its opposing pair
+        as a fixed input swap operation
+
+        market_id: id of the concerned market
+        token_to_sell: the type of token to sell (yes or no)
+        amount: the amount to token to sell
+        """
         operation = self.pm_contracts(user).swapTokens({
             'token_to_sell': token_to_sell,
             'params': {
@@ -339,7 +372,8 @@ class Market:
                 'amount': amount
             }
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
+
 """
     def list_markets(
             self
