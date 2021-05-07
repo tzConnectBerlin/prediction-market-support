@@ -344,15 +344,15 @@ def get_market_metadata(
         market_id: int
 ):
     client = state["config"]["admin_account"]
-    contract = state["config"]["contact"]
-    data = get_market_map(client, contract, market_id)()
+    contract = state["config"]["contract"]
+    data = get_market_map(client, contract, market_id)
     metadata = data['metadata']
     ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
     for k, v in metadata.items():
         print(k, v)
     if metadata['ipfs_hash'] is not None:
         print("ipfs data:")
-        data = ipfsclient.get_json(hash)
+        data = ipfsclient.get_json(metadata["ipfs_hash"])
         if data is not None:
             print(data)
 
@@ -363,10 +363,10 @@ def get_market_liquidity(
         user: str
 ):
     client = state["config"]["admin_account"]
-    contract = state["config"]["contact"]
-    data = get_question_liquidity_provider_map(client, contract, market_id)
-    key = {'originator': get_public_key(state["account"][user]), 'market_id': market_id}
-    for k, v in data[key].items():
+    contract = state["config"]["contract"]
+    address = get_public_key(state["accounts"][user])
+    data = get_question_liquidity_provider_map(client, contract, market_id, address)
+    for k, v in data.items():
         print(k, v)
 
 
