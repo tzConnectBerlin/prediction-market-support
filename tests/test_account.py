@@ -6,7 +6,7 @@ from src.accounts import Accounts
 test_accounts = [
     ('rimk', 'tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4'),
     ('tang', 'tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet'),
-    ('patoch', 'tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4'),
+    ('patoch', 'tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB'),
 ]
 
 
