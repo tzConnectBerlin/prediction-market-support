@@ -31,13 +31,16 @@ def mock_functions(monkeypatch):
 
 
 @pytest.fixture(scope="session")
-def accounts():
+def accounts(config):
     accounts = [
         {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
         {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx"},
         {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"},
         {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u"},
-        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"}
+        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"},
+        {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4"},
+        {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet"},
+        {"name": "patoch", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4"}
     ]
     return accounts
 
@@ -66,32 +69,6 @@ def market(config):
     test_accounts.import_from_folder("tests/users")
     new_market = Market(test_accounts, config)
     return new_market
-
-
-@pytest.fixture(scope="session")
-def markets(accounts, config, market):
-    transactions = []
-    markets = []
-    print("generating markets")
-    for index in range(200):
-        quantity = random.randint(0, 900)
-        rate = random.randint(0, 2 ** 63)
-        end = random.uniform(0.0, 1.5)
-        market_id, transaction = market.ask_question(
-            id_generator(),
-            id_generator(),
-            random.choice(accounts),
-            quantity,
-            rate,
-            end
-        )
-        transactions.append(transaction)
-        markets.append(market_id)
-    bulk_transactions = config["admin_account"].bulk(*transactions)
-    submit_transaction(bulk_transactions, error_func=print_error)
-    sleep(120)
-    print("markets generated")
-    return markets
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -131,31 +108,99 @@ def supply_storage(client, config):
 
 @pytest.fixture(scope="session", autouse=True)
 def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
+    money_seeding = []
+    stablecoin_seeding = []
     for account in accounts:
-        client.transaction(
+        money_seed = client.transaction(
             account['key'], amount=Decimal(10)
-        ).autofill().sign().inject()
+        )
+        money_seeding.append(money_seed)
 
-        #modify that part to get the stablecoin
         stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
-
-        stablecoin.transfer({
+        stablecoin_seed = stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],
             'value': 10 ** 16
-        }).as_transaction().autofill().sign().inject()
+        })
+        stablecoin_seeding.append(stablecoin_seed.as_transaction())
+
+    bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
+    submit_transaction(bulk_transactions, error_func=print_error)
     sleep(3)
+    return accounts
 
 
-def pytest_configure(config):
+@pytest.fixture(scope="session", autouse=True)
+def revealed_accounts(config):
+    accounts = Accounts(config["endpoint"])
+    accounts_to_reveal = [
+        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
+        {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx"},
+        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"},
+        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u"},
+        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"}
+    ]
+    for account in accounts_to_reveal:
+        accounts.import_from_file(f"tests/users/{account['name']}.json", account['name'])
+        accounts.activate_account(account['name'])
+        accounts.reveal_account(account['name'])
+    return accounts_to_reveal
+
+
+@pytest.fixture(scope="session", autouse=True)
+def gen_markets(revealed_accounts, config, market):
+    g_markets = []
+    transactions = []
+    reserved = []
+    print("generating markets")
+    for i in range(4):
+        for index in range(40):
+            quantity = random.randint(0, 900)
+            rate = random.randint(0, 2 ** 63)
+            end = random.uniform(0.0, 0.6)
+            name = random.choice(revealed_accounts)['name']
+            market_id, transaction = market.ask_question(
+                id_generator(),
+                id_generator(),
+                name,
+                quantity,
+                rate,
+                end
+            )
+            if market_id not in reserved:
+                reserved.append(market_id)
+                transactions.append(transaction)
+                g_markets.append({'id': market_id, 'name': name})
+        bulk_transactions = config["admin_account"].bulk(*transactions)
+        submit_transaction(bulk_transactions, error_func=print_error)
+        sleep(2)
+        transactions.clear()
+    sleep(10)
+    print("markets generated")
+    return g_markets
+
+
+@pytest.fixture(scope="session", autouse=True)
+def gen_cleared_markets(market, gen_markets):
+    for ma in gen_markets:
+        bulk_transactions = market.multiple_bids(
+            ma['id'],
+            random.randint(2, 2**16),
+            random.randint(2, 2**63)
+        )
+        submit_transaction(bulk_transactions, error_func=print_error)
+        transaction = market.auction_clear(ma['id'], ma['name'])
+        submit_transaction(transaction, error_func=print_error)
+    return gen_markets
+
+def pytest_configure():
     """
     Allows plugins and conftest files to perform initial configuration.
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    #launch_sandbox()
-    #sleep(70)
-    
+    launch_sandbox()
+    sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -177,4 +222,4 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    #stop_sandbox()
+    stop_sandbox()

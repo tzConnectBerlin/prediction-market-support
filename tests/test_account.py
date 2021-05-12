@@ -4,9 +4,9 @@ from pytezos import Key
 from src.accounts import Accounts
 
 test_accounts = [
-    ('donald', 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'),
-    ('clara', 'tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx'),
-    ('mala', 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'),
+    ('rimk', 'tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4'),
+    ('tang', 'tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet'),
+    ('patoch', 'tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4'),
 ]
 
 

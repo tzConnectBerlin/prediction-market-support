@@ -64,8 +64,9 @@ class Market:
         }
         token_contract = self.config['stablecoin']
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
-        market_id = random.randint(10, 100000000)
+        market_id = random.randint(10, 2**63)
         ipfs_hash = ipfs.add_str(json.dumps(param))
+        ipfs_hash = "dedede"
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -181,7 +182,7 @@ class Market:
                 'predicted_probability': rate
                 }
             }
-            operation = self.pm_contracts(user).bid(data)
+            operation = self.pm_contracts(user).auctionBet(data)
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         return bulk_operations

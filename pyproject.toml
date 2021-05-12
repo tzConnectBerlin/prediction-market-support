@@ -12,13 +12,15 @@ python = "^3.9"
 argparse = "^1.4.0"
 configparse = "^0.1.5"
 pysodium = {git = "https://github.com/stef/pysodium.git", rev = "0.7.7"}
-pytezos = "^3.0.4"
+pytezos = "^3.2.0"
 dateparser = "^1.0.0"
 pytz = "^2021.1"
 jq = "^1.1.2"
 typer = "^0.3.2"
 wolframalpha = "^4.1.1"
-ipfshttpclient = {git = "https://github.com/ipfs-shipyard/py-ipfs-http-client", rev = "bcec97a"}
+#ipfshttpclient = {git = "https://github.com/ipfs-shipyard/py-ipfs-http-client", rev = "bcec97a"}
+ipfshttpclient = "0.7.0a1"
+pytest = "^6.2.4"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.5"

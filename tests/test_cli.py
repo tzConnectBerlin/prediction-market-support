@@ -34,13 +34,11 @@ def rand(mul=100):
 app_options = [
         "--config-file", "tests/cli.ini", "--contract"
 ]
-
-
+"""
 @pytest.mark.parametrize("account", accounts)
 def test_list_accounts(account, contract_id):
     result = runner.invoke(app, app_options + [contract_id] + ["list-accounts"])
     assert account['name'] in result.stdout
-
 
 
 @pytest.mark.parametrize("account,data", test_data)
@@ -48,13 +46,13 @@ def test_ask_question(account, market, data, questions_storage, contract_id):
     #make sure only string are passed to the runner
     question_data = list(map(str, data))
     result = runner.invoke(app, app_options + [contract_id] + ["ask-question"] + question_data)
-    #I take the second one to ensure the ipfs_hash is taken. A regex could be used here
-    ipfs_hash = list(filter(lambda x: x.startswith('Qm'), result.stdout.split()))
+    #I take the second one to ensure the market_id is taken. A regex could be used here
+    market_id = list(filter(lambda x: x.startswith('Qm'), result.stdout.split()))
 
     auction_end = datetime.timestamp(datetime.now() + timedelta(minutes=data[5]))
     market_close = datetime.timestamp(datetime.now() + timedelta(minutes=data[6]))
     sleep(3)
-    question = questions_storage[ipfs_hash[0]]()
+    question = questions_storage[market_id[0]]()
     assert result.exit_code == 0
     assert question['total_auction_quantity'] == data[3]
     assert question['state'] == "questionAuctionOpen"
@@ -85,9 +83,9 @@ def test_transfer_stablecoin(account, stablecoin_storage, contract_id):
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_bid_auction(account, market, data, questions_storage, contract_id):
-    ipfs_hash = market.ask_question(data[0], data[1], account["name"], data[3], data[4], data[5], data[6])
+    market_id = market.ask_question(data[0], data[1], account["name"], data[3], data[4], data[5], data[6])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
+    question = questions_storage[market_id]()
     runner.invoke(app, app_options + [contract_id] + ["bid-auction", account["name"]])
     sleep(3)
     bids = question["auction_bids"]
@@ -95,22 +93,21 @@ def test_bid_auction(account, market, data, questions_storage, contract_id):
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_close_auction(account, market, data, questions_storage, contract_id):
-    ipfs_hash = market.ask_question(data[0], data[1], account["name"], data[3], data[4], data[5], data[6])
+def test_withdraw_auction(account, market, data, questions_storage, contract_id):
+    market_id = market.ask_question(data[0], data[1], account["name"], data[3], data[4], data[5], data[6])
     sleep(data[5] * 60 + 60)
-    runner.invoke(app, app_options + [contract_id] + ["close-auction", ipfs_hash, account["name"]])
+    runner.invoke(app, app_options + [contract_id] + ["close-auction", market_id, account["name"]])
     sleep(3)
-    question = questions_storage[ipfs_hash]()
+    question = questions_storage[market_id]()
     auction_state = question["state"]
     assert auction_state == "questionAuctionWithdrawOpen"
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_close_market(account, market, data, questions_storage, contract_id ):
-    ipfs_hash = market.ask_question(data[0], data[1], account["name"], data[3], data[4], data[5], data[6])
+    market_id = random.choice(pytest.markets_pool)
+    runner.invoke(app, app_options + [contract_id] + ["close-market", market_id, account["name"]])
     sleep(data[6] * 60 + 20)
-    runner.invoke(app, app_options + [contract_id] + ["close-market", ipfs_hash, account["name"]])
-    sleep(data[6] * 60 + 20)
-    question = questions_storage[ipfs_hash]()
-    auction_state = question["state"]
-    assert auction_state == "questionMarketClosed"
+    question = questions_storage[market_id]()
+    assert "marketBootstrapped" in question["state"]
+"""
