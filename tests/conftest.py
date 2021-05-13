@@ -40,7 +40,7 @@ def accounts(config):
         {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"},
         {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4"},
         {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet"},
-        {"name": "patoch", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4"}
+        {"name": "patoch", "key": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB"}
     ]
     return accounts
 
@@ -120,7 +120,7 @@ def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
         stablecoin_seed = stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],
-            'value': 10 ** 16
+            'value': 2 ** 32
         })
         stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
@@ -170,7 +170,7 @@ def gen_markets(revealed_accounts, config, market):
             if market_id not in reserved:
                 reserved.append(market_id)
                 transactions.append(transaction)
-                g_markets.append({'id': market_id, 'name': name})
+                g_markets.append({'id': int(market_id), 'caller_name': name})
         bulk_transactions = config["admin_account"].bulk(*transactions)
         submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
@@ -180,18 +180,26 @@ def gen_markets(revealed_accounts, config, market):
     return g_markets
 
 
-@pytest.fixture(scope="session", autouse=True)
+#helpers
+def gen_bids_markets(market, market_id):
+    bulk_transactions = market.multiple_bids(
+        market_id,
+        random.randint(2, 2 ** 16),
+        random.randint(2, 2 ** 63)
+    )
+    submit_transaction(bulk_transactions, error_func=print_error)
+    sleep(3)
+
+
+@pytest.fixture(scope="session")
 def gen_cleared_markets(market, gen_markets):
     for ma in gen_markets:
-        bulk_transactions = market.multiple_bids(
-            ma['id'],
-            random.randint(2, 2**16),
-            random.randint(2, 2**63)
-        )
-        submit_transaction(bulk_transactions, error_func=print_error)
-        transaction = market.auction_clear(ma['id'], ma['name'])
+        gen_bids_markets(market, ma['id'])
+        gen_bids_markets(market, ma['id'])
+        transaction = market.auction_clear(ma['id'], ma['caller_name'])
         submit_transaction(transaction, error_func=print_error)
     return gen_markets
+
 
 def pytest_configure():
     """
