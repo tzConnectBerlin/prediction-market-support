@@ -12,9 +12,13 @@ from src.config import Config
 from src.compile import launch_sandbox, stop_sandbox
 from src.deploy import deploy_market, deploy_stablecoin
 from src.market import Market
+from src.stablecoin import Stablecoin
 from src.utils import *
 
+
 MULTIPLIER = 10 ** 6
+
+used_markets = []
 
 
 def mock_get_tezos_client_path():
@@ -69,6 +73,14 @@ def market(config):
     test_accounts.import_from_folder("tests/users")
     new_market = Market(test_accounts, config)
     return new_market
+
+
+@pytest.fixture(scope="session", autouse=True)
+def stablecoin(config):
+    test_accounts = Accounts(endpoint=config["endpoint"])
+    test_accounts.import_from_folder("tests/users")
+    new_stablecoin = Stablecoin(test_accounts, config)
+    return new_stablecoin
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -153,8 +165,8 @@ def gen_markets(revealed_accounts, config, market):
     transactions = []
     reserved = []
     print("generating markets")
-    for i in range(4):
-        for index in range(40):
+    for i in range(3):
+        for index in range(30):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
             end = random.uniform(0.0, 0.6)
@@ -175,29 +187,34 @@ def gen_markets(revealed_accounts, config, market):
         submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
         transactions.clear()
-    sleep(10)
     print("markets generated")
     return g_markets
 
 
-#helpers
-def gen_bids_markets(market, market_id):
-    bulk_transactions = market.multiple_bids(
-        market_id,
-        random.randint(2, 2 ** 16),
-        random.randint(2, 2 ** 63)
-    )
-    submit_transaction(bulk_transactions, error_func=print_error)
-    sleep(3)
+@pytest.fixture(scope="session")
+def gen_bid_markets(gen_markets, market):
+    for i in range(2):
+        for ma in gen_markets:
+            bulk_transactions = market.multiple_bids(
+                ma['id'],
+                random.randint(2, 2 ** 16),
+                random.randint(2, 2 ** 63)
+            )
+        submit_transaction(bulk_transactions, error_func=print_error)
+        sleep(2)
+    return gen_markets
 
 
 @pytest.fixture(scope="session")
-def gen_cleared_markets(market, gen_markets):
-    for ma in gen_markets:
-        gen_bids_markets(market, ma['id'])
-        gen_bids_markets(market, ma['id'])
+def gen_cleared_markets(config, market, gen_bid_markets):
+    selection = random.choices(gen_bid_markets, k=40)
+    transactions = []
+    for ma in selection:
         transaction = market.auction_clear(ma['id'], ma['caller_name'])
-        submit_transaction(transaction, error_func=print_error)
+        transactions.append(transaction)
+    bulk_transactions = config["admin_account"].bulk(*transactions)
+    submit_transaction(bulk_transactions, error_func=print_error)
+    sleep(2)
     return gen_markets
 
 
@@ -207,8 +224,8 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
-    sleep(20)
+    #launch_sandbox()
+    #sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -230,4 +247,4 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    #stop_sandbox()

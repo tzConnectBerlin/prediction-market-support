@@ -63,9 +63,10 @@ class Market:
             'yesAnswer': answer,
         }
         token_contract = self.config['stablecoin']
-        ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
+        #ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         market_id = random.randint(10, 2**63)
-        ipfs_hash = ipfs.add_str(json.dumps(param))
+        #ipfs_hash = ipfs.add_str(json.dumps(param))
+        ipfs_hash = "dedede"
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -332,29 +333,3 @@ class Market:
             }
         })
         return operation.as_transaction()
-
-"""
-    def list_markets(
-            self
-    ):
-        contract = self.config['admin_account'].contract(self.contract)
-        questions = get_questions(contract.storage['questions'](), 0)
-        for question in questions:
-            owner = questions[question]['owner']
-            state = questions[question]['state']
-            auction_close = questions[question]['auction_end']
-            market_end = questions[question]['market_close']
-            bids = len(questions[question]['auction_bids'])
-            print(f'{question} - {list(state.keys())[0]} close: {auction_close} market_end: {market_end} bids: {bids}')
-"""
-"""
-    def list_bids(
-            self,
-            question: str
-    ):
-        contract = self.config['admin_account'].contract(self.contract)
-        question = contract.storage['questions'][question]()
-        for bids in question:
-            data = question[bids]
-            print(f"{bids} - {data}")
-"""

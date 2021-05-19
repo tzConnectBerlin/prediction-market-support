@@ -83,9 +83,9 @@ def ask_question(
         rate,
         auction_end_date
     )
-    print(f'quandity : {quantity} + rate {rate}')
     print(f"Created market {market_id} in PM contract")
-    print(transaction.json_payload())
+    print(f'with variables: quandity : {quantity} + rate {rate}')
+    #print(transaction.json_payload())
     submit_transaction(transaction, error_func=print_error)
     return market_id
 
@@ -343,8 +343,8 @@ def burn(
 def get_market_metadata(
         market_id: int
 ):
-    client = state["config"]["admin_account"]
-    contract = state["config"]["contract"]
+    client = state['config']['admin_account']
+    contract = state['config']['contract']
     data = get_market_map(client, contract, market_id)
     metadata = data['metadata']
     ipfsclient = ipfshttpclient.connect(state['config']['ipfs_server'])
@@ -362,12 +362,27 @@ def get_market_liquidity(
         market_id: int,
         user: str
 ):
-    client = state["config"]["admin_account"]
     contract = state["config"]["contract"]
     address = get_public_key(state["accounts"][user])
     data = get_question_liquidity_provider_map(client, contract, market_id, address)
     for k, v in data.items():
         print(k, v)
+
+
+@app.command()
+def display_tokens(
+        market_id: int,
+        user: str
+):
+    client = state['config']['admin_account']
+    contract = state['config']['contract']
+    #address = get_public_key(state['accounts'][user])
+    base_token_id = market_id << 3
+    #ledger_map = get_tokens_ledgermap(client, contract)
+    #ledger_map_key = {'owner': address, 'token_id': base_token_id}
+    supply_map = get_tokens_supplymap(client, contract)
+    #print(ledger_map[ledger_map_key]())
+    print(supply_map[base_token_id]())
 
 
 @app.command()
@@ -445,7 +460,6 @@ def stablecoin_balance(
     print(f"{user}: {balance}")
 
 
-
 @app.callback()
 def main(
         import_accounts: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
@@ -483,7 +497,6 @@ def main(
     state['market'] = Market(state['accounts'], state['config'])
     state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
-
 
 if __name__ == "__main__":
     app()

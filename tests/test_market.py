@@ -7,6 +7,8 @@ import pytest
 
 from src.utils import print_error, submit_transaction
 
+from .conftest import *
+
 MULTIPLIER = 10 ** 6
 
 
@@ -48,7 +50,7 @@ def test_ask_question(account, market, data, questions_storage, stablecoin_id):
     assert metadata['currency'] == {'fa12': stablecoin_id}
     assert state['auction_period_end'] == int(auction_end)
     assert state['quantity'] == data[3]
-    sleep(3)
+    sleep(2)
 
 
 @pytest.mark.parametrize("account,data", test_data)
@@ -58,7 +60,7 @@ def test_bid_auction(account, market, data, liquidity_storage, gen_markets):
     rate = random.randint(0, 2 ** 63)
     transaction = market.bid_auction(auction['id'], account["name"], amount, rate)
     submit_transaction(transaction, error_func=print_error)
-    sleep(4)
+    sleep(2)
     key = {'originator': account['key'], 'market_id': auction['id']}
     bids = liquidity_storage[key]()
     assert bids['bet'] is not None
@@ -66,13 +68,13 @@ def test_bid_auction(account, market, data, liquidity_storage, gen_markets):
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_auction_clear(account, market, data, questions_storage, gen_cleared_markets):
-    auction = random.choice(gen_cleared_markets)
+def test_auction_clear(account, market, data, questions_storage, gen_bid_markets):
+    auction = random.choice(gen_bid_markets)
     amount = rand(100)
     rate = random.randint(0, 2 ** 63)
     transaction = market.auction_clear(auction['id'], auction["caller_name"])
     submit_transaction(transaction, error_func=print_error)
-    sleep(3)
+    sleep(2)
     question = questions_storage[auction['id']]()
     auction_state = question['state']
     assert 'marketBootstrapped' in auction_state
@@ -83,7 +85,7 @@ def test_auction_withdraw(account, market, data, questions_storage, gen_cleared_
     auction = random.choice(gen_cleared_markets)
     transaction = market.auction_withdraw(auction["id"], account["name"])
     submit_transaction(transaction, error_func=print_error)
-    sleep(3)
+    sleep(2)
     question = questions_storage[auction["id"]]()
     auction_state = question["state"]
 
@@ -93,7 +95,7 @@ def test_close_market_yes(account, market, data, questions_storage, gen_cleared_
     auction = random.choice(gen_cleared_markets)
     transaction = market.close_market(auction["id"], auction["caller_name"], True)
     submit_transaction(transaction, error_func=print_error)
-    sleep(3)
+    sleep(2)
     question = questions_storage[auction['id']]()
     auction_state = question["state"]["marketBootstrapped"]
     assert auction_state['resolution']['winning_prediction'] == 'yes'
@@ -104,18 +106,19 @@ def test_close_market_no(account, market, data, questions_storage, gen_cleared_m
     auction = random.choice(gen_cleared_markets)
     transaction = market.close_market(auction["id"], auction["caller_name"], False)
     submit_transaction(transaction, error_func=print_error)
-    sleep(3)
+    sleep(2)
     question = questions_storage[auction['id']]()
     auction_state = question["state"]["marketBootstrapped"]
     assert auction_state['resolution']['winning_prediction'] == 'no'
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_market_enter_exist_payin(account, market, data, supply_storage, gen_cleared_markets):
+def test_market_enter_exist_payin(account, market, data, stablecoin, supply_storage, gen_cleared_markets):
     auction = random.choice(gen_cleared_markets)
-    transaction = market.market_enter_exit(auction["id"], account['name'], 'payIn', 10**14)
+    stablecoin.fund(account["name"], 10**14)
+    transaction = market.market_enter_exit(auction["id"], account['name'], 'payIn', 10**6)
     submit_transaction(transaction, error_func=print_error)
-    sleep(3)
+    sleep(2)
     key = {'originator': account['key'], 'market_id': auction['id']}
     bids = supply_storage[key]
     print(bids)
@@ -123,43 +126,47 @@ def test_market_enter_exist_payin(account, market, data, supply_storage, gen_cle
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_mint_token(account, market, data, supply_storage, gen_cleared_markets):
+def test_mint_token(account, market, data, stablecoin, supply_storage, gen_cleared_markets):
     auction = random.choice(gen_cleared_markets)
     amount = rand(100)
-    balance = supply_storage[(auction['id'] << 3) + 2]()
+    stablecoin.fund(account["name"], amount)
     transaction = market.mint(auction['id'], account["name"], amount)
     submit_transaction(transaction, error_func=print_error)
-    sleep(9)
-    balance2 = supply_storage[(auction['id'] << 3) + 2]()
-    assert balance2['total_supply'] > balance['total_supply']
-
-
-@pytest.mark.parametrize("account,data", test_data)
-def test_burn_token(account, market, data, supply_storage, gen_cleared_markets):
-    auction = random.choice(gen_cleared_markets)
-    balance = supply_storage[(auction['id'] << 3) + 2]()
-    amount = rand(100)
-    transaction = market.burn(auction['id'], account["name"], amount)
+    balance = supply_storage[(auction['id'] << 3) + 1]()
+    transaction = market.mint(auction['id'], account["name"], amount)
     submit_transaction(transaction, error_func=print_error)
-    sleep(9)
-    balance2 = supply_storage[(auction['id'] << 3) + 2]()
+    sleep(2)
+    balance2 = supply_storage[(auction['id'] << 3) + 1]()
     assert balance2['total_supply'] < balance['total_supply']
 
 
 @pytest.mark.parametrize("account,data", test_data)
-def test_swap_tokens(account, market, data, supply_storage, gen_cleared_markets):
+def test_burn_token(account, market, data, stablecoin, supply_storage, gen_cleared_markets):
     auction = random.choice(gen_cleared_markets)
-    balance = supply_storage[(auction['id'] << 3) + 2]()
+    amount = rand(100)
+    stablecoin.fund(account["name"], amount)
+    balance = supply_storage[(auction['id'] << 3) + 1]()
+    transaction = market.burn(auction['id'], account["name"], amount)
+    submit_transaction(transaction, error_func=print_error)
+    sleep(2)
+    balance2 = supply_storage[(auction['id'] << 3) + 1]()
+    assert balance2['total_supply'] > balance['total_supply']
+
+
+@pytest.mark.parametrize("account,data", test_data)
+def test_swap_tokens(account, market, data, supply_storage, gen_bid_markets):
+    auction = random.choice(gen_bid_markets)
+    balance = supply_storage[(auction['id'] << 3) + 1]()
     transaction = market.swap_tokens(auction['id'], account["name"], "yes", 150)
     submit_transaction(transaction, error_func=print_error)
-    sleep(9)
+    sleep(2)
     new_balance = supply_storage[(auction['id'] << 3) + 1]()
-    assert new_balance['total_supply'] > balance['total_supply']
+    assert new_balance['total_supply'] != balance['total_supply']
 
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_update_liquidity(account, market, data, supply_storage, gen_cleared_markets):
-    auction =  random.choice(gen_cleared_markets)
+    auction = random.choice(gen_cleared_markets)
     """
     balance = supply_storage[account["key"]]()
     amount = rand(100)

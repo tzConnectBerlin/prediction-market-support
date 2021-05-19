@@ -26,7 +26,7 @@ USDtzLeger = {
             'totalSupply': 0,
             'ledger': {
                 admin['pkh']: {
-                    'balance': 100000000000000000000,
+                    'balance': 10**40,
                     'allowances': {}
                 }
             }
@@ -125,6 +125,9 @@ def deploy_stablecoin(key=admin['sk'], shell=shell):
 
 
 def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts', shell=shell):
+    transactions = []
+    client = pytezos.using(shell=shell, key=admin['sk'])
+    contract = client.contract(contract_id)
     for file in os.listdir(path):
         macro_filepath = f'{path}/{file}'
         content = preprocess_file(macro_filepath, helper_directory)
@@ -133,11 +136,10 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
         write_to_file(content, filepath)
         print(f"{filepath} was generated")
         content = compile_expression(filepath)
-        client = pytezos.using(shell=shell, key=admin['sk'])
-        contract = client.contract(contract_id)
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
+        sleep(2)
         print(f"{filepath} lambda was deployed")
     operation = contract.sealContract()
     submit_transaction(operation.as_transaction())
