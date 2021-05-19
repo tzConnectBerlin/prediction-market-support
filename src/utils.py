@@ -76,8 +76,8 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
         transaction_.shell.wait_next_block(max_iterations=10)
         return res
     except RpcError as r:
-        print(r)
-        err_message = ast.literal_eval(str(r)[1-2])
+        print(str(r))
+        err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
             if 'counter_in_the_past' in err_message['id']:
