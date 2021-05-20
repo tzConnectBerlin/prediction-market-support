@@ -476,8 +476,6 @@ def main(
                 typer.echo(f"{account_name} was activated")
                 state["accounts"].reveal_account(account_name)
                 typer.echo(f"{account_name} was revealed")
-    #test ignored accounts
-    #test they are in accounts
     state['accounts'].import_from_tezos_client(ignored_accounts)
     state['market'] = Market(state['accounts'], state['config'])
     state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
