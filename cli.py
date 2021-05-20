@@ -295,22 +295,6 @@ def claim_winnings(
     submit_transaction(transaction, error_func=print_error)
 
 
-#@app.command()
-def list_auctions():
-    """
-    List all current available questions
-    """
-    state["market"].list_markets()
-
-
-#@app.command()
-def list_bids(question: str):
-    """
-    List all the current bids on a question
-    """
-    state["market"].list_bids(question)
-
-
 @app.command()
 def mint(
         market_id: int,
