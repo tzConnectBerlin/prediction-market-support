@@ -18,8 +18,7 @@ pytz = "^2021.1"
 jq = "^1.1.2"
 typer = "^0.3.2"
 wolframalpha = "^4.1.1"
-#ipfshttpclient = {git = "https://github.com/ipfs-shipyard/py-ipfs-http-client", rev = "bcec97a"}
-ipfshttpclient = "0.7.0a1"
+ipfshttpclient = "0.8.0a1"
 pytest = "^6.2.4"
 
 [tool.poetry.dev-dependencies]
