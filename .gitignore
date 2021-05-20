@@ -1,6 +1,7 @@
 oracle.ini
 tests/oracle.ini
 compiled_contracts/
+files_to_ignore
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
