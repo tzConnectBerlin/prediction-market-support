@@ -1,6 +1,6 @@
 # Scripts to support PM
 
-## cli.py
+## clicli
 
 Uses accounts instanciated in your tezos client
 
@@ -8,5 +8,24 @@ Usage:
 ```
 ./cli.py
 ```
+How to use:
 
-There is a command line interface that use ./cli.py.
+First set up your own environement using the cli.ini file
+```
+  [IPFS]
+  server=/ip4/49.12.41.161/tcp/5001
+  
+  [Tezos]
+  node=tezos.newby.org
+  port=8732
+  endpoint=http://localhost:20000
+  pm_contract=KT1MLoV9BMpWAPYZNm9NDJ18Vch3HLjXdFT6
+  stablecoin=KT1VKHPi2rWsRGPpZ6WpNxrKGtGA1LRcgFAp
+  contract_path=/home/killua/prediction-market-contracts-lazy/container/main.mligo  .m4
+  stablecoin_path=/home/killua/Projects/tezos/prediction-market-contracts/src/cont  racts/third-party/FA12Permissive.ligo
+  owner=tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb
+_ privkey=edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq
+
+```
+
+./cli.py gives you a partial documentation on how to use the tool  [IPFS]
