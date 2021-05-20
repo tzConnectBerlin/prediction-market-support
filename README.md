@@ -1,11 +1,14 @@
 # Scripts to support PM
 
-## clicli
 
-Uses accounts instanciated in your tezos client
+## Installation
+```
+poetry install
+```
 
 Usage:
 ```
+poetry shell
 ./cli.py
 ```
 How to use:
@@ -26,6 +29,12 @@ First set up your own environement using the cli.ini file
   owner=tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb
 _ privkey=edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq
 
+```
+
+It uses accounts imported in your tezos client
+Basic use is:
+```
+./cli.py [flags ][command] [user using the command] [command options]
 ```
 
 ./cli.py gives you a partial documentation on how to use the tool  [IPFS]
