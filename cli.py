@@ -362,6 +362,7 @@ def get_market_liquidity(
         market_id: int,
         user: str
 ):
+    client = state['config']['admin_account']
     contract = state["config"]["contract"]
     address = get_public_key(state["accounts"][user])
     data = get_question_liquidity_provider_map(client, contract, market_id, address)

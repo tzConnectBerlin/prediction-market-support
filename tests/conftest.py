@@ -169,7 +169,7 @@ def gen_markets(revealed_accounts, config, market):
         for index in range(30):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
-            end = random.uniform(0.0, 0.6)
+            end = random.uniform(0.5, 0.8)
             name = random.choice(revealed_accounts)['name']
             market_id, transaction = market.ask_question(
                 id_generator(),

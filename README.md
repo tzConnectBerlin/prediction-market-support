@@ -1,25 +1,12 @@
 # Scripts to support PM
 
-## demo.py
+## cli.py
 
-Uses 4 accounts to exercise the PM.
+Uses accounts instanciated in your tezos client
 
 Usage:
-
-First download 4 files from [the faucet](https://faucet.tzalpha.net/) and rename them to `alice.json bob.json caleb.json donald.json`
-
-then
 ```
-python3 demo.py --activate-accounts=true
+./cli.py
 ```
-wait a while
-```
-python3 demo.py --reveal-accounts=true
-```
-Now you are good to go.
-
-You can set your own questions, or use a randomly generated one. Randomly generated questions are of the form, what is the capital city of XXX? and are populated from the file `country-by-capital-city.json`.
-
-Auction end time is now + 5 minutes. Market end time is now + 10 minutes.
 
 There is a command line interface that use ./cli.py.

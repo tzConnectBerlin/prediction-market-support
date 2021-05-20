@@ -9,8 +9,6 @@ from src.utils import print_error, submit_transaction
 
 from .conftest import *
 
-MULTIPLIER = 10 ** 6
-
 
 #accounts used for test
 accounts = [
@@ -70,8 +68,6 @@ def test_bid_auction(account, market, data, liquidity_storage, gen_markets):
 @pytest.mark.parametrize("account,data", test_data)
 def test_auction_clear(account, market, data, questions_storage, gen_bid_markets):
     auction = random.choice(gen_bid_markets)
-    amount = rand(100)
-    rate = random.randint(0, 2 ** 63)
     transaction = market.auction_clear(auction['id'], auction["caller_name"])
     submit_transaction(transaction, error_func=print_error)
     sleep(2)
@@ -79,6 +75,7 @@ def test_auction_clear(account, market, data, questions_storage, gen_bid_markets
     auction_state = question['state']
     assert 'marketBootstrapped' in auction_state
     assert auction_state['marketBootstrapped']['resolution'] is None
+
 
 @pytest.mark.parametrize("account,data", test_data)
 def test_auction_withdraw(account, market, data, questions_storage, gen_cleared_markets):
@@ -179,4 +176,3 @@ def test_update_liquidity(account, market, data, supply_storage, gen_cleared_mar
     assert balance < new_balance1
     assert new_balance1 < new_balance2
 """
-#claimWinnings
