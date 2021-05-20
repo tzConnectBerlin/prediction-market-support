@@ -1,0 +1,7 @@
+============================= test session starts ==============================
+platform linux -- Python 3.9.5, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: /home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle
+plugins: regtest-1.4.5, lazy-fixture-0.6.3, mock-3.6.1, timeout-1.4.2
+collected 22 items
+
+tests/test_market.py 
