@@ -66,6 +66,7 @@ class Market:
         ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         market_id = random.randint(10, 2**63)
         ipfs_hash = ipfs.add_str(json.dumps(param))
+        #ipfs_hash = "dededde"
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:

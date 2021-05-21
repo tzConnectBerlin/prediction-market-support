@@ -1214,6 +1214,19 @@ python-versions = "*"
 pytest = ">=4.1.0"
 
 [[package]]
+name = "pytest-sugar"
+version = "0.9.4"
+description = "pytest-sugar is a plugin for pytest that changes the default look and feel of pytest (e.g. progressbar, show tests that fail instantly)."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+packaging = ">=14.1"
+pytest = ">=2.9"
+termcolor = ">=1.1.0"
+
+[[package]]
 name = "pytest-timeout"
 version = "1.4.2"
 description = "py.test plugin to abort hanging tests"
@@ -1437,6 +1450,14 @@ python-versions = "*"
 
 [package.extras]
 widechars = ["wcwidth"]
+
+[[package]]
+name = "termcolor"
+version = "1.1.0"
+description = "ANSII Color formatting for output in terminal."
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "terminado"
@@ -1709,7 +1730,7 @@ pyzmq = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "bc3fe87448972165814c7a781fadf625c62331128cd0a8d76442d4510c47d354"
+content-hash = "8373b68f87a105602f6ac952f97d1c6354bc20320f993435e26cc901e5ef5da0"
 
 [metadata.files]
 appdirs = [
@@ -2339,6 +2360,9 @@ pytest-mock = [
 pytest-regtest = [
     {file = "pytest-regtest-1.4.5.tar.gz", hash = "sha256:a1e4e87d483e493d9bf6d15a71a46dedaccb6caab79fa8066f47a8eb3e6f86e3"},
 ]
+pytest-sugar = [
+    {file = "pytest-sugar-0.9.4.tar.gz", hash = "sha256:b1b2186b0a72aada6859bea2a5764145e3aaa2c1cfbb23c3a19b5f7b697563d3"},
+]
 pytest-timeout = [
     {file = "pytest-timeout-1.4.2.tar.gz", hash = "sha256:20b3113cf6e4e80ce2d403b6fb56e9e1b871b510259206d40ff8d609f48bda76"},
     {file = "pytest_timeout-1.4.2-py2.py3-none-any.whl", hash = "sha256:541d7aa19b9a6b4e475c759fd6073ef43d7cdc9a92d95644c260076eb257a063"},
@@ -2576,6 +2600,9 @@ swagger-spec-validator = [
 tabulate = [
     {file = "tabulate-0.7.7-py2.py3-none-any.whl", hash = "sha256:1f07f6252b20cdc4ed744b598b5fa8362638988b50a62f3e2ad76c97fc02eef2"},
     {file = "tabulate-0.7.7.tar.gz", hash = "sha256:83a0b8e17c09f012090a50e1e97ae897300a72b35e0c86c0b53d3bd2ae86d8c6"},
+]
+termcolor = [
+    {file = "termcolor-1.1.0.tar.gz", hash = "sha256:1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"},
 ]
 terminado = [
     {file = "terminado-0.10.0-py3-none-any.whl", hash = "sha256:048ce7b271ad1f94c48130844af1de163e54913b919f8c268c89b36a6d468d7c"},
