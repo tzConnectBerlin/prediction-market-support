@@ -88,7 +88,7 @@ def ask_question(
         'yesAnswer': answer,
     }
     try:
-        auction_end_date = dateparser.parse(auction_end_date)
+        auction_end_date = dateparser.parse(auction_end_date).timestamp()
     except:
         print("something is wrong with the chosen date format")
         exit()

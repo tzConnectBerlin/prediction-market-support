@@ -43,9 +43,9 @@ class Market:
             quantity: int,
             rate: int,
             ipfs_hash: str,
-            auction_end_date: float = 5.0,
+            auction_end_date: datetime,
             market_id: int = None,
-            stablecoin_contract: str = None
+            token_contract: str = None
     ):
         """
         Create a new prediction market
@@ -56,7 +56,7 @@ class Market:
         quantity: integer representing the quantity of stable coin generated
         rate: rate
         """
-        if stablecoin_contract is None:
+        if token_contract is None:
             token_contract = self.config['stablecoin']
         if market_id is None:
             market_id = random.randint(10, 2**63)
@@ -71,7 +71,7 @@ class Market:
                 }
             }
         operation = self.pm_contracts(user).marketCreate({
-            'auction_period_end': int(auction_end_date.timestamp()),
+            'auction_period_end': int(auction_end_date),
             'bet': {
                 'quantity': quantity,
                 'predicted_probability': rate

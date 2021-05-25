@@ -6,9 +6,19 @@ from loguru import logger
 from src.utils import submit_transaction, print_error
 
 
-def test_create_market_correct_bet_success_fa12(market, questions_storage, liquidity_storage):
+def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
     quantity = 1000
-    market_id, transaction = market.ask_question("when", "tomorrow", "donald", 1000, 2**32)
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        "donald",
+        1000,
+        2**32,
+        "dededede",
+        auction_end_date="in 5 minute",
+        market_id=None,
+        token_contract=stablecoin_id
+    )
     submit_transaction(transaction, error_func=print_error)
     sleep(1)
     storage = questions_storage[market_id]()
