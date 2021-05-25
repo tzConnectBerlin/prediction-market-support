@@ -43,7 +43,7 @@ class Market:
             quantity: int,
             rate: int,
             ipfs_hash: str,
-            auction_end_date: datetime,
+            auction_end_date: datetime = datetime.now() + timedelta(minutes=5),
             market_id: int = None,
             token_contract: str = None
     ):

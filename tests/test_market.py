@@ -35,6 +35,7 @@ def rand(mul=100):
     return random.randint(1, 99) * mul
 
 
+"""
 @pytest.mark.parametrize("account,data", test_data)
 def test_ask_question(account, market, data, questions_storage, stablecoin_id):
     market_id, transaction = market.ask_question(data[0], data[1], data[2], data[3], data[4], data[5])
@@ -52,7 +53,6 @@ def test_ask_question(account, market, data, questions_storage, stablecoin_id):
     assert state['quantity'] == data[3]
     sleep(2)
 
-"""
 @pytest.mark.parametrize("account", accounts)
 def test_bid_auction(account, market, liquidity_storage):
     auction = get_random_market('created')

@@ -92,6 +92,7 @@ def ask_question(
     except:
         print("something is wrong with the chosen date format")
         exit()
+    print(auction_end_date)
     if ipfs_hash is None:
         ipfs = ipfshttpclient.connect(state['config']['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
