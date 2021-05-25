@@ -5,7 +5,8 @@ from loguru import logger
 
 from src.utils import submit_transaction, print_error
 
-def test_create_market_correct_bet_success(market, questions_storage, liquidity_storage):
+
+def test_create_market_correct_bet_success_fa12(market, questions_storage, liquidity_storage):
     quantity = 1000
     market_id, transaction = market.ask_question("when", "tomorrow", "donald", 1000, 2**32)
     submit_transaction(transaction, error_func=print_error)
@@ -23,5 +24,7 @@ def test_create_market_correct_bet_success(market, questions_storage, liquidity_
     assert state['auctionRunning']['uniswap_contribution'] == (2**32 * quantity)
     assert liquidity['bet']['quantity'] == quantity
     assert int(liquidity['bet']['predicted_probability']) == int(2**32)
+
+#test_create_market_correct_bet_success_fa2
 
 
