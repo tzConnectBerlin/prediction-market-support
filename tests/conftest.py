@@ -194,7 +194,7 @@ def gen_markets(revealed_accounts, config, market):
 
 @pytest.fixture(scope="session")
 def gen_bid_markets(gen_markets, market):
-    for i in range(4):
+    for i in range(1):
         for ma in gen_markets:
             ma['status'] = 'bidded'
             bulk_transactions = market.multiple_bids(
@@ -207,7 +207,7 @@ def gen_bid_markets(gen_markets, market):
     return gen_markets
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_cleared_markets(config, market, gen_bid_markets):
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []

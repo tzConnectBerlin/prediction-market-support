@@ -333,3 +333,5 @@ class Market:
             }
         })
         return operation.as_transaction()
+
+    #### get storage function market_id an user name returns the full storage
