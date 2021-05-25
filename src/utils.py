@@ -76,7 +76,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
         transaction_.shell.wait_next_block(max_iterations=10)
         return res
     except RpcError as r:
-        print(str(r))
+        #print(str(r))
         err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
@@ -116,7 +116,7 @@ def get_tokens_ledgermap(client, contract_id):
     contract = client.contract(contract_id)
     return contract.storage['business_storage']['tokens']['ledger_map']
 
-
+####Modify the functions to take parameters
 def get_tokens_supplymap(client, contract_id):
     """
     Return storage for tokens

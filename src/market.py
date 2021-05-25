@@ -63,10 +63,11 @@ class Market:
             'yesAnswer': answer,
         }
         token_contract = self.config['stablecoin']
-        ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
+        #ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
         market_id = random.randint(10, 2**63)
-        ipfs_hash = ipfs.add_str(json.dumps(param))
-        #ipfs_hash = "dededde"
+        #ipfs_hash = ipfs.add_str(json.dumps(param))
+        #Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
+        ipfs_hash = "dededde"
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -102,7 +103,7 @@ class Market:
         """
         Launch a bid on an auction
 
-        ipfs_hash: the contract concerned by the bid
+        market_id: the market concerned by the bid
         user: string representing the user which is bidding during the auction
         quantity: Integer representing quantity of stable coins bid during the auction
         rate: What is rate?
@@ -193,8 +194,7 @@ class Market:
             user: str
     ):
         """
-        Swap one outcome token through the liquidity pool for its opposing pair
-        as a fixed input swap operation
+        Take an alllocation and withdraw the tokens attributed to you
 
         """
         operation = self.pm_contracts(user).withdrawAuction(
@@ -237,7 +237,7 @@ class Market:
         user: user whose token are bought
         """
         operation = self.pm_contracts(user).marketEnterExit({
-            'direction': 'payOut',
+            'direction': 'payIn',
                 'params': {
                     'market_id': market_id,
                     'amount': amount
@@ -260,7 +260,7 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts(user).marketEnterExit({
-                'direction': 'payIn',
+                'direction': 'payOut',
                 'params': {
                     'market_id': market_id,
                     'amount': amount
@@ -278,7 +278,7 @@ class Market:
         Claim winnings
 
         question: Concerned question
-        user: user buying the tokens
+        user: user owning the winning tokens
         """
         operation = self.pm_contracts(user).claimWinnings(
             market_id

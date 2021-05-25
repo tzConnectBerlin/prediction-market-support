@@ -17,9 +17,8 @@ from src.stablecoin import Stablecoin
 from src.utils import *
 
 
-MULTIPLIER = 10 ** 6
-
-used_markets = []
+market_pool = []
+accounts_pool = []
 
 
 def mock_get_tezos_client_path():
@@ -36,18 +35,18 @@ def mock_functions(monkeypatch):
 
 
 @pytest.fixture(scope="session")
-def accounts(config):
-    accounts = [
-        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
-        {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx"},
-        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"},
-        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u"},
-        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"},
-        {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4"},
-        {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet"},
-        {"name": "patoch", "key": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB"}
+def test_accounts(config):
+    accounts_pool = [
+        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"},
+        {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx", "status": "created"},
+        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"},
+        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"},
+        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR", "status": "created"},
+        {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4", "status": "created"},
+        {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet", "status": "created"},
+        {"name": "patoch", "key": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB", "status": "created"}
     ]
-    return accounts
+    return accounts_pool
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -120,10 +119,10 @@ def supply_storage(client, config):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
+def finance_accounts(client, test_accounts, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
-    for account in accounts:
+    for account in test_accounts:
         money_seed = client.transaction(
             account['key'], amount=Decimal(10)
         )
@@ -133,41 +132,35 @@ def finance_accounts(client, accounts, config: Config, stablecoin_id: str):
         stablecoin_seed = stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],
-            'value': 2 ** 32
+            'value': 2 ** 42
         })
         stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
     bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
     submit_transaction(bulk_transactions, error_func=print_error)
     sleep(3)
-    return accounts
+    return test_accounts
 
 
 @pytest.fixture(scope="session", autouse=True)
-def revealed_accounts(config):
-    accounts = Accounts(config["endpoint"])
-    accounts_to_reveal = [
-        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2"},
-        {"name": "clara", "key": "tz1VA8Y5qDr2yR5kVLhhWd9mkGB1kx7qBrPx"},
-        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3"},
-        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u"},
-        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR"}
-    ]
+def revealed_accounts(test_accounts, config):
+    accounts_obj = Accounts(config["endpoint"])
+    accounts_to_reveal = random.choices(test_accounts, k=4)
     for account in accounts_to_reveal:
-        accounts.import_from_file(f"tests/users/{account['name']}.json", account['name'])
-        accounts.activate_account(account['name'])
-        accounts.reveal_account(account['name'])
+        accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
+        accounts_obj.activate_account(account['name'])
+        accounts_obj.reveal_account(account['name'])
+        account["status"] = "revealed"
     return accounts_to_reveal
 
 
 @pytest.fixture(scope="session")
 def gen_markets(revealed_accounts, config, market):
-    g_markets = []
     transactions = []
     reserved = []
     print("generating markets")
-    for i in range(2):
-        for index in range(30):
+    for i in range(3):
+        for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
             end = random.uniform(0.2, 0.5)
@@ -183,24 +176,27 @@ def gen_markets(revealed_accounts, config, market):
             if market_id not in reserved:
                 reserved.append(market_id)
                 transactions.append(transaction)
-                g_markets.append({
+                market_pool.append({
                     'id': int(market_id),
                     'caller_name': name,
-                    'end': end
+                    'end': end,
+                    'status': 'created'
                 })
         bulk_transactions = config["admin_account"].bulk(*transactions)
         submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
         transactions.clear()
     logger.debug(f'reserved size is {len(reserved)}')
+    logger.debug(f'reserved size is {market_pool}')
     print("markets generated")
-    return g_markets
+    return market_pool
 
 
 @pytest.fixture(scope="session")
 def gen_bid_markets(gen_markets, market):
-    for i in range(5):
+    for i in range(4):
         for ma in gen_markets:
+            ma['status'] = 'bidded'
             bulk_transactions = market.multiple_bids(
                 ma['id'],
                 random.randint(2, 2 ** 8),
@@ -211,28 +207,28 @@ def gen_bid_markets(gen_markets, market):
     return gen_markets
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_fixture_setup(fixturedef, request):
-    start = time()
-    yield
-    total = time() - start
-    logger.error(total)
-
-
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_cleared_markets(config, market, gen_bid_markets):
-    selection = random.sample(gen_bid_markets, k=30)
-    transactions = []
-    ids = []
+    selection = random.sample(gen_bid_markets, k=40)
+    cleared = []
     logger.debug("in function gen cleared markets")
     for ma in selection:
-        ids.append(ma['id'])
         transaction = market.auction_clear(ma['id'], ma['caller_name'])
-        transactions.append(transaction)
-    bulk_transactions = config["admin_account"].bulk(*transactions)
-    submit_transaction(bulk_transactions, error_func=print_error)
+        try:
+            submit_transaction(transaction, error_func=raise_error)
+            ma['status'] = 'cleared'
+            cleared.append(ma)
+        except:
+            continue
     sleep(2)
-    return selection
+    print(len(cleared))
+    return cleared
+
+
+def get_random_market(status='created'):
+    pool = [x for x in market_pool if status == x['status']]
+    logger.error(pool)
+    return random.choice(pool)
 
 
 def pytest_configure():
@@ -241,8 +237,8 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
-    sleep(20)
+    #launch_sandbox()
+    #sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -264,4 +260,14 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    #stop_sandbox()
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_fixture_setup(fixturedef, request):
+    start = time()
+    yield
+    total = time() - start
+    logger.error(total)
+
+
