@@ -90,6 +90,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
                 return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
         if error_func is not None:
             error_func(err_message)
+        raise
 
 
 def get_tezos_client_path():

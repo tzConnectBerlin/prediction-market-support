@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 from time import sleep
 
 import pytest
+from pytezos.rpc.node import RpcError
 from loguru import logger
 
-from src.utils import submit_transaction, print_error
+from src.utils import submit_transaction, print_error, raise_error
 
 
 def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
@@ -14,7 +15,7 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
         "when",
         "tomorrow",
         "donald",
-        1000,
+        quantity,
         2**32,
         "dededede",
         auction_end_date=end.timestamp(),
@@ -39,4 +40,40 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
 
 #test_create_market_correct_bet_success_fa2
 
+
+def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
+    quantity = 1000
+    end = datetime.now() + timedelta(minutes=5)
+    _market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        "donald",
+        1000,
+        2**32,
+        "dededede",
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract="KT1VKHPi2rWsRGPpZ6WpNxrKGtGA1LRcgFAp"
+    )
+    with pytest.raises(RpcError):
+        submit_transaction(transaction, error_func=raise_error)
+
+
+
+@pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 0]])
+def test_create_market_incorrect_bet(stablecoin_id, market, questions_storage, liquidity_storage, quantity, rate):
+    end = datetime.now() + timedelta(minutes=5)
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        "donald",
+        quantity,
+        rate,
+        "dededede",
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=stablecoin_id
+    )
+    #with pytest.raises(RpcError):
+    submit_transaction(transaction, error_func=raise_error)
 
