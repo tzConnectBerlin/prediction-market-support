@@ -20,6 +20,8 @@ from src.utils import *
 market_pool = []
 accounts_pool = []
 
+logger.add(sys.stdout, colorize=True)
+logger.add("tests/test.log", enqueue=True)
 
 def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
@@ -126,14 +128,15 @@ def finance_accounts(client, test_accounts, config: Config, stablecoin_id: str):
         money_seed = client.transaction(
             account['key'], amount=Decimal(10)
         )
+        account['status'] += ',tezzed'
         money_seeding.append(money_seed)
-
         stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
         stablecoin_seed = stablecoin.transfer({
             'from': get_public_key(config['admin_account']),
             'to': account['key'],
             'value': 2 ** 42
         })
+        account['status'] += ',financed'
         stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
     bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
@@ -226,10 +229,11 @@ def gen_cleared_markets(config, market, gen_bid_markets):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def log_contract_state():
-    logger.debug("start of the test")
-    yield
-    logger.debug("end of the test")
+def log_contract_state(contract_id):
+    logger.debug("___________________")
+    #f"{caller_tez_balance} {stablecoin_balance}"
+    yield logger
+    logger.debug("___________________")
 
 
 def get_random_market(status='created'):

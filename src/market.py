@@ -5,13 +5,11 @@ import json
 import random
 from datetime import datetime, timedelta
 
-import ipfshttpclient
-import pytz
+from loguru import logger
 
 from src.accounts import Accounts
 from src.config import Config
-from src.summary import get_questions
-from src.utils import get_public_key, get_stablecoin, print_error, submit_transaction
+from src.utils import get_public_key, get_stablecoin, get_tokens_id_list, print_error, submit_transaction
 
 
 class Market:
@@ -43,7 +41,7 @@ class Market:
             quantity: int,
             rate: int,
             ipfs_hash: str,
-            auction_end_date: datetime = datetime.now() + timedelta(minutes=5),
+            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)),
             market_id: int = None,
             token_contract: str = None
     ):
@@ -170,10 +168,10 @@ class Market:
         operations_list = []
         for user in self.accounts.names():
             data = {
-            'market_id': market_id,
-            'bet': {
-                'quantity': quantity,
-                'predicted_probability': rate
+                'market_id': market_id,
+                'bet': {
+                    'quantity': quantity,
+                    'predicted_probability': rate
                 }
             }
             operation = self.pm_contracts(user).auctionBet(data)
@@ -231,11 +229,11 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payIn',
-                'params': {
-                    'market_id': market_id,
-                    'amount': amount
-                }
+            'params': {
+                'market_id': market_id,
+                'amount': amount
             }
+        }
         )
         return operation.as_transaction()
 
@@ -253,12 +251,12 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts(user).marketEnterExit({
-                'direction': 'payOut',
-                'params': {
-                    'market_id': market_id,
-                    'amount': amount
-                }
+            'direction': 'payOut',
+            'params': {
+                'market_id': market_id,
+                'amount': amount
             }
+        }
         )
         return operation.as_transaction()
 
@@ -327,54 +325,56 @@ class Market:
         })
         return operation.as_transaction()
 
-    #### get storage function market_id an user name returns the full storage
-    def get_storage(self, 
-                    market_id: int, 
-                    user: str, 
-                    originator: str,
-                    owner: str,
-                    token_identifier: int
-                    ) :
+    def get_storage(
+            self,
+            market_id: int,
+            user: str,
+    ):
+        tokens = get_tokens_id_list(market_id)
         market_map = self.get_market_map_storage(market_id, user)
-        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user, originator)
-        ledger_map = self.get_ledger_map_storage(user, owner, market_id)
-        supply_map = self.get_supply_map_storage(user, token_identifier)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
+        ledger_map = self.get_ledger_map_storage(user, tokens)
+        supply_map = self.get_supply_map_storage(user, tokens)
         return {
             'market_map': market_map,
-            'liquidity_provider_map' : liquidity_provider_map,
+            'liquidity_provider_map': liquidity_provider_map,
             'ledger_map': ledger_map,
             'supply_map': supply_map
         }
-    
+
     def get_market_map_storage(self, market_id: int, user: str):
         market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
         return market_map
-    
-    def get_liquidity_provider_map_storage(self, market_id: int, user: str, originator: str) :
+
+    def get_liquidity_provider_map_storage(self, market_id: int, user: str) :
         map_key = {
-            'originator': originator, 
+            'originator': get_public_key(self.accounts[user]),
             'market_id': market_id
-            }
-        liquidity_provider_map = self.pm_contracts(user).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+        }
+        liquidity_provider_map =\
+            self.pm_contracts(user).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
         return liquidity_provider_map
-    
-    def get_ledger_map_storage(self, user: str, owner: str, market_id: int):
-        token_list = [
-            market_id << 3,
-            (market_id << 3) + 1,
-            (market_id << 3) + 2,
-            (market_id << 3) + 3,
-            (market_id << 3) + 4
-            ]
+
+    def get_ledger_map_storage(self, user: str, tokens: list):
         ledger_map_dic = {}
-        for token in token_list:
-            map_key = {"owner": owner, "token_id": token}
-            ledger_map_dic[token] = self.pm_contracts(user).storage['business_storage']['ledger_map'][map_key]()
+        user_address = get_public_key(self.accounts[user])
+        logger.error(user)
+        for token in tokens:
+            map_key = {"owner": user_address, "token_id": token}
+            entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+            if (isinstance(token, int)):
+                logger.info('ok')
+            logger.debug(type(map_key))
+            logger.debug(map_key)
+            logger.debug(entry)
+            if map_key in entry:
+                ledger_map_dic[token] = entry[map_key]()
         return ledger_map_dic
- 
-    def get_supply_map_storage(self, user: str, token_identifier: int):
-        supply_map = self.pm_contracts(user).storage['business_storage']['supply_map'][token_identifier]()
+
+    def get_supply_map_storage(self, user: str, tokens: list):
+        supply_map = {}
+        for token in tokens:
+            entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
+            if token in entry:
+                supply_map[token] = entry[token]()
         return supply_map
-    
-    
-                

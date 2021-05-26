@@ -8,10 +8,15 @@ from loguru import logger
 
 from src.utils import submit_transaction, print_error, raise_error
 
-logger.add(sys.stdout, colorize=True)
-logger.add("tests/test.log", enqueue=True)
 
-def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
+def log_and_submit(transaction, logger, account, market, entrypoint, params, market_id):
+    logger.debug(f"{market_id} {account['address']} {entrypoint} {params}")
+    result = submit_transaction(transaction, error_func=print_error)
+    logger.debug(f"{market.get_storage(account['name'], market_id)}")
+    logger.debug(result)
+
+
+def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage, logger):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     market_id, transaction = market.ask_question(
@@ -25,7 +30,15 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
         market_id=None,
         token_contract=stablecoin_id
     )
-    submit_transaction(transaction, error_func=print_error)
+    log_and_submit(
+        transaction,
+        logger,
+        {'name': 'donald', 'key': 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'},
+        market,
+        "create_market",
+        {},
+        market_id
+    )
     sleep(1)
     storage = questions_storage[market_id]()
     metadata = storage['metadata']
@@ -76,6 +89,7 @@ def test_create_market_incorrect_bet(stablecoin_id, market, questions_storage, l
         market_id=None,
         token_contract=stablecoin_id
     )
-    #with pytest.raises(RpcError):
-    logger.debug(f'{quantity} {rate}')
-    submit_transaction(transaction, error_func=raise_error)
+    with pytest.raises(RpcError):
+        logger.debug(f'{quantity} {rate}')
+        submit_transaction(transaction, error_func=raise_error)
+

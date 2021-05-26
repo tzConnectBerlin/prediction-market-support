@@ -105,7 +105,6 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
     :param shell: where to deploy the contract
     :return:
     """
-    logger.debug(wrkdir)
     contract = compile_contract(file, wrkdir)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
@@ -164,7 +163,6 @@ def deploy_market(key=admin['sk'], shell=shell):
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = '/tmp'
-    logger.debug(path)
     market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
     lazy_contracts_path = config['contract_path'] + '/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id)

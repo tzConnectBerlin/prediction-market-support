@@ -455,16 +455,7 @@ def stablecoin_balance(
     Get balance for user
     """
     check_account_loaded(user)
-    user_address = get_public_key(state['accounts'][user])
-    balance = int(
-        get_stablecoin(state['config']['admin_account'],
-        state['config']['contract']).getBalance(
-            {'owner': user_address, 'contract_1': None}
-        ).view()
-    )
-    balance /= MULTIPLIER
-    print("balances:")
-    print(f"{user}: {balance}")
+
 
 
 @app.callback()
