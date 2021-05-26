@@ -148,8 +148,8 @@ def revealed_accounts(test_accounts, config):
     accounts_to_reveal = random.choices(test_accounts, k=4)
     for account in accounts_to_reveal:
         accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
-        accounts_obj.activate_account(account['name'])
-        accounts_obj.reveal_account(account['name'])
+        #accounts_obj.activate_account(account['name'])
+        #accounts_obj.reveal_account(account['name'])
         account["status"] = "revealed"
     return accounts_to_reveal
 
@@ -223,6 +223,13 @@ def gen_cleared_markets(config, market, gen_bid_markets):
     sleep(2)
     print(len(cleared))
     return cleared
+
+
+@pytest.fixture(scope="function", autouse=True)
+def log_contract_state():
+    logger.debug("start of the test")
+    yield
+    logger.debug("end of the test")
 
 
 def get_random_market(status='created'):

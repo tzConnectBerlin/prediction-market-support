@@ -11,8 +11,6 @@ from src.utils import submit_transaction, print_error
 
 from time import sleep
 
-WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
-
 config = Config()
 
 admin = {
@@ -22,7 +20,7 @@ admin = {
 }
 
 USDtzLeger = {
-        'path': config['stablecoin_path'],
+        'path': config['stablecoin_path'] + '/FA12Permissive.ligo',
         'storage': {
             'totalSupply': 0,
             'ledger': {
@@ -35,7 +33,7 @@ USDtzLeger = {
 }
 
 binary_contract = {
-    'path': config['contract_path'],
+    'path': config['contract_path'] + 'container/main.mligo.m4',
     'storage': {
         'lambda_repository':
             {
@@ -48,7 +46,7 @@ binary_contract = {
     }
 }
 
-helper_directory = '/Users/viktortornegren/Projects/tezos/prediction-market-contracts-lazy/m4_helpers'
+helper_directory = config['contract_path'] + 'm4_helpers'
 
 shell = 'http://localhost:20000'
 
@@ -118,7 +116,7 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
 
 
 def deploy_stablecoin(key=admin['sk'], shell=shell):
-    wrkdir = '/Users/viktortornegren/Projects/tezos/Projects/tezos/prediction-market-contracts/src/contracts'
+    wrkdir = config['stablecoin_path']
     stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'], shell)
     if stablecoin_id is None:
         raise Exception("deploiement failed")
@@ -156,7 +154,7 @@ def deploy_market(key=admin['sk'], shell=shell):
     """
     print("deploying binary market")
     content = preprocess_file(binary_contract['path'], helper_directory)
-    path = "./compiled_contracts"
+    path = "/tmp/compiled_contracts"
     try:
         os.mkdir(path)
     except OSError:
@@ -165,9 +163,10 @@ def deploy_market(key=admin['sk'], shell=shell):
         print("Successfully created the directory %s " % path)
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
-    wrkdir = '/Users/viktortornegren/Projects/tezos/prediction-market-support/'
+    wrkdir = '/tmp'
+    logger.debug(path)
     market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
-    lazy_contracts_path = '/Users/viktortornegren/Projects/tezos/prediction-market-contracts-lazy/lazy/lazy_lambdas'
+    lazy_contracts_path = config['contract_path'] + '/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id)
     print(f"Binary market was deployed at {market_id}")
     return market_id
