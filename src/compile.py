@@ -41,9 +41,7 @@ def compile_contract(file, wrkdir=""):
     :return:
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
-    logger.debug(compile_command)
     result = run_command(compile_command)
-    logger.debug(result)
     return result
 
 

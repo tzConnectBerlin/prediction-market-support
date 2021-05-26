@@ -74,12 +74,13 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     """
     try:
         source = transaction.key.public_key_hash()
-        transaction_ = transaction.autofill(ttl=56)
+        print(count)
+        transaction_ = transaction.autofill(ttl=56, counter=count)
+        print(transaction_)
         res = transaction_.sign().inject()
         transaction_.shell.wait_next_block(max_iterations=10)
         return res
     except RpcError as r:
-        #print(str(r))
         err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1

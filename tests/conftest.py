@@ -3,6 +3,7 @@ import os
 import pytest
 import random
 from time import sleep, time
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from loguru import logger
@@ -158,15 +159,16 @@ def revealed_accounts(test_accounts, config):
 
 
 @pytest.fixture(scope="session")
-def gen_markets(revealed_accounts, config, market):
+def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
     reserved = []
     print("generating markets")
-    for i in range(3):
+    for i in range(2):
         for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
-            end = random.uniform(0.2, 0.5)
+            end_delay = random.uniform(0.2, 0.5)
+            end = datetime.now() + timedelta(end_delay)
             name = random.choice(revealed_accounts)['name']
             market_id, transaction = market.ask_question(
                 id_generator(),
@@ -174,7 +176,9 @@ def gen_markets(revealed_accounts, config, market):
                 name,
                 quantity,
                 rate,
-                end
+                "dededededede",
+                auction_end_date=end.timestamp(),
+                token_contract=stablecoin_id
             )
             if market_id not in reserved:
                 reserved.append(market_id)
@@ -197,8 +201,9 @@ def gen_markets(revealed_accounts, config, market):
 
 @pytest.fixture(scope="session")
 def gen_bid_markets(gen_markets, market):
+    selection = random.sample(gen_markets, k=60)
     for i in range(1):
-        for ma in gen_markets:
+        for ma in selection:
             ma['status'] = 'bidded'
             bulk_transactions = market.multiple_bids(
                 ma['id'],
@@ -207,11 +212,12 @@ def gen_bid_markets(gen_markets, market):
             )
         submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
-    return gen_markets
+    return selection
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_cleared_markets(config, market, gen_bid_markets):
+    sleep(60)
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
     logger.debug("in function gen cleared markets")
@@ -221,10 +227,11 @@ def gen_cleared_markets(config, market, gen_bid_markets):
             submit_transaction(transaction, error_func=raise_error)
             ma['status'] = 'cleared'
             cleared.append(ma)
-        except:
+        except Exception as e:
+            logger.debug(e)
             continue
     sleep(2)
-    print(len(cleared))
+    logger.debug(len(cleared))
     return cleared
 
 
