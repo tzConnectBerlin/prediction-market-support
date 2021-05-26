@@ -333,7 +333,6 @@ class Market:
                     user: str, 
                     originator: str,
                     owner: str,
-                    token_id: str,
                     token_identifier: int
                     ) :
         market_map = self.get_market_map_storage(market_id, user)
