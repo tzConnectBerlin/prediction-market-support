@@ -338,8 +338,8 @@ class Market:
                     ) :
         market_map = self.get_market_map_storage(market_id, user)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user, originator)
-        ledger_map = get_ledger_map_storage(user, owner, market_id)
-        supply_map = get_supply_map_storage(user, token_identifier)
+        ledger_map = self.get_ledger_map_storage(user, owner, market_id)
+        supply_map = self.get_supply_map_storage(user, token_identifier)
         return {
             'market_map': market_map,
             'liquidity_provider_map' : liquidity_provider_map,
