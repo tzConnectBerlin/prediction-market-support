@@ -74,9 +74,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     """
     try:
         source = transaction.key.public_key_hash()
-        print(count)
         transaction_ = transaction.autofill(ttl=56, counter=count)
-        print(transaction_)
         res = transaction_.sign().inject()
         transaction_.shell.wait_next_block(max_iterations=10)
         return res
