@@ -21,8 +21,6 @@ from src.utils import *
 market_pool = []
 accounts_pool = []
 
-logger.add(sys.stdout, colorize=True)
-logger.add("tests/test.log", enqueue=True)
 
 def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
@@ -215,7 +213,7 @@ def gen_bid_markets(gen_markets, market):
     return selection
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_cleared_markets(config, market, gen_bid_markets):
     sleep(60)
     selection = random.sample(gen_bid_markets, k=40)
