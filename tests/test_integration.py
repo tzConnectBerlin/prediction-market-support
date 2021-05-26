@@ -1,3 +1,4 @@
+from src.market import Market
 from time import sleep
 
 import pytest
@@ -25,3 +26,5 @@ def test_create_market_correct_bet_success(market, questions_storage, liquidity_
     assert int(liquidity['bet']['predicted_probability']) == int(2**32)
 
 
+# my_market = Market()
+# my_market.get_storage()
