@@ -42,7 +42,10 @@ class Market:
             user: str,
             quantity: int,
             rate: int,
-            auction_end_date: float = 5.0,
+            ipfs_hash: str,
+            auction_end_date: datetime,
+            market_id: int = None,
+            token_contract: str = None
     ):
         """
         Create a new prediction market
@@ -53,21 +56,11 @@ class Market:
         quantity: integer representing the quantity of stable coin generated
         rate: rate
         """
-        timenow = datetime.now().astimezone(pytz.utc)
-        auction_end_date = timenow + timedelta(minutes=auction_end_date)
-        param = {
-            'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'iconURL':
-                'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-            'question': question,
-            'yesAnswer': answer,
-        }
-        token_contract = self.config['stablecoin']
-        #ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
-        market_id = random.randint(10, 2**63)
-        #ipfs_hash = ipfs.add_str(json.dumps(param))
+        if token_contract is None:
+            token_contract = self.config['stablecoin']
+        if market_id is None:
+            market_id = random.randint(10, 2**63)
         #Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
-        ipfs_hash = "dededde"
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -78,7 +71,7 @@ class Market:
                 }
             }
         operation = self.pm_contracts(user).marketCreate({
-            'auction_period_end': int(auction_end_date.timestamp()),
+            'auction_period_end': int(auction_end_date),
             'bet': {
                 'quantity': quantity,
                 'predicted_probability': rate
