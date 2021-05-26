@@ -328,3 +328,54 @@ class Market:
         return operation.as_transaction()
 
     #### get storage function market_id an user name returns the full storage
+    def get_storage(self, 
+                    market_id: int, 
+                    user: str, 
+                    originator: str,
+                    owner: str,
+                    token_id: str,
+                    token_identifier: int
+                    ) :
+        market_map = self.get_market_map_storage(market_id, user)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user, originator)
+        ledger_map = get_ledger_map_storage(user, owner, market_id)
+        supply_map = get_supply_map_storage(user, token_identifier)
+        return {
+            'market_map': market_map,
+            'liquidity_provider_map' : liquidity_provider_map,
+            'ledger_map': ledger_map,
+            'supply_map': supply_map
+        }
+    
+    def get_market_map_storage(self, market_id: int, user: str):
+        market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
+        return market_map
+    
+    def get_liquidity_provider_map_storage(self, market_id: int, user: str, originator: str) :
+        map_key = {
+            'originator': originator, 
+            'market_id': market_id
+            }
+        liquidity_provider_map = self.pm_contracts(user).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+        return liquidity_provider_map
+    
+    def get_ledger_map_storage(self, user: str, owner: str, market_id: int):
+        token_list = [
+            market_id << 3,
+            (market_id << 3) + 1,
+            (market_id << 3) + 2,
+            (market_id << 3) + 3,
+            (market_id << 3) + 4
+            ]
+        ledger_map_dic = {}
+        for token in token_list:
+            map_key = {"owner": owner, "token_id": token}
+            ledger_map_dic[token] = self.pm_contracts(user).storage['business_storage']['ledger_map'][map_key]()
+        return ledger_map_dic
+ 
+    def get_supply_map_storage(self, user: str, token_identifier: int):
+        supply_map = self.pm_contracts(user).storage['business_storage']['supply_map'][token_identifier]()
+        return supply_map
+    
+    
+                

@@ -76,4 +76,3 @@ def test_create_market_incorrect_bet(stablecoin_id, market, questions_storage, l
     )
     #with pytest.raises(RpcError):
     submit_transaction(transaction, error_func=raise_error)
-

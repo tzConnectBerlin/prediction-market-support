@@ -3,6 +3,8 @@ import os
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
+from loguru import logger
+
 WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
 
 
@@ -39,7 +41,9 @@ def compile_contract(file, wrkdir=""):
     :return:
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
+    logger.debug(compile_command)
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
