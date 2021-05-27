@@ -178,8 +178,7 @@ def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
 
 
 def log_and_submit(transaction, account, market=None, market_id=None, error_func=raise_error):
-    logger.debug(transaction)
-    entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoints']
+    entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoint']
     params = transaction.json_payload()['contents'][0]['parameters']['value']
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
     if market is not None and market_id is not None:

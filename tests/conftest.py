@@ -22,6 +22,52 @@ market_pool = []
 global accounts_pool
 accounts_pool = []
 
+test_accounts = [
+    {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"},
+    {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"},
+    {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"},
+    {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR", "status": "created"},
+    {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4", "status": "created"},
+    {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet", "status": "created"},
+    {"name": "patoch", "key": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB", "status": "created"},
+    {"name": "marco", "key": "tz1UbdPPEVcyT5tC34yh7LweQ1tTWk8vHVXk", "status": "created"},
+    {"name": "carl", "key": "tz1XvHb5KDrui5S8WJP6txdAG7Qu5WHbfw1Q", "status": "created"},
+    {"name": "siri", "key": "tz1MT1ZfNoDXzWvUj4zJg8cVq7tt7a6QcC58", "status": "created"},
+    {"name": "clara", "key": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "status": "created"},
+    {"name": "lisa", "key": "tz1SVMjM4BcELyhBYhqUVe5PaV2ZgckBd8bG", "status": "created"},
+    {"name": "laura", "key": "tz1P6AVBYU3SAz6o9gCAxpgLG3TsF7mSLTk7", "status": "created"},
+    {"name": "anna", "key": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "status": "created"},
+    {"name": "maria", "key": "tz1NY2EdxiVNyyB5kLAiZCC1UrA6CagM5Zek", "status": "created"},
+    {"name": "penny", "key": "tz1UGtuFY8R3fQp6Exi9Bb6AMppVubunFj2p", "status": "created"},
+    {"name": "amy", "key": "tz1TXa1B9CfMmvWPH7uWX3rsjNcqzLZ6af5U", "status": "created"},
+    {"name": "astrid", "key": "tz1SopWRnn116FzCevsZxL9rzpJq4A6hFWRv", "status": "created"},
+    {"name": "cathalina", "key": "tz1hNY9Fv11hNZBwmjRe4VtTwkeevgW6tGq9", "status": "created"},
+    {"name": "romina", "key": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "status": "created"},
+    {"name": "xenia", "key": "tz1L5nZbXTV46KGVB4gRVNQ4RWxYoq3jLn1R", "status": "created"},
+    {"name": "eva", "key": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "status": "created"},
+    {"name": "alexa", "key": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "status": "created"},
+    {"name": "mia", "key": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "status": "created"},
+    {"name": "robin", "key": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "status": "created"},
+    {"name": "hannah", "key": "tz1hGsWjVurdQMR7U9EC8TYwhgubfioTSf28", "status": "created"},
+    {"name": "emma", "key": "tz1QahWZZHgrREnjThcxKXdmQMuqAWwYWoB9", "status": "created"},
+    {"name": "lily", "key": "tz1bCwYgZcTQwLERvXS9UZghffENphBsEcho", "status": "created"},
+    {"name": "madonna", "key": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "status": "created"},
+    {"name": "nina", "key": "tz1ZJARU2TodXW8cFhYuai3VmLpY1qqkHq9B", "status": "created"},
+    {"name": "robert", "key": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "status": "created"},
+    {"name": "tasos", "key": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "status": "created"},
+    {"name": "sergio", "key": "tz1gK1rZy2Biut8hcJiyEufbtXQ9rkNvToub", "status": "created"},
+    {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"},
+    {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
+]
+
+
+@pytest.fixture(scope="session", autouse=True)
+def contract_id():
+    id = deploy_market()
+    return id
+
+
+@pytest.fixture(scope="session", autouse=True)
 def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
 
@@ -34,60 +80,7 @@ def mock_functions(monkeypatch):
         lambda: os.path.join('tests/users', 'secret_keys')
     )
 
-
-@pytest.fixture(scope="session")
-def test_accounts(config):
-    temp_list = [
-        {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"},
-        {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"},
-        {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"},
-        {"name": "palu", "key": "tz1LQn3AuoxRVwBsb3rVLQ56nRvC3JqNgVxR", "status": "created"},
-        {"name": "rimk", "key": "tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4", "status": "created"},
-        {"name": "tang", "key": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet", "status": "created"},
-        {"name": "patoch", "key": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB", "status": "created"},
-        {"name": "marco", "key": "tz1UbdPPEVcyT5tC34yh7LweQ1tTWk8vHVXk", "status": "created"},
-        {"name": "carl", "key": "tz1XvHb5KDrui5S8WJP6txdAG7Qu5WHbfw1Q", "status": "created"},
-        {"name": "siri", "key": "tz1MT1ZfNoDXzWvUj4zJg8cVq7tt7a6QcC58", "status": "created"},
-        {"name": "clara", "key": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "status": "created"},
-        {"name": "lisa", "key": "tz1SVMjM4BcELyhBYhqUVe5PaV2ZgckBd8bG", "status": "created"},
-        {"name": "laura", "key": "tz1P6AVBYU3SAz6o9gCAxpgLG3TsF7mSLTk7", "status": "created"},
-        {"name": "anna", "key": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "status": "created"},
-        {"name": "maria", "key": "tz1NY2EdxiVNyyB5kLAiZCC1UrA6CagM5Zek", "status": "created"},
-        {"name": "penny", "key": "tz1UGtuFY8R3fQp6Exi9Bb6AMppVubunFj2p", "status": "created"},
-        {"name": "amy", "key": "tz1TXa1B9CfMmvWPH7uWX3rsjNcqzLZ6af5U", "status": "created"},
-        {"name": "astrid", "key": "tz1SopWRnn116FzCevsZxL9rzpJq4A6hFWRv", "status": "created"},
-        {"name": "cathalina", "key": "tz1hNY9Fv11hNZBwmjRe4VtTwkeevgW6tGq9", "status": "created"},
-        {"name": "romina", "key": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "status": "created"},
-        {"name": "xenia", "key": "tz1L5nZbXTV46KGVB4gRVNQ4RWxYoq3jLn1R", "status": "created"},
-        {"name": "eva", "key": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "status": "created"},
-        {"name": "alexa", "key": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "status": "created"},
-        {"name": "mia", "key": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "status": "created"},
-        {"name": "robin", "key": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "status": "created"},
-        {"name": "hannah", "key": "tz1hGsWjVurdQMR7U9EC8TYwhgubfioTSf28", "status": "created"},
-        {"name": "emma", "key": "tz1QahWZZHgrREnjThcxKXdmQMuqAWwYWoB9", "status": "created"},
-        {"name": "lily", "key": "tz1bCwYgZcTQwLERvXS9UZghffENphBsEcho", "status": "created"},
-        {"name": "madonna", "key": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "status": "created"},
-        {"name": "nina", "key": "tz1ZJARU2TodXW8cFhYuai3VmLpY1qqkHq9B", "status": "created"},
-        {"name": "robert", "key": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "status": "created"},
-        {"name": "tasos", "key": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "status": "created"},
-        {"name": "sergio", "key": "tz1gK1rZy2Biut8hcJiyEufbtXQ9rkNvToub", "status": "created"},
-        {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"},
-        {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
-    ]
-    accounts_pool = temp_list
-    logger.debug("TEST ACCOUNTS")
-    logger.debug(accounts_pool)
-    return accounts_pool 
-
-
-
-@pytest.fixture(scope="session", autouse=True)
-def contract_id():
-    id = deploy_market()
-    return id
-
-
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def stablecoin_id():
     id = deploy_stablecoin()
     return id
@@ -149,55 +142,66 @@ def ledger_storage(client, config):
 def supply_storage(client, config):
     return get_tokens_supplymap(client, config['contract'])
 
+
 @pytest.fixture(scope="session", autouse=True)
-def finance_accounts(client, test_accounts, config: Config, stablecoin_id: str):
-    logger.debug("FINACE_ACCOUNTS")
+def finance_accounts(client, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
     accounts_to_finance = random.choices(test_accounts, k=30)
-    for account in accounts_to_finance:
-        money_seed = client.transaction(
-            account['key'], amount=Decimal(10)
-        )
-        account['status'] += ',tezzed'
-        money_seeding.append(money_seed)
-        stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
-        stablecoin_seed = stablecoin.transfer({
-            'from': get_public_key(config['admin_account']),
-            'to': account['key'],
-            'value': 2 ** 42
-        })
-        account['status'] += ',financed'
-        stablecoin_seeding.append(stablecoin_seed.as_transaction())
+    for account in test_accounts:
+        if account in accounts_to_finance:
+            money_seed = client.transaction(
+                account['key'], amount=Decimal(10)
+            )
+            account['status'] += ',tezzed'
+            money_seeding.append(money_seed)
+            stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
+            stablecoin_seed = stablecoin.transfer({
+                'from': get_public_key(config['admin_account']),
+                'to': account['key'],
+                'value': 2 ** 42
+            })
+            account['status'] += ',financed'
+            stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
     bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
     submit_transaction(bulk_transactions, error_func=print_error)
     sleep(3)
-    logger.debug(accounts_to_finance)
     return accounts_to_finance
 
-def get_random_financed_account(status="financed"):
-    selection = [x for x in finance_accounts if status in x['status']]
-    account = random.choice(selection)
-    return account
 
 @pytest.fixture(scope="session", autouse=True)
 def revealed_accounts(finance_accounts, config):
     logger.debug("REVEALED ACCOUNTS")
     accounts_obj = Accounts(config["endpoint"])
     accounts_to_reveal = random.choices(finance_accounts, k=15)
-    for account in accounts_to_reveal:
-        accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
-        # accounts_obj.activate_account(account['name'])
-        # accounts_obj.reveal_account(account['name'])
-        account["status"] += ",revealed"
-    logger.debug(accounts_to_reveal)
+    for account in test_accounts:
+        if account in accounts_to_reveal:
+            accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
+            #accounts_obj.activate_account(account['name'])
+            #accounts_obj.reveal_account(account['name'])
+            account["status"] += ",revealed"
     return accounts_to_reveal
 
-def get_random_revealed_account(status="revealed"):
-    selection = [x for x in revealed_accounts if status in x['status']]
+
+@pytest.fixture(scope="function")
+def get_random_revealed_account(revealed_accounts):
+    account = random.choice(revealed_accounts)
+    return account
+
+
+@pytest.fixture(scope="function")
+def get_random_financed_account(finance_accounts):
+    account = random.choice(finance_accounts)
+    return account
+
+
+@pytest.fixture(scope="function")
+def get_random_non_financed_account():
+    selection = [x for x in test_accounts if 'financed' not in x['status']]
     account = random.choice(selection)
     return account
+
 
 # @pytest.fixture(scope="session", autouse=True)
 def get_one_random_account(revealed_accounts, status="created"):
@@ -251,17 +255,18 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
 
 
 @pytest.fixture(scope="session")
-def gen_bid_markets(gen_markets, market):
+def gen_bid_markets(gen_markets, market, config):
     selection = random.sample(gen_markets, k=60)
     for i in range(1):
         for ma in selection:
             ma['status'] = 'bidded'
-            bulk_transactions = market.multiple_bids(
+            transactions = market.multiple_bids(
                 ma['id'],
                 random.randint(2, 2 ** 8),
                 random.randint(2, 2 ** 63)
             )
-        submit_transaction(*bulk_transactions, error_func=print_error)
+        bulk_transactions = config["admin_account"].bulk(transactions)
+        submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
     return selection
 
@@ -294,9 +299,9 @@ def gen_resolved_market(config, market, gen_cleared_markets):
     for ma in selection:
         transaction = market.close_market(ma['id'], ma['caller_name'], random_boolean)
         try:
-            submit_transaction(transaction, error_func=raise_error()
-            ma['status'] = 'resolved'\
-            resolved.append(ma)\
+            submit_transaction(transaction, error_func=raise_error())
+            ma['status'] = 'resolved'
+            resolved.append(ma)
         except Exception as e:
             logger.debug(e)
             continue
@@ -305,8 +310,7 @@ def gen_resolved_market(config, market, gen_cleared_markets):
     return resolved
 
 
-
-@pytest.fixture(scope="functi    if (market is not None and market_id is not None):on", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def log_contract_state(market):
     logger.debug("___________________")
     #f"{caller_tez_balance} {stablecoin_balance}"
