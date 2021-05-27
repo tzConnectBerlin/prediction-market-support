@@ -7,7 +7,7 @@ from pytezos.rpc.node import RpcError
 from loguru import logger
 
 from src.utils import submit_transaction, print_error, raise_error
-from .conftest import get_random_market
+from .conftest import get_random_market, get_one_random_account
 
 
 """"
@@ -53,12 +53,13 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
 
 
 def test_create_market_non_existent_currency(market):
+    account = get_one_random_account(status="financed")
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     _market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        "donald",
+        account['name'],
         1000,
         2**32,
         "dededede",
@@ -69,7 +70,7 @@ def test_create_market_non_existent_currency(market):
     with pytest.raises(RpcError):
         submit_transaction(transaction, error_func=raise_error)
 
-
+''' 
 @pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2*65]])
 def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate):
     end = datetime.now() + timedelta(minutes=5)
@@ -180,3 +181,4 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets):
     assert state['marketBootstrapped']['resolution'] is None
     #check if the uniswap pool and check the contribution factor for each user
 
+'''

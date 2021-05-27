@@ -11,7 +11,7 @@ from src.utils import submit_transaction, print_error
 
 from time import sleep
 
-config = Config()
+config = Config(config_file="tests/cli.ini")
 
 admin = {
         'pkh': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',

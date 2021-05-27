@@ -19,6 +19,7 @@ from src.utils import *
 
 
 market_pool = []
+global accounts_pool
 accounts_pool = []
 
 def mock_get_tezos_client_path():
@@ -36,7 +37,7 @@ def mock_functions(monkeypatch):
 
 @pytest.fixture(scope="session")
 def test_accounts(config):
-    accounts_pool = [
+    temp_list = [
         {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"},
         {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"},
         {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"},
@@ -73,7 +74,11 @@ def test_accounts(config):
         {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"},
         {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
     ]
-    return accounts_pool
+    accounts_pool = temp_list
+    logger.debug("TEST ACCOUNTS")
+    logger.debug(accounts_pool)
+    return accounts_pool 
+
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -144,12 +149,13 @@ def ledger_storage(client, config):
 def supply_storage(client, config):
     return get_tokens_supplymap(client, config['contract'])
 
-
 @pytest.fixture(scope="session", autouse=True)
 def finance_accounts(client, test_accounts, config: Config, stablecoin_id: str):
+    logger.debug("FINACE_ACCOUNTS")
     money_seeding = []
     stablecoin_seeding = []
-    for account in test_accounts:
+    accounts_to_finance = random.choices(test_accounts, k=30)
+    for account in accounts_to_finance:
         money_seed = client.transaction(
             account['key'], amount=Decimal(10)
         )
@@ -167,19 +173,39 @@ def finance_accounts(client, test_accounts, config: Config, stablecoin_id: str):
     bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
     submit_transaction(bulk_transactions, error_func=print_error)
     sleep(3)
-    return test_accounts
+    logger.debug(accounts_to_finance)
+    return accounts_to_finance
 
+def get_random_financed_account(status="financed"):
+    selection = [x for x in finance_accounts if status in x['status']]
+    account = random.choice(selection)
+    return account
 
 @pytest.fixture(scope="session", autouse=True)
-def revealed_accounts(test_accounts, config):
+def revealed_accounts(finance_accounts, config):
+    logger.debug("REVEALED ACCOUNTS")
     accounts_obj = Accounts(config["endpoint"])
-    accounts_to_reveal = random.choices(test_accounts, k=4)
+    accounts_to_reveal = random.choices(finance_accounts, k=15)
     for account in accounts_to_reveal:
         accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
-        #accounts_obj.activate_account(account['name'])
-        #accounts_obj.reveal_account(account['name'])
-        account["status"] = "revealed"
+        # accounts_obj.activate_account(account['name'])
+        # accounts_obj.reveal_account(account['name'])
+        account["status"] += ",revealed"
+    logger.debug(accounts_to_reveal)
     return accounts_to_reveal
+
+def get_random_revealed_account(status="revealed"):
+    selection = [x for x in revealed_accounts if status in x['status']]
+    account = random.choice(selection)
+    return account
+
+# @pytest.fixture(scope="session", autouse=True)
+def get_one_random_account(revealed_accounts, status="created"):
+    logger.debug("RANDOM ACCOUNT")
+    selection = [x for x in revealed_accounts if status in x['status']]
+    logger.debug(revealed_accounts)
+    account = random.choice(selection)
+    return account
 
 
 @pytest.fixture(scope="session")
