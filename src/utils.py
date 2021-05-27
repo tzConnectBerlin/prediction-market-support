@@ -161,6 +161,7 @@ def get_stablecoin_balance(username, user_address, config):
     print(f"balance_user: {username}: {balance}")
 """
 
+
 def get_tokens_id_list(market_id: int):
     token_list = [
         market_id << 3,
@@ -175,9 +176,15 @@ def get_tokens_id_list(market_id: int):
 def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-#refactorize this
-def log_and_submit(transaction, account, market, entrypoint, params, market_id):
+
+def log_and_submit(transaction, account, market=None, market_id=None, error_func=raise_error):
+    logger.debug(transaction)
+    entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoints']
+    params = transaction.json_payload()['contents'][0]['parameters']['value']
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
-    result = submit_transaction(transaction, error_func=print_error)
-    logger.debug(f"{market.get_storage(market_id, account['name'])}")
+    if market is not None and market_id is not None:
+        logger.debug(f"{market.get_storage(market_id, account['name'])}")
+    result = submit_transaction(transaction, error_func=error_func)
+    if market is not None and market_id is not None:
+        logger.debug(f"{market.get_storage(market_id, account['name'])}")
     logger.debug(result)
