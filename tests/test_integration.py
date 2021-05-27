@@ -6,17 +6,22 @@ import pytest
 from pytezos.rpc.node import RpcError
 from loguru import logger
 
-from src.utils import submit_transaction, print_error, raise_error
+from src.utils import submit_transaction, print_error, log_and_submit, raise_error
 from .conftest import get_random_market, get_one_random_account
 
-"""
-def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
+
+def test_create_market_correct_bet_success_fa12(
+        stablecoin_id,
+        market,
+        questions_storage,
+        liquidity_storage,
+        get_random_revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        "donald",
+        get_random_revealed_account["name"],
         quantity,
         2**32,
         "dededede",
@@ -47,16 +52,14 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
 
 #test_create_market_correct_bet_success_fa2
 
-"""
 
-def test_create_market_non_existent_currency(market, get_random_revealed_account):
-    account = get_random_revealed_account
+def test_create_market_non_existent_currency(market, random_revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     _market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        account['name'],
+        random_revealed_account['name'],
         quantity,
         2**32,
         "dededede",
@@ -67,14 +70,13 @@ def test_create_market_non_existent_currency(market, get_random_revealed_account
     with pytest.raises(RpcError):
         submit_transaction(transaction, error_func=raise_error)
 
-"""
 @pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2*65]])
-def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate):
+def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate, random_revealed_account):
     end = datetime.now() + timedelta(minutes=5)
     market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        "donald",
+        random_revealed_account['name'],
         quantity,
         rate,
         "dededede",
@@ -89,14 +91,14 @@ def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate):
 
 #test_create_market_currency_balance_FA12
 
-def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets):
+def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets, random_revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     market_id = get_random_market()
     _market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        "donald",
+        random_revealed_account['name'],
         quantity,
         2**32,
         "dededede",
@@ -108,26 +110,26 @@ def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets
         submit_transaction(transaction, error_func=raise_error)
 
 
-def test_auction_bet_new_address_correct_bet(market, liquidity_storage, gen_markets):
+def test_auction_bet_new_address_correct_bet(market, liquidity_storage, gen_markets, random_revealed_account):
     auction = get_random_market("created")
     quantity = 1000
     rate = 2**32
-    operation = market.bid_auction(auction['id'], "mala", quantity, rate)
+    operation = market.bid_auction(auction['id'], random_revealed_account['name'], quantity, rate)
     submit_transaction(operation, error_func=raise_error)
-    storage = market.get_storage(auction['id'], "mala")
+    storage = market.get_storage(auction['id'], random_revealed_account['name'])
     bet = storage['liquidity_provider_map']["bet"]
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
     #uniswap contribution and yes_preference to check
 
 
-def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets):
+def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets, random_revealed_account):
     auction = get_random_market("bidded")
     quantity = 1000
     rate = 2**32
-    operation = market.bid_auction(auction['id'], "mala", quantity, rate)
+    operation = market.bid_auction(auction['id'], random_revealed_account["name"], quantity, rate)
     submit_transaction(operation, error_func=raise_error)
-    storage = market.get_storage(auction['id'], "mala")
+    storage = market.get_storage(auction['id'], random_revealed_account['name'])
     bet = storage['liquidity_provider_map']["bet"]
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
@@ -140,11 +142,11 @@ def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets):
         [1000, 2**32, 'cleared']
     ]
 )
-def test_auction_bet_existing_address_incorrect_bet(market, quantity, rate, status, gen_cleared_markets):
+def test_auction_bet_existing_address_incorrect_bet(market, quantity, rate, status, gen_cleared_markets, random_revealed_account):
     auction = get_random_market(status)
-    operation = market.bid_auction(auction['id'], "mala", quantity, rate)
+    operation = market.bid_auction(auction['id'], random_revealed_account['name'], quantity, rate)
     submit_transaction(operation, error_func=raise_error)
-    storage = market.get_storage(auction['id'], "mala")
+    storage = market.get_storage(auction['id'], random_revealed_account['name'])
     bet = storage['liquidity_provider_map']["bet"]
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
@@ -154,21 +156,21 @@ def test_auction_bet_existing_address_incorrect_bet(market, quantity, rate, stat
 #test_auction_bet_currency_balance_FA12
 
 
-def test_auction_bet_non_existent_market_id(market):
-    operation = market.bid_auction(1, "mala", 1000, 2*32)
+def test_auction_bet_non_existent_market_id(market, random_revealed_account):
+    operation = market.bid_auction(1, random_revealed_account['name'], 1000, 2*32)
     with pytest.raises(RpcError):
         submit_transaction(operation, error_func=raise_error)
-"""
 
-"""
-def test_auction_bet_existing_address_incorrect_bet(market, gen_bid_markets):
+
+def test_auction_bet_existing_address_incorrect_bet(market, gen_bid_markets, get_random_revealed_account):
     auction = get_random_market("bidded")
-    operation = market.bid_auction(auction['id'], "mala", 1000, 2**32)
+    account = get_random_revealed_account
+    operation = market.bid_auction(auction['id'], account["name"], 1000, 2**32)
     with pytest.raises(RpcError):
         submit_transaction(operation, error_func=raise_error)
 
 
-def test_clear_market_in_auction_phase(market, gen_bid_markets):
+def test_clear_market_in_auction_phase(market, gen_bid_markets, random_revealed_account):
     auction = get_random_market("bidded")
     operation = market.auction_clear(auction['id'], auction['caller_name'])
     submit_transaction(operation, error_func=raise_error)
@@ -180,7 +182,7 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets):
     #check if the uniswap pool and check the contribution factor for each user
 
 
-def test_clear_market_in_auction_phase(market, gen_bid_markets):
+def test_clear_market_in_auction_phase(market, gen_bid_markets, random_revealed_account):
     auction = get_random_market("cleared")
     operation = market.auction_clear(auction['id'], auction['caller_name'])
     storage = market.get_storage(auction['id'], auction['caller_name'])
@@ -190,27 +192,99 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets):
     #check if the uniswap pool and check the contribution factor for each user
 
 
-def test_clear_non_existent_market_id(market, gen_bid_markets):
-    operation = market.auction_clear(1, "mala")
+def test_clear_non_existent_market_id(market, gen_bid_markets, random_revealed_account):
+    operation = market.auction_clear(1, random_revealed_account['name'])
     with pytest.raises(RpcError):
         submit_transaction(operation, error_func=raise_error)
 
 
-def test_mint_token_on_cleated(market, gen_resolved_market):
+def test_mint_token_on_cleared(market, gen_resolved_market, random_revealed_account):
     auction = get_random_market("cleared")
     operation = market.mint(auction['id'], auction['caller_name'])
 
 
-def test_mint_token_in_auction_phase(market, gen_resolved_market):
+def test_mint_token_in_auction_phase(market, gen_resolved_market, random_revealed_account):
     auction = get_random_market("cleared")
     operation = market.mint(auction['id'], auction['caller_name'])
     with pytest.raises(RpcError):
         submit_transaction(operation, error_func=raise_error)
 
 
-def test_mint_resolved_market(market, gen_resolved_market):
+def test_mint_resolved_market(market, gen_resolved_market, random_revealed_account):
     auction = get_random_market("resolved")
     operation = market.mint(auction['id'], auction['caller_name'])
     with pytest.raises(RpcError):
         submit_transaction(operation, error_func=raise_error)
-"""
+
+
+def test_burn_inexistent_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.burn(1, auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_burn_token_on_cleared(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("cleared")
+    operation = market.burn(auction['id'], auction['caller_name'])
+
+
+def test_burn_token_in_auction_phase(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("cleared")
+    operation = market.burn(auction['id'], auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_burn_resolved_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.burn(auction['id'], auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_burn_resolved_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.burn(1, auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_mint_resolved_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.mint(auction['id'], auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_burn_inexistant_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.burn(1, auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_swap_token_token_on_cleared(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("cleared")
+    operation = market.swap_token(auction['id'], auction['caller_name'], "yes", 100)
+
+
+def test_swap_token_token_in_auction_phase(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("cleared")
+    operation = market.swap_token(auction['id'], auction['caller_name'], "yes", 100)
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_swap_token_resolved_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.swap_token(auction['id'], auction['caller_name'], "yes", 100)
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_swap_token_inexistant_market(market, gen_resolved_market, random_revealed_account):
+    auction = get_random_market("resolved")
+    operation = market.swap_token(auction['id'], auction['caller_name'], "yes", 100)
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)

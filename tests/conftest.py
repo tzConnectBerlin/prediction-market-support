@@ -93,18 +93,21 @@ def config(contract_id, stablecoin_id):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def market(config):
-    test_accounts = Accounts(endpoint=config["endpoint"])
-    test_accounts.import_from_folder("tests/users")
-    new_market = Market(test_accounts, config)
+def get_accounts(config):
+    accounts = Accounts(endpoint=config["endpoint"])
+    accounts.import_from_folder("tests/users")
+    return accounts
+
+
+@pytest.fixture(scope="session", autouse=True)
+def market(config, get_accounts):
+    new_market = Market(get_accounts, config)
     return new_market
 
 
 @pytest.fixture(scope="session", autouse=True)
-def stablecoin(config):
-    test_accounts = Accounts(endpoint=config["endpoint"])
-    test_accounts.import_from_folder("tests/users")
-    new_stablecoin = Stablecoin(test_accounts, config)
+def stablecoin(config, get_accounts):
+    new_stablecoin = Stablecoin(get_accounts, config)
     return new_stablecoin
 
 
@@ -178,22 +181,30 @@ def revealed_accounts(finance_accounts, config):
     for account in test_accounts:
         if account in accounts_to_reveal:
             accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
-            #accounts_obj.activate_account(account['name'])
-            #accounts_obj.reveal_account(account['name'])
+            accounts_obj.activate_account(account['name'])
+            accounts_obj.reveal_account(account['name'])
             account["status"] += ",revealed"
     return accounts_to_reveal
 
 
 @pytest.fixture(scope="function")
-def get_random_revealed_account(revealed_accounts):
+def random_revealed_account(revealed_accounts, stablecoin):
     account = random.choice(revealed_accounts)
-    return account
+    stablecoin_balance = stablecoin.get_balance(account["name"])
+    tez_balance = "" #stablecoin.pm_contracts(account["name"])
+    logger.debug(f"account status before call: {stablecoin_balance} {tez_balance['balance']}")
+    yield account
+    logger.debug(f"account status after call: {stablecoin_balance} {tez_balance['balance']}")
 
 
 @pytest.fixture(scope="function")
-def get_random_financed_account(finance_accounts):
+def random_financed_account(finance_accounts):
     account = random.choice(finance_accounts)
-    return account
+    stablecoin_balance = stablecoin.get_balance(account["name"])
+    tez_balance = "" #stablecoin.pm_contracts(account["name"])
+    logger.debug(f"account status before call: {stablecoin_balance} {tez_balance['balance']}")
+    yield account
+    logger.debug(f"account status after call: {stablecoin_balance} {tez_balance['balance']}")
 
 
 @pytest.fixture(scope="function")
@@ -221,7 +232,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
         for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
-            end_delay = random.uniform(0.2, 1.1)
+            end_delay = random.uniform(0.2, 0.5)
             end = datetime.now() + timedelta(end_delay)
             name = random.choice(revealed_accounts)['name']
             market_id, transaction = market.ask_question(
@@ -234,7 +245,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
                 auction_end_date=end.timestamp(),
                 token_contract=stablecoin_id
             )
-            if market_id not in reserved:
+            if market_id not in reserved and market_id != 1:
                 reserved.append(market_id)
                 transactions.append(transaction)
                 market_pool.append({
@@ -273,7 +284,7 @@ def gen_bid_markets(gen_markets, market, config):
 
 @pytest.fixture(scope="session")
 def gen_cleared_markets(config, market, gen_bid_markets):
-    sleep(60)
+    sleep(120)
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
     for ma in selection:
@@ -292,7 +303,7 @@ def gen_cleared_markets(config, market, gen_bid_markets):
 
 @pytest.fixture(scope="session")
 def gen_resolved_market(config, market, gen_cleared_markets):
-    selection = random.sample(gen_bid_markets, k=20)
+    selection = random.choices(gen_cleared_markets, k=20)
     resolved = []
     random_bit = random.getrandbits(1)
     random_boolean = bool(random_bit)
@@ -330,8 +341,8 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    #launch_sandbox()
-    #sleep(20)
+    launch_sandbox()
+    sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -353,7 +364,7 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    #stop_sandbox()
+    stop_sandbox()
 
 
 @pytest.hookimpl(hookwrapper=True)

@@ -150,17 +150,6 @@ def stablecoin_storage(client, contract_id, market_id=None):
         return stablecoin.storage['ledger']
     return stablecoin.storage['ledger'][market_id]
 
-"""
-def get_stablecoin_balance(username, user_address, config):
-    balance = int(
-        get_stablecoin(config['admin_account'],
-        config['contract']).getBalance(
-            {'owner': user_address, 'contract_1': None}
-        ).view()
-    )
-    print(f"balance_user: {username}: {balance}")
-"""
-
 
 def get_tokens_id_list(market_id: int):
     token_list = [

@@ -1,7 +1,2 @@
-check the stablecoin balance
-add more accounts
-make the financing of the accounts random
-make a function that return an account with specific status
-make a logger for the balance status
-make a function that returns the tezos balance (use stablecoin.py)
-add system to return some resolve markets
+format the logging
+supply_map and ledger map to check

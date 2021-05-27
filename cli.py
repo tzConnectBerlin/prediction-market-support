@@ -455,7 +455,7 @@ def stablecoin_balance(
     Get balance for user
     """
     check_account_loaded(user)
-
+    state["stablecoin"].get_balance(user)
 
 
 @app.callback()
