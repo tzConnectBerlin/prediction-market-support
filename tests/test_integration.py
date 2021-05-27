@@ -6,11 +6,15 @@ import pytest
 from pytezos.rpc.node import RpcError
 from loguru import logger
 
+<<<<<<< HEAD
 from src.utils import submit_transaction, print_error, raise_error
 from .conftest import get_random_market, get_one_random_account
+=======
+from src.utils import log_and_submit, submit_transaction, raise_error
+from .conftest import get_random_market
+>>>>>>> e0cf6052a3310f304d9cc885be4fa233849b0826
 
 
-""""
 def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -49,7 +53,6 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
     assert int(liquidity['bet']['predicted_probability']) == int(2**32)
 
 #test_create_market_correct_bet_success_fa2
-"""
 
 
 def test_create_market_non_existent_currency(market):
@@ -70,8 +73,12 @@ def test_create_market_non_existent_currency(market):
     with pytest.raises(RpcError):
         submit_transaction(transaction, error_func=raise_error)
 
+
 ''' 
 @pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2*65]])
+
+
+
 def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate):
     end = datetime.now() + timedelta(minutes=5)
     market_id, transaction = market.ask_question(
@@ -181,4 +188,41 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets):
     assert state['marketBootstrapped']['resolution'] is None
     #check if the uniswap pool and check the contribution factor for each user
 
+
 '''
+
+
+def test_clear_market_in_auction_phase(market, gen_bid_markets):
+    auction = get_random_market("cleared")
+    operation = market.auction_clear(auction['id'], auction['caller_name'])
+    storage = market.get_storage(auction['id'], auction['caller_name'])
+    state = storage['market_map']['state']
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+    #check if the uniswap pool and check the contribution factor for each user
+
+
+def test_clear_non_existent_market_id(market):
+    operation = market.auction_clear(1, "mala")
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_mint_token_on_cleated(market):
+    auction = get_random_market("cleared")
+    operation = market.mint(auction['id'], auction['caller_name'])
+
+
+def test_mint_token_in_auction_phase(market):
+    auction = get_random_market("cleared")
+    operation = market.mint(auction['id'], auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+
+
+def test_mint_resolved_market(market):
+    auction = get_random_market("resolved")
+    operation = market.mint(auction['id'], auction['caller_name'])
+    with pytest.raises(RpcError):
+        submit_transaction(operation, error_func=raise_error)
+>>>>>>> e0cf6052a3310f304d9cc885be4fa233849b0826

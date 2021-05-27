@@ -371,3 +371,16 @@ class Market:
             if token in entry:
                 supply_map[token] = entry[token]()
         return supply_map
+
+
+"""
+    def log_and_submit(self, transaction, account, market_id=None, error_func=raise_error):
+        logger.debug(transaction)
+        entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoints']
+        params = transaction.json_payload()['contents'][0]['parameters']['value']
+        logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
+        logger.debug(f"{self.get_storage(market_id, account['name'])}")
+        result = submit_transaction(transaction, error_func=error_func)
+        logger.debug(f"{self.get_storage(market_id, account['name'])}")
+        logger.debug(result)
+"""

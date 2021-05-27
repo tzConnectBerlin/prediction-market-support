@@ -217,7 +217,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
         for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
-            end_delay = random.uniform(0.2, 0.5)
+            end_delay = random.uniform(0.2, 1.1)
             end = datetime.now() + timedelta(end_delay)
             name = random.choice(revealed_accounts)['name']
             market_id, transaction = market.ask_question(
@@ -245,6 +245,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
         transactions.clear()
     logger.debug(f'reserved size is {len(reserved)}')
     logger.debug(f'reserved size is {market_pool}')
+    sleep(80)
     print("markets generated")
     return market_pool
 
@@ -260,7 +261,7 @@ def gen_bid_markets(gen_markets, market):
                 random.randint(2, 2 ** 8),
                 random.randint(2, 2 ** 63)
             )
-        submit_transaction(bulk_transactions, error_func=print_error)
+        submit_transaction(*bulk_transactions, error_func=print_error)
         sleep(2)
     return selection
 
@@ -270,7 +271,6 @@ def gen_cleared_markets(config, market, gen_bid_markets):
     sleep(60)
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
-    logger.debug("in function gen cleared markets")
     for ma in selection:
         transaction = market.auction_clear(ma['id'], ma['caller_name'])
         try:
@@ -285,8 +285,29 @@ def gen_cleared_markets(config, market, gen_bid_markets):
     return cleared
 
 
-@pytest.fixture(scope="function", autouse=True)
-def log_contract_state(contract_id):
+@pytest.fixture(scope="session")
+def gen_resolved_market(config, market, gen_cleared_markets):
+    selection = random.sample(gen_bid_markets, k=20)
+    resolved = []
+    random_bit = random.getrandbits(1)
+    random_boolean = bool(random_bit)
+    for ma in selection:
+        transaction = market.close_market(ma['id'], ma['caller_name'], random_boolean)
+        try:
+            submit_transaction(transaction, error_func=raise_error()
+            ma['status'] = 'resolved'\
+            resolved.append(ma)\
+        except Exception as e:
+            logger.debug(e)
+            continue
+    sleep(2)
+    logger.debug(len(resolved))
+    return resolved
+
+
+
+@pytest.fixture(scope="functi    if (market is not None and market_id is not None):on", autouse=True)
+def log_contract_state(market):
     logger.debug("___________________")
     #f"{caller_tez_balance} {stablecoin_balance}"
     yield logger
