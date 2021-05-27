@@ -4,3 +4,4 @@ make the financing of the accounts random
 make a function that return an account with specific status
 make a logger for the balance status
 make a function that returns the tezos balance (use stablecoin.py)
+add system to return some resolve markets
