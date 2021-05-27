@@ -175,7 +175,7 @@ def get_tokens_id_list(market_id: int):
 def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-
+#refactorize this
 def log_and_submit(transaction, account, market, entrypoint, params, market_id):
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
     result = submit_transaction(transaction, error_func=print_error)

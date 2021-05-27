@@ -1,6 +1,6 @@
-Write get_storage function - Viktor
-write the tests functions - Multi / Viktor
-add more logging
-automate par of the logging
-write helpers to run test faster
-Make sure deploiment path are pulled from the cli.ini file - Multi
+check the stablecoin balance
+add more accounts
+make the financing of the accounts random
+make a function that return an account with specific status
+make a logger for the balance status
+make a function that returns the tezos balance (use stablecoin.py)
