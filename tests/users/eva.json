@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "harvest",
+    "wet",
+    "enable",
+    "fat",
+    "educate",
+    "olympic",
+    "success",
+    "hand",
+    "palm",
+    "foam",
+    "slush",
+    "coyote",
+    "toy",
+    "way",
+    "awake"
+  ],
+  "secret": "03dded8a8cfccb71437a3111f6cfe2d1c9b0f63e",
+  "amount": "62605368425",
+  "pkh": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ",
+  "password": "OjB4tzSxCY",
+  "email": "jfgklbpq.lmiewybq@tezos.example.org"
+}
