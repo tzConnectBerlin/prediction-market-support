@@ -21,7 +21,6 @@ from src.utils import *
 market_pool = []
 accounts_pool = []
 
-
 def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
 

@@ -4,6 +4,8 @@ import random
 import string
 import sys
 
+from loguru import logger
+
 from pytezos.rpc.node import RpcError
 
 from src.errors import contract_error
@@ -172,3 +174,10 @@ def get_tokens_id_list(market_id: int):
 
 def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
+
+def log_and_submit(transaction, account, market, entrypoint, params, market_id):
+    logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
+    result = submit_transaction(transaction, error_func=print_error)
+    logger.debug(f"{market.get_storage(market_id, account['name'])}")
+    logger.debug(result)

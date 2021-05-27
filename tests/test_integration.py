@@ -10,13 +10,7 @@ from src.utils import submit_transaction, print_error, raise_error
 from .conftest import get_random_market
 
 
-def log_and_submit(transaction, account, market, entrypoint, params, market_id):
-    logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
-    result = submit_transaction(transaction, error_func=print_error)
-    logger.debug(f"{market.get_storage(market_id, account['name'])}")
-    logger.debug(result)
-
-
+""""
 def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions_storage, liquidity_storage):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -55,9 +49,9 @@ def test_create_market_correct_bet_success_fa12(stablecoin_id, market, questions
     assert int(liquidity['bet']['predicted_probability']) == int(2**32)
 
 #test_create_market_correct_bet_success_fa2
-
-
 """
+
+
 def test_create_market_non_existent_currency(market):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -185,5 +179,4 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets):
     assert 'auctionRunning' not in state
     assert state['marketBootstrapped']['resolution'] is None
     #check if the uniswap pool and check the contribution factor for each user
-"""
 
