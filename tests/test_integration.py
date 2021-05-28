@@ -161,17 +161,8 @@ def test_auction_bet_non_existent_market_id(market, revealed_account):
     transaction = market.bid_auction(1, revealed_account['name'], 1000, 2*32)
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-"""
 
 
-def test_auction_bet_existing_address_incorrect_bet(market, gen_bid_markets, revealed_account):
-    auction = get_random_market("bidded")
-    account = revealed_account
-    transaction = market.bid_auction(auction['id'], account["name"], 1000, 2**32)
-    with pytest.raises(RpcError):
-        log_and_submit(transaction, account, market, auction["id"], error_func=raise_error)
-
-"""
 def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account):
     auction = get_random_market("bidded")
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
@@ -190,7 +181,7 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account
     storage = market.get_storage(auction['id'], auction['caller']['name'])
     state = storage['market_map']['state']
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
     #check if the uniswap pool and check the contribution factor for each user
 
 
@@ -209,21 +200,21 @@ def test_mint_token_in_auction_phase(market, gen_resolved_market, revealed_accou
     auction = get_random_market("cleared")
     transaction = market.mint(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_mint_resolved_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.mint(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_burn_inexistent_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.burn(1, auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_burn_token_on_cleared(market, gen_resolved_market, revealed_account):
@@ -232,24 +223,24 @@ def test_burn_token_on_cleared(market, gen_resolved_market, revealed_account):
 
 
 def test_burn_token_in_auction_phase(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("cleared")
+    auction = get_random_market("bidded")
     transaction = market.burn(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_burn_resolved_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.burn(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
-def test_burn_inexistant_market(market, gen_resolved_market, revealed_account):
+def test_burn_inexistent_market(market):
     auction = get_random_market("resolved")
     transaction = market.burn(1, auction['caller']['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], 1, error_func=raise_error)
 
 
 def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_account):
@@ -257,22 +248,120 @@ def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_accou
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
 
 
-def test_swap_token_token_in_auction_phase(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("cleared")
+def test_swap_token_token_in_auction_phase(market, gen_cleared_markets, revealed_account):
+    auction = get_random_market("bidded")
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_swap_token_resolved_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
-def test_swap_token_inexistant_market(market, gen_resolved_market, revealed_account):
+def test_swap_token_inexistent_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+def test_update_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
+    auction = get_random_market("cleared")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
+
+
+def test_update_liquidity_in_auction_phase(market, gen_cleared_markets, revealed_account):
+    auction = get_random_market("cleared")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+def test_update_liquidity_resolved_market(market, gen_resolved_market, revealed_account):
+    auction = get_random_market("resolved")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+def test_update_liquidity_inexistent_market(market, revealed_account):
+    transaction = market.update_liquidity(1, revealed_account['name'], "payIn", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, revealed_account, 1, error_func=raise_error)
+
+
+def test_remove_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
+    auction = get_random_market("cleared")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+
+
+def test_remove_liquidity_in_auction_phase(market, gen_bid_markets):
+    auction = get_random_market("bidded")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+def test_remove_liquidity_resolved_market(market, gen_resolved_market):
+    auction = get_random_market("resolved")
+    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+def test_remove_liquidity_inexistent_market(market):
+    auction = get_random_market("created")
+    transaction = market.update_liquidity(1, auction['caller']['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, 1, error_func=raise_error)
+
+
+@pytest.mark.parametrize('token_type', [True, False])
+def test_resolve_market_in_cleared_phase(market, gen_bid_markets, revealed_account, token_type):
+    auction = get_random_market("cleared")
+    transaction = market.close_market(auction['id'], auction['caller']['name'])
+    log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+    storage = market.get_storage(auction['id'], auction['caller']['name'])
+    state = storage['market_map']['state']
+    assert 'marketBootstrapped' in state
+    assert 'auctionRunning' not in state
+    assert state['marketBootstrapped']['resolution'] is not None
+
+
+@pytest.mark.parametrize('token_type', [True, False])
+def test_resolve_market_in_auction_phase(market, gen_bid_markets, revealed_account, token_type):
+    auction = get_random_market("bidded")
+    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
+    log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+    storage = market.get_storage(auction['id'], auction['caller']['name'])
+    state = storage['market_map']['state']
+    assert 'marketBootstrapped' in state
+    assert 'auctionRunning' not in state
+    assert state['marketBootstrapped']['resolution'] is not None
+
+
+@pytest.mark.parametrize('token_type', [True, False])
+def test_resolve_market_already_resolved(market, gen_bid_markets, revealed_account, token_type):
+    auction = get_random_market("resolved")
+    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+@pytest.mark.parametrize('token_type', [True, False])
+def test_resolve_market_unauthorized_account(market, gen_bid_markets, revealed_account, token_type):
+    auction = get_random_market("cleared")
+    transaction = market.close_market(auction['id'], revealed_account['name'], token_type)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+
+
+@pytest.mark.parametrize('token_type', [True, False])
+def test_resolve_non_existent_market_id(market, revealed_account, token_type):
+    transaction = market.close_market(1, revealed_account['name'], token_type)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
