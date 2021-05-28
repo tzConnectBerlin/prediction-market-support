@@ -10,6 +10,8 @@ from pytezos.rpc.node import RpcError
 
 from src.errors import contract_error
 
+logger = logger.opt(colors=True)
+
 
 def get_public_key(account):
     """
@@ -30,7 +32,7 @@ def raise_error(_err_message):
     """
     Receive an error message and raise it
     """
-    raise
+    raise _err_message
 
 
 def return_error(err_message):
@@ -77,11 +79,14 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     try:
         source = transaction.key.public_key_hash()
         transaction_ = transaction.autofill(ttl=56, counter=count)
-        res = transaction_.sign().inject()
-        transaction_.shell.wait_next_block(max_iterations=10)
+        res = transaction_.sign().inject(_async=False)
+        block_hash = transaction_.shell.wait_next_block(max_iterations=10)
+        logger.debug(f"BLOCK HASH: {block_hash}")
+        logger.debug("SUBMIT WORKED!!!!!!!!!!")
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])
+        logger.debug(f"ERROR IN SUBMIT TRANSACTION = {err_message}")
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
             if 'counter_in_the_past' in err_message['id']:
@@ -170,13 +175,14 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoint']
     params = transaction.json_payload()['contents'][0]['parameters']['value']
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
-    if market is not None and market_id is not None:
+    if market is not None:
         try:
             logger.debug(f"{market.get_storage(market_id, account['name'])}")
         except Exception as e:
             logger.debug(f"storage is not accessible before submit transaction: {e}")
     result = submit_transaction(transaction, error_func=error_func)
-    if market is not None and market_id is not None:
+    logger.debug(f"Result from TRANSACTION = {result}")
+    if market is not None:
         try:
             logger.debug(f"{market.get_storage(market_id, account['name'])}")
         except Exception as e:

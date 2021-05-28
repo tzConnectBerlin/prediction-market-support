@@ -31,9 +31,9 @@ def test_create_market_correct_bet_success_fa12(
     )
     log_and_submit(
         transaction,
-        {'name': 'donald', 'key': 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'},
+        revealed_account,
         market,
-        market_id=None
+        market_id=market_id
     )
     sleep(3)
     storage = questions_storage[market_id]()
@@ -52,7 +52,7 @@ def test_create_market_correct_bet_success_fa12(
 
 #test_create_market_correct_bet_success_fa2
 
-
+''' 
 def test_create_market_non_existent_currency(market, revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -269,26 +269,26 @@ def test_swap_token_inexistent_market(market, gen_resolved_market, revealed_acco
         log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
-def test_update_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
+def test_add_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
 
 
-def test_update_liquidity_in_auction_phase(market, gen_cleared_markets, revealed_account):
+def test_add_liquidity_in_auction_phase(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
-def test_update_liquidity_resolved_market(market, gen_resolved_market, revealed_account):
+def test_add_liquidity_resolved_market(market, gen_resolved_market, revealed_account):
     auction = get_random_market("resolved")
     transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
-def test_update_liquidity_inexistent_market(market, revealed_account):
+def test_add_liquidity_inexistent_market(market, revealed_account):
     transaction = market.update_liquidity(1, revealed_account['name'], "payIn", 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, 1, error_func=raise_error)
@@ -365,3 +365,4 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
     transaction = market.close_market(1, revealed_account['name'], token_type)
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
+'''

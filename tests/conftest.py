@@ -64,6 +64,7 @@ test_accounts = [
 @pytest.fixture(scope="session", autouse=True)
 def contract_id():
     id = deploy_market()
+    logger.debug(f"contract = {id}")
     return id
 
 
@@ -84,12 +85,15 @@ def mock_functions(monkeypatch):
 @pytest.fixture(scope='session', autouse=True)
 def stablecoin_id():
     id = deploy_stablecoin()
+    logger.debug(f"stablecoin ID = {id}")
     return id
 
 
 @pytest.fixture(scope="session", autouse=True)
 def config(contract_id, stablecoin_id):
     config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id)
+    logger.debug(f"endpoint = {config['endpoint']}")
+    logger.debug(f"account originator = {config['admin_priv_key']}")
     return config
 
 
@@ -182,8 +186,11 @@ def revealed_accounts(finance_accounts, config):
         if account in accounts_to_reveal:
             accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
             accounts_obj.activate_account(account['name'])
-            accounts_obj.reveal_account(account['name'])
-            account["status"] += ",revealed"
+            try:
+                accounts_obj.reveal_account(account['name'])
+                account["status"] += ",revealed"
+            except:
+                continue
     return accounts_to_reveal
 
 
@@ -338,8 +345,8 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
-    sleep(20)
+    # launch_sandbox()
+    # sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -361,7 +368,7 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    # stop_sandbox()
 
 
 @pytest.hookimpl(hookwrapper=True)
