@@ -32,7 +32,7 @@ def raise_error(_err_message):
     """
     Receive an error message and raise it
     """
-    raise _err_message
+    raise
 
 
 def return_error(err_message):
@@ -175,16 +175,23 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoint']
     params = transaction.json_payload()['contents'][0]['parameters']['value']
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
+    before_storage, after_storage = None, None
     if market is not None:
         try:
-            logger.debug(f"{market.get_storage(market_id, account['name'])}")
+            before_storage = market.get_storage(market_id, account['name'])
+            logger.debug(f"{before_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible before submit transaction: {e}")
     result = submit_transaction(transaction, error_func=error_func)
     logger.debug(f"Result from TRANSACTION = {result}")
     if market is not None:
         try:
-            logger.debug(f"{market.get_storage(market_id, account['name'])}")
+            after_storage = market.get_storage(market_id, account['name'])
+            logger.debug(f"{after_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible after submit transaction: {e}")
-    logger.debug(result)
+    return {
+        "before_storage": before_storage,
+        "after_storage": after_storage,
+        "result": result
+    }

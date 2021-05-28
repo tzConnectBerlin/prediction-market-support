@@ -3,6 +3,7 @@ Market management helper
 """
 import json
 import random
+import time
 from datetime import datetime, timedelta
 
 from loguru import logger
@@ -332,10 +333,9 @@ class Market:
             market_id: int,
             user: str,
     ):
-        try:
-            tokens = get_tokens_id_list(market_id)
-        except:
-            logger.error(f"\ncan't fetch the tokens ledger on market_id = {market_id}")
+        time.sleep(1)
+        tokens = get_tokens_id_list(market_id)
+        logger.error(f"\ncan't fetch the tokens ledger on market_id = {market_id}")
         try:
             market_map = self.get_market_map_storage(market_id, user)
         except:
@@ -345,22 +345,10 @@ class Market:
         except:
             logger.error(f"\ncan't get liquidity_provider_map for market_id = {market_id} \
             and user = {user}")
-        for token in tokens:
-            try:
-                ledger_map = self.get_ledger_map_storage(user, token)
-            except:
-                logger.error(f"\ncan't get ledger_map_storage for user = {user} \
-                    and tokens = {token}")
-            try: 
-                supply_map = self.get_supply_map_storage(user, token)
-            except:
-                logger.error(f"\ncan't get supply_map_storage for user = {user} \
-                    and tokens = {token}")
-            return {
-                'market_map': market_map,
-                'liquidity_provider_map': liquidity_provider_map,
-                'supply_map': supply_map
-            }
+        return {
+            'market_map': market_map,
+            'liquidity_provider_map': liquidity_provider_map,
+        }
         
 
     def get_market_map_storage(self, market_id: int, user: str):

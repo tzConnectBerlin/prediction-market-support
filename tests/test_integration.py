@@ -35,13 +35,16 @@ def test_create_market_correct_bet_success_fa12(
         market,
         market_id=market_id
     )
-    sleep(3)
-    storage = questions_storage[market_id]()
-    metadata = storage['metadata']
-    state = storage['state']
-    map_key = {'originator': 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2', 'market_id': market_id}
-    liquidity = liquidity_storage[map_key]()
-    assert metadata['adjudicator'] == 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'
+    storage = market.get_storage(market_id, revealed_account['name'])
+    logger.debug('*****************************************************************************')
+    logger.debug(storage)
+    metadata = storage['market_map']['metadata']
+    logger.debug(metadata)
+    state = storage['market_map']['state']
+    logger.debug(state)
+    logger.debug('*****************************************************************************')
+    liquidity = storage['liquidity_provider_map']
+    assert metadata['adjudicator'] == revealed_account['key']
     assert 'auctionRunning' in state
     assert state['auctionRunning']['quantity'] == quantity
     ### yes_preference should be probability * quantity
@@ -52,7 +55,7 @@ def test_create_market_correct_bet_success_fa12(
 
 #test_create_market_correct_bet_success_fa2
 
-''' 
+
 def test_create_market_non_existent_currency(market, revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -96,7 +99,7 @@ def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     auction = get_random_market()
-    transaction = market.ask_question(
+    market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
         revealed_account['name'],
@@ -365,4 +368,3 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
     transaction = market.close_market(1, revealed_account['name'], token_type)
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-'''
