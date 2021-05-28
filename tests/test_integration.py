@@ -31,9 +31,9 @@ def test_create_market_correct_bet_success_fa12(
     )
     log_and_submit(
         transaction,
-        {'name': 'donald', 'key': 'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2'},
+        revealed_account,
         market,
-        market_id=None
+        market_id=market_id
     )
     sleep(3)
     storage = questions_storage[market_id]()
@@ -52,7 +52,7 @@ def test_create_market_correct_bet_success_fa12(
 
 #test_create_market_correct_bet_success_fa2
 
-
+''' 
 def test_create_market_non_existent_currency(market, revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -276,3 +276,4 @@ def test_swap_token_inexistant_market(market, gen_resolved_market, revealed_acco
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+'''
