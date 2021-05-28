@@ -336,7 +336,9 @@ def log_contract_state(market):
 def get_random_market(status='created'):
     pool = [x for x in market_pool if status == x['status']]
     logger.debug(pool)
-    return random.choice(pool)
+    r_pool = random.choice(pool)
+    pool.remove(r_pool)
+    return r_pool
 
 
 def pytest_configure():
