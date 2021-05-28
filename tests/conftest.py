@@ -229,7 +229,7 @@ def get_one_random_account(revealed_accounts, status="created"):
     return account
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
     reserved = []
@@ -269,7 +269,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
     return market_pool
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_bid_markets(gen_markets, market, config):
     selection = random.sample(gen_markets, k=60)
     for i in range(1):
@@ -286,7 +286,7 @@ def gen_bid_markets(gen_markets, market, config):
     return selection
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_cleared_markets(config, market, gen_bid_markets):
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
@@ -305,7 +305,7 @@ def gen_cleared_markets(config, market, gen_bid_markets):
     return cleared
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def gen_resolved_market(config, market, gen_cleared_markets):
     selection = random.choices(gen_cleared_markets, k=20)
     resolved = []

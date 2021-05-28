@@ -155,7 +155,7 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account
     #check if the uniswap pool and check the contribution factor for each user
 
 
-def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account):
+def test_clear_market_in_auction_phase(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
     storage = market.get_storage(auction['id'], auction['caller']['name'])
@@ -177,7 +177,7 @@ def test_mint_token_on_cleared(market, gen_resolved_market, revealed_account):
 
 
 def test_mint_token_in_auction_phase(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("bided")
+    auction = get_random_market("bidded")
     transaction = market.mint(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
