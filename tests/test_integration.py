@@ -36,13 +36,8 @@ def test_create_market_correct_bet_success_fa12(
         market_id=market_id
     )
     storage = market.get_storage(market_id, revealed_account['name'])
-    logger.debug('*****************************************************************************')
-    logger.debug(storage)
     metadata = storage['market_map']['metadata']
-    logger.debug(metadata)
     state = storage['market_map']['state']
-    logger.debug(state)
-    logger.debug('*****************************************************************************')
     liquidity = storage['liquidity_provider_map']
     assert metadata['adjudicator'] == revealed_account['key']
     assert 'auctionRunning' in state
@@ -74,7 +69,7 @@ def test_create_market_non_existent_currency(market, revealed_account):
         log_and_submit(transaction, revealed_account, market, market_id, error_func=raise_error)
 
 
-@pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2*65]])
+@pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2**65]])
 def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate, revealed_account):
     end = datetime.now() + timedelta(minutes=5)
     market_id, transaction = market.ask_question(
@@ -139,24 +134,6 @@ def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets, revea
     assert bet['predicted_probability'] == rate
     #uniswap contribution and yes_preference to check
 
-
-@pytest.mark.parametrize("quantity,rate,status", [
-        [0, 2**34, 'created'],
-        [1000, 2*65, 'created'],
-        [1000, 2**32, 'cleared']
-    ]
-)
-def test_auction_bet_existing_address_incorrect_bet(market, quantity, rate, status, gen_cleared_markets, revealed_account):
-    auction = get_random_market(status)
-    transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
-    log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
-    storage = market.get_storage(auction['id'], revealed_account['name'])
-    bet = storage['liquidity_provider_map']["bet"]
-    assert bet['quantity'] == quantity
-    assert bet['predicted_probability'] == rate
-    #uniswap contribution and yes_preference to check
-
-
 #test_auction_bet_currency_balance_FA12
 
 
@@ -200,7 +177,7 @@ def test_mint_token_on_cleared(market, gen_resolved_market, revealed_account):
 
 
 def test_mint_token_in_auction_phase(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("cleared")
+    auction = get_random_market("bided")
     transaction = market.mint(auction['id'], auction['caller']['name'], 100)
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
@@ -326,7 +303,7 @@ def test_remove_liquidity_inexistent_market(market):
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_cleared_phase(market, gen_bid_markets, revealed_account, token_type):
     auction = get_random_market("cleared")
-    transaction = market.close_market(auction['id'], auction['caller']['name'])
+    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
     log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
     storage = market.get_storage(auction['id'], auction['caller']['name'])
     state = storage['market_map']['state']

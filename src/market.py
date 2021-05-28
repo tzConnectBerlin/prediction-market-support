@@ -335,7 +335,7 @@ class Market:
     ):
         time.sleep(1)
         tokens = get_tokens_id_list(market_id)
-        logger.error(f"\ncan't fetch the tokens ledger on market_id = {market_id}")
+        market_map, liquidity_provider_map = None, None
         try:
             market_map = self.get_market_map_storage(market_id, user)
         except:
