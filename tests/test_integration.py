@@ -200,6 +200,7 @@ def test_burn_inexistent_market(market, gen_resolved_market, revealed_account):
 def test_burn_token_on_cleared(market, gen_resolved_market, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.burn(auction['id'], auction['caller']['name'], 100)
+    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_burn_token_in_auction_phase(market, gen_resolved_market, revealed_account):
@@ -226,6 +227,7 @@ def test_burn_inexistent_market(market):
 def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
+    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_swap_token_token_in_auction_phase(market, gen_cleared_markets, revealed_account):
@@ -252,6 +254,7 @@ def test_swap_token_inexistent_market(market, gen_resolved_market, revealed_acco
 def test_add_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
+    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
 
 
 def test_add_liquidity_in_auction_phase(market, gen_cleared_markets, revealed_account):
@@ -277,6 +280,8 @@ def test_add_liquidity_inexistent_market(market, revealed_account):
 def test_remove_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+    storage = market.
 
 
 def test_remove_liquidity_in_auction_phase(market, gen_bid_markets):
