@@ -204,7 +204,7 @@ def revealed_account(revealed_accounts, stablecoin):
     logger.debug(f"account status after call: {stablecoin_balance}")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", au)
 def financed_account(finance_accounts):
     account = random.choice(finance_accounts)
     stablecoin_balance = stablecoin.get_balance(account["name"])
@@ -328,7 +328,6 @@ def gen_resolved_market(config, market, gen_cleared_markets):
 @pytest.fixture(scope="function", autouse=True)
 def log_contract_state(market):
     logger.debug("___________________")
-    #f"{caller_tez_balance} {stablecoin_balance}"
     yield logger
     logger.debug("___________________")
 
