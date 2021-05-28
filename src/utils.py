@@ -135,7 +135,7 @@ def get_question_liquidity_provider_map(client, contract_id, market_id=None, add
     Return storage for liquidity provider
     """
     contract = client.contract(contract_id)
-    if market_id is None:
+    if market_id is None or address is None:
         return contract.storage['business_storage']['markets']['liquidity_provider_map']
     key = {'originator': address, 'market_id': market_id}
     return contract.storage['business_storage']['markets']['liquidity_provider_map'][key]()
@@ -171,8 +171,14 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     params = transaction.json_payload()['contents'][0]['parameters']['value']
     logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
     if market is not None and market_id is not None:
-        logger.debug(f"{market.get_storage(market_id, account['name'])}")
+        try:
+            logger.debug(f"{market.get_storage(market_id, account['name'])}")
+        except Exception as e:
+            logger.debug(f"storage is not accessible before submit transaction: {e}")
     result = submit_transaction(transaction, error_func=error_func)
     if market is not None and market_id is not None:
-        logger.debug(f"{market.get_storage(market_id, account['name'])}")
+        try:
+            logger.debug(f"{market.get_storage(market_id, account['name'])}")
+        except Exception as e:
+            logger.debug(f"storage is not accessible after submit transaction: {e}")
     logger.debug(result)

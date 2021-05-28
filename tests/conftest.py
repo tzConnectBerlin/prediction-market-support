@@ -80,6 +80,7 @@ def mock_functions(monkeypatch):
         lambda: os.path.join('tests/users', 'secret_keys')
     )
 
+
 @pytest.fixture(scope='session', autouse=True)
 def stablecoin_id():
     id = deploy_stablecoin()
@@ -175,7 +176,6 @@ def finance_accounts(client, config: Config, stablecoin_id: str):
 
 @pytest.fixture(scope="session", autouse=True)
 def revealed_accounts(finance_accounts, config):
-    logger.debug("REVEALED ACCOUNTS")
     accounts_obj = Accounts(config["endpoint"])
     accounts_to_reveal = random.choices(finance_accounts, k=15)
     for account in test_accounts:
@@ -188,23 +188,23 @@ def revealed_accounts(finance_accounts, config):
 
 
 @pytest.fixture(scope="function")
-def random_revealed_account(revealed_accounts, stablecoin):
+def revealed_account(revealed_accounts, stablecoin):
     account = random.choice(revealed_accounts)
     stablecoin_balance = stablecoin.get_balance(account["name"])
     tez_balance = "" #stablecoin.pm_contracts(account["name"])
-    logger.debug(f"account status before call: {stablecoin_balance} {tez_balance['balance']}")
+    logger.debug(f"account status before call: {stablecoin_balance}")
     yield account
-    logger.debug(f"account status after call: {stablecoin_balance} {tez_balance['balance']}")
+    logger.debug(f"account status after call: {stablecoin_balance}")
 
 
 @pytest.fixture(scope="function")
-def random_financed_account(finance_accounts):
+def financed_account(finance_accounts):
     account = random.choice(finance_accounts)
     stablecoin_balance = stablecoin.get_balance(account["name"])
     tez_balance = "" #stablecoin.pm_contracts(account["name"])
-    logger.debug(f"account status before call: {stablecoin_balance} {tez_balance['balance']}")
+    logger.debug(f"account status before call: {stablecoin_balance}")
     yield account
-    logger.debug(f"account status after call: {stablecoin_balance} {tez_balance['balance']}")
+    logger.debug(f"account status after call: {stablecoin_balance}")
 
 
 @pytest.fixture(scope="function")
@@ -216,7 +216,6 @@ def get_random_non_financed_account():
 
 # @pytest.fixture(scope="session", autouse=True)
 def get_one_random_account(revealed_accounts, status="created"):
-    logger.debug("RANDOM ACCOUNT")
     selection = [x for x in revealed_accounts if status in x['status']]
     logger.debug(revealed_accounts)
     account = random.choice(selection)
@@ -233,12 +232,12 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
             end_delay = random.uniform(0.2, 0.5)
-            end = datetime.now() + timedelta(end_delay)
-            name = random.choice(revealed_accounts)['name']
+            end = datetime.now() + timedelta(minutes=end_delay)
+            caller = random.choice(revealed_accounts)
             market_id, transaction = market.ask_question(
                 id_generator(),
                 id_generator(),
-                name,
+                caller['name'],
                 quantity,
                 rate,
                 "dededededede",
@@ -250,16 +249,14 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
                 transactions.append(transaction)
                 market_pool.append({
                     'id': int(market_id),
-                    'caller_name': name,
-                    'end': end,
+                    'caller': caller,
+                    'end': end.timestamp(),
                     'status': 'created'
                 })
         bulk_transactions = config["admin_account"].bulk(*transactions)
         submit_transaction(bulk_transactions, error_func=print_error)
         sleep(2)
         transactions.clear()
-    logger.debug(f'reserved size is {len(reserved)}')
-    logger.debug(f'reserved size is {market_pool}')
     sleep(80)
     print("markets generated")
     return market_pool
@@ -284,17 +281,17 @@ def gen_bid_markets(gen_markets, market, config):
 
 @pytest.fixture(scope="session")
 def gen_cleared_markets(config, market, gen_bid_markets):
-    sleep(120)
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
     for ma in selection:
-        transaction = market.auction_clear(ma['id'], ma['caller_name'])
+        transaction = market.auction_clear(ma['id'], ma['caller']['name'])
         try:
+            end = datetime.now()
+            logger.debug(f" who is the end {end.timestamp()} {ma['end']}")
             submit_transaction(transaction, error_func=raise_error)
             ma['status'] = 'cleared'
             cleared.append(ma)
         except Exception as e:
-            logger.debug(e)
             continue
     sleep(2)
     logger.debug(len(cleared))
@@ -307,16 +304,16 @@ def gen_resolved_market(config, market, gen_cleared_markets):
     resolved = []
     random_bit = random.getrandbits(1)
     random_boolean = bool(random_bit)
-    for ma in selection:
-        transaction = market.close_market(ma['id'], ma['caller_name'], random_boolean)
-        try:
-            submit_transaction(transaction, error_func=raise_error())
-            ma['status'] = 'resolved'
-            resolved.append(ma)
-        except Exception as e:
-            logger.debug(e)
-            continue
-    sleep(2)
+    for ma in market_pool:
+        if ma in selection:
+            transaction = market.close_market(ma['id'], ma['caller']['name'], random_boolean)
+            try:
+                submit_transaction(transaction, error_func=raise_error)
+                ma['status'] = 'resolved'
+                resolved.append(ma)
+            except Exception as e:
+                logger.debug(e)
+                continue
     logger.debug(len(resolved))
     return resolved
 
@@ -331,7 +328,7 @@ def log_contract_state(market):
 
 def get_random_market(status='created'):
     pool = [x for x in market_pool if status == x['status']]
-    logger.error(pool)
+    logger.debug(pool)
     return random.choice(pool)
 
 

@@ -75,7 +75,6 @@ class Stablecoin:
         return operation.as_transaction()
 
     def get_balance(self, user: str):
-        logger.debug(self.client.getBalance)
         user_address = self.accounts[user].key.public_key_hash()
         balance = self.client.getBalance(
             {'owner': user_address, 'contract_1': Undefined}

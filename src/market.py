@@ -345,7 +345,7 @@ class Market:
         market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
         return market_map
 
-    def get_liquidity_provider_map_storage(self, market_id: int, user: str) :
+    def get_liquidity_provider_map_storage(self, market_id: int, user: str):
         map_key = {
             'originator': get_public_key(self.accounts[user]),
             'market_id': market_id
