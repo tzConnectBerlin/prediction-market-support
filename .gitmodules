@@ -4,3 +4,6 @@
 [submodule "prediction-market-contracts-lazy"]
 	path = prediction-market-contracts-lazy
 	url = git@github.com:tzConnectBerlin/prediction-market-contracts-lazy.git
+[submodule "prediction-market-contracts"]
+	path = prediction-market-contracts
+	url = git@github.com:tzConnectBerlin/prediction-market-contracts.git
