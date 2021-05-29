@@ -190,8 +190,4 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
             logger.debug(f"{after_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible after submit transaction: {e}")
-    return {
-        "before_storage": before_storage,
-        "after_storage": after_storage,
-        "result": result
-    }
+    return before_storage, after_storage

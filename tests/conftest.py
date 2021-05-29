@@ -172,17 +172,18 @@ def finance_accounts(client, config: Config, stablecoin_id: str):
             account['status'] += ',financed'
             stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
-    bulk_transactions = config["admin_account"].bulk(*(stablecoin_seeding + money_seeding))
+    bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
     submit_transaction(bulk_transactions, error_func=print_error)
-    sleep(3)
+    bulk_transactions = config["admin_account"].bulk(*money_seeding)
+    submit_transaction(bulk_transactions, error_func=print_error)
     return accounts_to_finance
 
 
 @pytest.fixture(scope="session", autouse=True)
 def revealed_accounts(finance_accounts, config):
     accounts_obj = Accounts(config["endpoint"])
-    accounts_to_reveal = random.choices(finance_accounts, k=15)
-    for account in test_accounts:
+    accounts_to_reveal = random.choices(finance_accounts, k=20)
+    for account in finance_accounts:
         if account in accounts_to_reveal:
             accounts_obj.import_from_file(f"tests/users/{account['name']}.json", account['name'])
             accounts_obj.activate_account(account['name'])
@@ -199,17 +200,19 @@ def revealed_account(revealed_accounts, stablecoin):
     account = random.choice(revealed_accounts)
     stablecoin_balance = stablecoin.get_balance(account["name"])
     tez_balance = "" #stablecoin.pm_contracts(account["name"])
-    logger.debug(f"account status before call: {stablecoin_balance}")
+    logger.debug(f"account balance before call: {stablecoin_balance}")
+    logger.debug(account)
     yield account
-    logger.debug(f"account status after call: {stablecoin_balance}")
+    logger.debug(f"account balance after call: {stablecoin_balance}")
 
 
-@pytest.fixture(scope="function", au)
+@pytest.fixture(scope="function")
 def financed_account(finance_accounts):
     account = random.choice(finance_accounts)
     stablecoin_balance = stablecoin.get_balance(account["name"])
     tez_balance = "" #stablecoin.pm_contracts(account["name"])
     logger.debug(f"account status before call: {stablecoin_balance}")
+    logger.debug(account)
     yield account
     logger.debug(f"account status after call: {stablecoin_balance}")
 
@@ -229,7 +232,7 @@ def get_one_random_account(revealed_accounts, status="created"):
     return account
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
     reserved = []
@@ -269,7 +272,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
     return market_pool
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_bid_markets(gen_markets, market, config):
     selection = random.sample(gen_markets, k=60)
     for i in range(1):
@@ -286,7 +289,7 @@ def gen_bid_markets(gen_markets, market, config):
     return selection
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_cleared_markets(config, market, gen_bid_markets):
     selection = random.sample(gen_bid_markets, k=40)
     cleared = []
@@ -305,7 +308,7 @@ def gen_cleared_markets(config, market, gen_bid_markets):
     return cleared
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def gen_resolved_market(config, market, gen_cleared_markets):
     selection = random.choices(gen_cleared_markets, k=20)
     resolved = []

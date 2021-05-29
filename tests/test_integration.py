@@ -174,7 +174,10 @@ def test_clear_non_existent_market_id(market, gen_bid_markets, revealed_account)
 def test_mint_token_on_cleared(market, gen_resolved_market, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.mint(auction['id'], auction['caller']['name'], 100)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
+    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
+    before_state = before_storage['market_map']['state']
+    after_state = after_storage['market_map']['state']
+    assert before_state['marketBootstrapped']['market_currency_pool'] != after_state['marketBootstrapped']['market_currency_pool']
 
 
 def test_mint_token_in_auction_phase(market, gen_resolved_market, revealed_account):
@@ -202,7 +205,9 @@ def test_burn_token_on_cleared(market, gen_resolved_market, revealed_account):
     auction = get_random_market("cleared")
     transaction = market.burn(auction['id'], auction['caller']['name'], 100)
     before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-
+    before_state = before_storage['market_map']['state']
+    after_state = after_storage['market_map']['state']
+    assert before_state['marketBootstrapped']['market_currency_pool'] != after_state['marketBootstrapped']['market_currency_pool']
 
 def test_burn_token_in_auction_phase(market, gen_resolved_market, revealed_account):
     auction = get_random_market("bidded")
@@ -225,11 +230,14 @@ def test_burn_inexistent_market(market):
         log_and_submit(transaction, auction['caller'], 1, error_func=raise_error)
 
 
-def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_account):
+@pytest.mark.parametrize('token_type', ["yes", "no"])
+def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_account, token_type):
     auction = get_random_market("cleared")
-    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], token_type, 100)
     before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-
+    liquidity_before = before_storage['liquidity_provider_map']
+    liquidity_after = after_storage['liquidity_provider_map']
+    assert liquidity_before['bet']['predicted_probability'] != liquidity_after['bet']['predicted_probability']
 
 def test_swap_token_token_in_auction_phase(market, gen_cleared_markets, revealed_account):
     auction = get_random_market("bidded")
