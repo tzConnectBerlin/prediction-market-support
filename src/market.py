@@ -335,34 +335,40 @@ class Market:
     ):
         time.sleep(1)
         tokens = get_tokens_id_list(market_id)
-        market_map, liquidity_provider_map = None, None
-        try:
-            market_map = self.get_market_map_storage(market_id, user)
-        except:
-            logger.error(f"\ndoes not exist in market_map, <green>market_id</> = {market_id}")
-        try:
-            liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
-        except:
-            logger.error(f"\ncan't get liquidity_provider_map for market_id = {market_id} \
-            and user = {user}")
+        market_map = self.get_market_map_storage(market_id, user)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
+        supply_map = self.get_supply_map_storage(user, tokens)
         return {
             'market_map': market_map,
             'liquidity_provider_map': liquidity_provider_map,
+            'supply_map': supply_map
         }
         
-
     def get_market_map_storage(self, market_id: int, user: str):
-        market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
+        try:
+            market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
+        except:
+            logger.error(
+                f"\ndoes not exist in market_map, <green>market_id</> = {market_id}"
+            )
+            return None
         return market_map
 
     def get_liquidity_provider_map_storage(self, market_id: int, user: str):
-        map_key = {
-            'originator': get_public_key(self.accounts[user]),
-            'market_id': market_id
-        }
-        liquidity_provider_map =\
-            self.pm_contracts(user).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
-        return liquidity_provider_map
+        try:
+            map_key = {
+                'originator': get_public_key(self.accounts[user]),
+                'market_id': market_id
+            }
+            liquidity_provider_map = self.pm_contracts(
+                user
+            ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+            return liquidity_provider_map
+        except:
+            logger.error(
+                f"\ncan't get liquidity_provider_map for market_id = {market_id} and user = {user}"
+            )
+            return None
 
     def get_ledger_map_storage(self, user: str, tokens: list):
         ledger_map_dic = {}
@@ -372,25 +378,17 @@ class Market:
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
             if map_key in entry:
                 ledger_map_dic[token] = entry[map_key]()
-        return ledger_map_dic
 
     def get_supply_map_storage(self, user: str, tokens: list):
         supply_map = {}
         for token in tokens:
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
-            if token in entry:
-                supply_map[token] = entry[token]()
+            try:
+                supply_map[token['token_name']] = entry[token['value']]()
+                if isinstance(entry[token['value']](), int):
+                    logger.error("failing")
+            except:
+                supply_map[token['token_name']] = 'Not available in supply_map'
+        if supply_map == {}:
+            return None
         return supply_map
-
-
-"""
-    def log_and_submit(self, transaction, account, market_id=None, error_func=raise_error):
-        logger.debug(transaction)
-        entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoints']
-        params = transaction.json_payload()['contents'][0]['parameters']['value']
-        logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
-        logger.debug(f"{self.get_storage(market_id, account['name'])}")
-        result = submit_transaction(transaction, error_func=error_func)
-        logger.debug(f"{self.get_storage(market_id, account['name'])}")
-        logger.debug(result)
-"""

@@ -77,16 +77,13 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     Submit a transaction
     """
     try:
-        source = transaction.key.public_key_hash()
         transaction_ = transaction.autofill(ttl=56, counter=count)
         res = transaction_.sign().inject(_async=False)
         block_hash = transaction_.shell.wait_next_block(max_iterations=10)
-        logger.debug(f"BLOCK HASH: {block_hash}")
-        logger.debug("SUBMIT WORKED!!!!!!!!!!")
+        logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])
-        logger.debug(f"ERROR IN SUBMIT TRANSACTION = {err_message}")
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
             if 'counter_in_the_past' in err_message['id']:
@@ -97,16 +94,19 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
                 if 'expected' in err_message:
                     count = int(err_message['expected'])
                 return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
+        logger.debug(f"the transaction couldn't be injected because of {err_message}")
         if error_func is not None:
             return error_func(err_message)
         raise
 
 
-def get_tezos_client_path():
+def get_tezos_client_path(client_path):
     """
     Obtain the tezos client path
     """
-    return os.path.expanduser('~/.tezos-client')
+    if not os.path.isfile(client_path):
+        os.makedirs(client_path)
+    return os.path.expanduser(client_path)
 
 
 def get_market_map(client, contract_id, market_id=None):
@@ -158,11 +158,11 @@ def stablecoin_storage(client, contract_id, market_id=None):
 
 def get_tokens_id_list(market_id: int):
     token_list = [
-        market_id << 3,
-        (market_id << 3) + 1,
-        (market_id << 3) + 2,
-        (market_id << 3) + 3,
-        (market_id << 3) + 4
+        {'token_name': 'no_token', 'token_value': market_id << 3,},
+        {'token_name': 'yes_token', 'token_value': (market_id << 3) + 1,},
+        {'token_name': 'pool_liquidity', 'token_value': (market_id << 3) + 2,},
+        {'token_name': 'auction_reward', 'token_value': (market_id << 3) + 3,},
+        {'token_name': 'liquidity_reward', 'token_value': (market_id << 3) + 4},
     ]
     return token_list
 

@@ -1,13 +1,16 @@
-import sys
 from datetime import datetime, timedelta
-from time import sleep
 
 import pytest
 from pytezos.rpc.node import RpcError
 from loguru import logger
 
-from src.utils import log_and_submit, raise_error
+from src.utils import get_tokens_id_list, log_and_submit, raise_error
 from .conftest import get_random_market
+
+
+"""
+Create Market
+"""
 
 
 def test_create_market_correct_bet_success_fa12(
@@ -42,7 +45,7 @@ def test_create_market_correct_bet_success_fa12(
     assert metadata['adjudicator'] == revealed_account['key']
     assert 'auctionRunning' in state
     assert state['auctionRunning']['quantity'] == quantity
-    ### yes_preference should be probability * quantity
+    # yes_preference should be probability * quantity
     assert state['auctionRunning']['yes_preference'] == (2**32 * quantity)
     assert state['auctionRunning']['uniswap_contribution'] == (2**32 * quantity)
     assert liquidity['bet']['quantity'] == quantity
@@ -88,9 +91,7 @@ def test_create_market_incorrect_bet(stablecoin_id, market, quantity, rate, reve
         log_and_submit(transaction, revealed_account, market, market_id, error_func=raise_error)
 
 
-#test_create_market_currency_balance_FA12
-
-def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets, revealed_account):
+def test_create_market_already_used_market_id(stablecoin_id, market, revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
     auction = get_random_market()
@@ -109,7 +110,12 @@ def test_create_market_already_used_market_id(stablecoin_id, market, gen_markets
         log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
 
 
-def test_auction_bet_new_address_correct_bet(market, liquidity_storage, gen_markets, revealed_account):
+"""
+Bet on Market 
+"""
+
+
+def test_auction_bet_new_address_correct_bet(market, liquidity_storage, revealed_account):
     auction = get_random_market("created")
     quantity = 1000
     rate = 2**32
@@ -122,7 +128,7 @@ def test_auction_bet_new_address_correct_bet(market, liquidity_storage, gen_mark
     #uniswap contribution and yes_preference to check
 
 
-def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets, revealed_account):
+def test_auction_bet_existing_address_correct_bet(market, revealed_account):
     auction = get_random_market("bidded")
     quantity = 1000
     rate = 2**32
@@ -132,9 +138,6 @@ def test_auction_bet_existing_address_correct_bet(market, gen_bid_markets, revea
     bet = storage['liquidity_provider_map']["bet"]
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
-    #uniswap contribution and yes_preference to check
-
-#test_auction_bet_currency_balance_FA12
 
 
 def test_auction_bet_non_existent_market_id(market, revealed_account):
@@ -143,7 +146,19 @@ def test_auction_bet_non_existent_market_id(market, revealed_account):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
 
 
-def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account):
+def test_auction_bet_market_already_cleared(market, revealed_account):
+    auction = get_random_market("cleared")
+    transaction = market.bid_auction(auction['id'], revealed_account['name'], 1000, 2*32)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
+
+
+"""
+Clear market
+"""
+
+
+def test_clear_market_in_auction_phase(market):
     auction = get_random_market("bidded")
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
     log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
@@ -152,177 +167,288 @@ def test_clear_market_in_auction_phase(market, gen_bid_markets, revealed_account
     assert 'marketBootstrapped' in state
     assert 'auctionRunning' not in state
     assert state['marketBootstrapped']['resolution'] is None
-    #check if the uniswap pool and check the contribution factor for each user
 
 
-def test_clear_market_in_auction_phase(market, gen_cleared_markets, revealed_account):
+def test_clear_market_on_cleared(market):
     auction = get_random_market("cleared")
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
-    storage = market.get_storage(auction['id'], auction['caller']['name'])
-    state = storage['market_map']['state']
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
-    #check if the uniswap pool and check the contribution factor for each user
+        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
 
 
-def test_clear_non_existent_market_id(market, gen_bid_markets, revealed_account):
-    transaction = market.auction_clear(1, revealed_account['name'])
-    with pytest.raises(RpcError):
-        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-
-
-def test_mint_token_on_cleared(market, gen_resolved_market, revealed_account):
+def test_clear_non_existent_market_id(market):
     auction = get_random_market("cleared")
-    transaction = market.mint(auction['id'], auction['caller']['name'], 100)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
-    before_state = before_storage['market_map']['state']
-    after_state = after_storage['market_map']['state']
-    assert before_state['marketBootstrapped']['market_currency_pool'] != after_state['marketBootstrapped']['market_currency_pool']
+    transaction = market.auction_clear(auction['id'], auction['caller']['name'])
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
 
 
-def test_mint_token_in_auction_phase(market, gen_resolved_market, revealed_account):
+"""
+Mint token
+"""
+
+
+def test_mint_token_on_cleared(market, minter_account):
+    quantity = 100
+    auction = get_random_market("minted")
+    transaction = market.mint(auction['id'], minter_account['name'], quantity)
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    before_supply = before_storage["supply_map"]
+    after_supply = after_storage["supply_map"]
+    tokens = get_tokens_id_list(auction['id'])
+    assert after_supply != {}
+    assert before_supply['no_token'] == after_supply['no_token'] + quantity
+    assert before_supply['yes_token'] == after_supply['yes_token'] + quantity
+    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] + quantity
+    assert before_supply['auction_reward'] == after_supply['auction_reward'] + quantity
+
+
+def test_mint_token_in_auction_phase(market, minter_account):
     auction = get_random_market("bidded")
-    transaction = market.mint(auction['id'], auction['caller']['name'], 100)
+    transaction = market.mint(auction['id'], minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_mint_resolved_market(market, gen_resolved_market, revealed_account):
+def test_mint_resolved_market(market, minter_account):
     auction = get_random_market("resolved")
-    transaction = market.mint(auction['id'], auction['caller']['name'], 100)
+    transaction = market.mint(auction['id'], minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_burn_inexistent_market(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("resolved")
-    transaction = market.burn(1, auction['caller']['name'], 100)
+def test_mint_inexistent_market(market, minter_account):
+    transaction = market.mint(1, minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
 
 
-def test_burn_token_on_cleared(market, gen_resolved_market, revealed_account):
+def test_mint_insufficient_currency_balance(market, non_financed_account):
     auction = get_random_market("cleared")
-    transaction = market.burn(auction['id'], auction['caller']['name'], 100)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-    before_state = before_storage['market_map']['state']
-    after_state = after_storage['market_map']['state']
-    assert before_state['marketBootstrapped']['market_currency_pool'] != after_state['marketBootstrapped']['market_currency_pool']
+    transaction = market.mint(auction['id'], non_financed_account['name'], 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
 
-def test_burn_token_in_auction_phase(market, gen_resolved_market, revealed_account):
+
+"""
+Burn token
+"""
+
+
+def test_burn_token_on_cleared(market, minter_account):
+    quantity = 100
+    auction = get_random_market("minted")
+    transaction = market.burn(auction['id'], minter_account['name'], quantity)
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    before_supply = before_storage["supply_map"]
+    after_supply = after_storage["supply_map"]
+    assert after_supply != {}
+    assert before_supply['no_token'] == after_supply['no_token'] - quantity
+    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
+    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
+    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+
+
+def test_burn_token_in_auction_phase(market, minter_account):
     auction = get_random_market("bidded")
-    transaction = market.burn(auction['id'], auction['caller']['name'], 100)
+    transaction = market.burn(auction['id'], minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_burn_resolved_market(market, gen_resolved_market, revealed_account):
+def test_burn_resolved_market(market, minter_account):
     auction = get_random_market("resolved")
-    transaction = market.burn(auction['id'], auction['caller']['name'], 100)
+    transaction = market.burn(auction['id'], minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_burn_inexistent_market(market):
-    auction = get_random_market("resolved")
-    transaction = market.burn(1, auction['caller']['name'], 100)
+def test_burn_inexistent_market(market, minter_account):
+    transaction = market.burn(1, minter_account['name'], 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], 1, error_func=raise_error)
+        log_and_submit(transaction, minter_account, 1, error_func=raise_error)
+
+
+def test_burn_insufficient_currency_balance(market, non_financed_account):
+    auction = get_random_market("cleared")
+    transaction = market.burn(auction['id'], non_financed_account['name'], 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
+
+
+"""
+Swap token
+"""
 
 
 @pytest.mark.parametrize('token_type', ["yes", "no"])
-def test_swap_token_token_on_cleared(market, gen_resolved_market, revealed_account, token_type):
-    auction = get_random_market("cleared")
-    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], token_type, 100)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-    liquidity_before = before_storage['liquidity_provider_map']
-    liquidity_after = after_storage['liquidity_provider_map']
-    assert liquidity_before['bet']['predicted_probability'] != liquidity_after['bet']['predicted_probability']
+def test_swap_token_token_on_cleared(market, minter_account, token_type):
+    quantity = 100
+    auction = get_random_market("minted")
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], token_type, 100)
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    before_supply = before_storage["supply_map"]
+    after_supply = after_storage["supply_map"]
+    assert after_supply != {}
+    assert before_supply['no_token'] == after_supply['no_token'] - quantity
+    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
+    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
+    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
 
-def test_swap_token_token_in_auction_phase(market, gen_cleared_markets, revealed_account):
+
+def test_swap_token_token_in_auction_phase(market, minter_account):
     auction = get_random_market("bidded")
-    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_swap_token_resolved_market(market, gen_resolved_market, revealed_account):
+def test_swap_token_resolved_market(market, minter_account):
     auction = get_random_market("resolved")
-    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_swap_token_inexistent_market(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("resolved")
-    transaction = market.swap_tokens(auction['id'], auction['caller']['name'], "yes", 100)
+def test_swap_token_inexistent_market(market, minter_account):
+    auction = get_random_market("minted")
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_add_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
-    auction = get_random_market("cleared")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
-    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-    before_liquidity = before_storage["liquidity_provider_map"]
-    after_liquidity = after_storage["liquidity_provider_map"]
-    assert after_liquidity['bet']['quantity'] > before_liquidity['bet']['quantity']
-
-
-def test_add_liquidity_in_auction_phase(market, gen_cleared_markets, revealed_account):
-    auction = get_random_market("cleared")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
+def test_swap_tokens_insufficient_currency_balance(market, non_financed_account):
+    auction = get_random_market("minted")
+    transaction = market.swap_tokens(auction['id'], non_financed_account['name'], "yes", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
 
 
-def test_add_liquidity_resolved_market(market, gen_resolved_market, revealed_account):
-    auction = get_random_market("resolved")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payIn", 100)
-    with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+"""
+Add liquidity
+"""
 
 
-def test_add_liquidity_inexistent_market(market, revealed_account):
-    transaction = market.update_liquidity(1, revealed_account['name'], "payIn", 100)
-    with pytest.raises(RpcError):
-        log_and_submit(transaction, revealed_account, 1, error_func=raise_error)
+def test_add_liquidity_on_cleared(market, minter_account):
+    quantity = 100
+    auction = get_random_market("minted")
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", 100)
+    log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
+    before_storage, after_storage = log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+    before_supply = before_storage["supply_map"]
+    after_supply = after_storage["supply_map"]
+    assert after_supply != {}
+    assert before_supply['no_token'] == after_supply['no_token'] - quantity
+    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
+    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
+    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
 
 
-def test_remove_liquidity_on_cleared(market, gen_cleared_markets, revealed_account):
-    auction = get_random_market("cleared")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
-    log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
-    before_storage, after_storage = log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
-    before_liquidity = before_storage["liquidity_provider_map"]
-    after_liquidity = after_storage["liquidity_provider_map"]
-    assert after_liquidity['bet']['quantity'] < before_liquidity['bet']['quantity']
-
-
-def test_remove_liquidity_in_auction_phase(market, gen_bid_markets):
+def test_add_liquidity_in_auction_phase(market, minter_account):
     auction = get_random_market("bidded")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_remove_liquidity_resolved_market(market, gen_resolved_market):
+def test_add_liquidity_resolved_market(market, minter_account):
     auction = get_random_market("resolved")
-    transaction = market.update_liquidity(auction['id'], auction['caller']['name'], "payOut", 100)
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
-def test_remove_liquidity_inexistent_market(market):
-    auction = get_random_market("created")
-    transaction = market.update_liquidity(1, auction['caller']['name'], "payOut", 100)
+def test_add_liquidity_inexistent_market(market, minter_account):
+    transaction = market.update_liquidity(1, minter_account['name'], "payIn", 100)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, 1, error_func=raise_error)
+        log_and_submit(transaction, minter_account, 1, error_func=raise_error)
+
+
+def test_add_liquidity_insufficient_currency_balance(market, non_financed_account):
+    auction = get_random_market("minted")
+    transaction = market.update_liquidity(auction['id'], non_financed_account['name'], "payIn", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
+
+
+"""
+Remove liquidity
+"""
+
+
+def test_remove_liquidity_on_cleared(market, minter_account):
+    quantity = 100
+    auction = get_random_market("cleared")
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", 100)
+    log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    before_supply = before_storage["supply_map"]
+    after_supply = after_storage["supply_map"]
+    assert after_supply != {}
+    assert before_supply['no_token'] == after_supply['no_token'] - quantity
+    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
+    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
+    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+
+
+def test_remove_liquidity_in_auction_phase(market, minter_account):
+    auction = get_random_market("bidded")
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
+
+
+def test_remove_liquidity_resolved_market(market, minter_account):
+    auction = get_random_market("resolved")
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
+
+
+def test_remove_liquidity_inexistent_market(market, minter_account):
+    transaction = market.update_liquidity(1, minter_account['name'], "payOut", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+
+
+def test_remove_liquidity_insufficient_currency_balance(market, non_financed_account):
+    auction = get_random_market("minted")
+    transaction = market.update_liquidity(auction['id'], non_financed_account['name'], "payIn", 100)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
+
+
+"""
+Resolve Market
+"""
 
 
 @pytest.mark.parametrize('token_type', [True, False])
-def test_resolve_market_in_cleared_phase(market, gen_bid_markets, revealed_account, token_type):
+def test_resolve_market_in_cleared_phase(market, revealed_account, token_type):
     auction = get_random_market("cleared")
     transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
     log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
@@ -334,19 +460,24 @@ def test_resolve_market_in_cleared_phase(market, gen_bid_markets, revealed_accou
 
 
 @pytest.mark.parametrize('token_type', [True, False])
-def test_resolve_market_in_auction_phase(market, gen_bid_markets, revealed_account, token_type):
+def test_resolve_market_in_auction_phase(market, token_type):
     auction = get_random_market("bidded")
     transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
-    log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
-    storage = market.get_storage(auction['id'], auction['caller']['name'])
-    state = storage['market_map']['state']
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        auction['caller'],
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    state = after_storage['market_map']['state']
     assert 'marketBootstrapped' in state
     assert 'auctionRunning' not in state
     assert state['marketBootstrapped']['resolution'] is not None
 
 
 @pytest.mark.parametrize('token_type', [True, False])
-def test_resolve_market_already_resolved(market, gen_bid_markets, revealed_account, token_type):
+def test_resolve_market_already_resolved(market, token_type):
     auction = get_random_market("resolved")
     transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
     with pytest.raises(RpcError):
@@ -354,11 +485,11 @@ def test_resolve_market_already_resolved(market, gen_bid_markets, revealed_accou
 
 
 @pytest.mark.parametrize('token_type', [True, False])
-def test_resolve_market_unauthorized_account(market, gen_bid_markets, revealed_account, token_type):
+def test_resolve_market_unauthorized_account(market, revealed_account, token_type):
     auction = get_random_market("cleared")
     transaction = market.close_market(auction['id'], revealed_account['name'], token_type)
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction["id"], error_func=raise_error)
+        log_and_submit(transaction, revealed_account, market, auction["id"], error_func=raise_error)
 
 
 @pytest.mark.parametrize('token_type', [True, False])

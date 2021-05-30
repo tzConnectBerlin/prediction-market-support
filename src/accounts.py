@@ -44,11 +44,11 @@ class Accounts:
         )
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, ignored_accounts=[]):
+    def import_from_tezos_client(self, ignored_accounts=[], client_path='~/.tezos-client'):
         """
         Import account from tezos client
         """
-        path = os.path.join(get_tezos_client_path(), 'secret_keys')
+        path = os.path.join(get_tezos_client_path(client_path), 'secret_keys')
         with open(path, 'r') as f:
             try:
                 data = json.loads(f.read())
