@@ -335,6 +335,7 @@ class Market:
     ):
         time.sleep(1)
         tokens = get_tokens_id_list(market_id)
+        logger.error(market_id)
         market_map = self.get_market_map_storage(market_id, user)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
         supply_map = self.get_supply_map_storage(user, tokens)
@@ -384,9 +385,7 @@ class Market:
         for token in tokens:
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
             try:
-                supply_map[token['token_name']] = entry[token['value']]()
-                if isinstance(entry[token['value']](), int):
-                    logger.error("failing")
+                supply_map[token['token_name']] = entry[token['token_value']]()
             except:
                 supply_map[token['token_name']] = 'Not available in supply_map'
         if supply_map == {}:

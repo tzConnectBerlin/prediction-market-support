@@ -63,7 +63,8 @@ test_accounts = [
 @pytest.fixture(scope="session", autouse=True)
 def contract_id():
     id = deploy_market()
-    logger.debug(f"contract = {id}")
+    logger.error(f"contract = {id}")
+    print(f"contract = {id}")
     return id
 
 

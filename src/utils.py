@@ -126,7 +126,7 @@ def get_tokens_ledgermap(client, contract_id):
     contract = client.contract(contract_id)
     return contract.storage['business_storage']['tokens']['ledger_map']
 
-####Modify the functions to take parameters
+
 def get_tokens_supplymap(client, contract_id):
     """
     Return storage for tokens
@@ -158,10 +158,10 @@ def stablecoin_storage(client, contract_id, market_id=None):
 
 def get_tokens_id_list(market_id: int):
     token_list = [
-        {'token_name': 'no_token', 'token_value': market_id << 3,},
-        {'token_name': 'yes_token', 'token_value': (market_id << 3) + 1,},
-        {'token_name': 'pool_liquidity', 'token_value': (market_id << 3) + 2,},
-        {'token_name': 'auction_reward', 'token_value': (market_id << 3) + 3,},
+        {'token_name': 'no_token', 'token_value': market_id << 3},
+        {'token_name': 'yes_token', 'token_value': (market_id << 3) + 1},
+        {'token_name': 'pool_liquidity', 'token_value': (market_id << 3) + 2},
+        {'token_name': 'auction_reward', 'token_value': (market_id << 3) + 3},
         {'token_name': 'liquidity_reward', 'token_value': (market_id << 3) + 4},
     ]
     return token_list

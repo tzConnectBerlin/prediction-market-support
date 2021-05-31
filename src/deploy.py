@@ -3,11 +3,13 @@ from datetime import datetime
 
 from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
-from loguru import logger
 
 from src.compile import *
 from src.config import Config
 from src.utils import submit_transaction, print_error
+
+from loguru import logger
+
 
 from time import sleep
 
@@ -167,4 +169,5 @@ def deploy_market(key=admin['sk'], shell=shell):
     lazy_contracts_path = config['contract_path'] + '/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id)
     logger.debug(f"Binary market was deployed at {market_id}")
+    print(f"Binary market was deployed at {market_id}")
     return market_id

@@ -3,8 +3,6 @@ import os
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
-from loguru import logger
-
 WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
 
 
