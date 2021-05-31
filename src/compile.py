@@ -3,10 +3,10 @@ import os
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
-WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
+from loguru import logger
 
 
-def ligo_cmd(wrkdir=WORKING_DIRECTORY):
+def ligo_cmd(wrkdir):
     if wrkdir == "":
         wrkdir = "$PWD"
     cmd = f'docker run --rm -v {wrkdir}:{wrkdir} -w {wrkdir} ligolang/ligo:0.14.0 "$@"'
@@ -31,7 +31,7 @@ def run_command(command):
                 return output
 
 
-def compile_contract(file, wrkdir=""):
+def compile_contract(file, wrkdir):
     """
     Compile a contract and return the result
 
@@ -40,10 +40,11 @@ def compile_contract(file, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
-def compile_storage(file, storage, wrkdir=""):
+def compile_storage(file, storage, wrkdir):
     """
     Compile the storage for a contract
 
@@ -53,10 +54,11 @@ def compile_storage(file, storage, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-storage {file} main '{storage}'"
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
-def compile_expression(file, wrkdir=""):
+def compile_expression(file, wrkdir):
     """
     Compile a file as an expression in cameligo
 
@@ -64,10 +66,11 @@ def compile_expression(file, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-expression --init-file={file} cameligo f"
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
-def preprocess_file(file, helper_directory="", wrkdir=""):
+def preprocess_file(file, helper_directory, wrkdir):
     """
     Preprocess a file to be compiled
     :param file: path to the preprocessing file
@@ -78,6 +81,7 @@ def preprocess_file(file, helper_directory="", wrkdir=""):
         wrkdir = os.path.split(file)[0]
     compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={wrkdir}" {file}'
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
@@ -101,6 +105,7 @@ def launch_sandbox():
     """
     command = "sh tests/start_sandbox.sh"
     result = run_command(command)
+    logger.debug(result)
     return result
 
 
@@ -112,4 +117,5 @@ def stop_sandbox():
     """
     command = "sh tests/stop_sandbox.sh"
     result = run_command(command)
+    logger.debug(result)
     return result
