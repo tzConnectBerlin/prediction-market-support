@@ -31,7 +31,7 @@ def run_command(command):
                 return output
 
 
-def compile_contract(file, wrkdir):
+def compile_contract(file, wrkdir=""):
     """
     Compile a contract and return the result
 
@@ -44,7 +44,7 @@ def compile_contract(file, wrkdir):
     return result
 
 
-def compile_storage(file, storage, wrkdir):
+def compile_storage(file, storage, wrkdir=""):
     """
     Compile the storage for a contract
 
@@ -58,7 +58,7 @@ def compile_storage(file, storage, wrkdir):
     return result
 
 
-def compile_expression(file, wrkdir):
+def compile_expression(file, wrkdir=""):
     """
     Compile a file as an expression in cameligo
 
