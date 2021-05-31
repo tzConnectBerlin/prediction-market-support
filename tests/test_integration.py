@@ -497,3 +497,29 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
     transaction = market.close_market(1, revealed_account['name'], token_type)
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
+
+
+def test_claim_winning_lqt_provider(market, minter_account):
+    auction = get_random_market('resolved')
+    transaction = market.claim_winnings(auction['id'], minter_account['name'])
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+
+def test_claim_winnings_unresolved_market(market):
+    auction = get_random_market('cleared')
+    transaction = market.claim_winnings(auction['id'], auction['caller']['name'])
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, 1, error_func=raise_error)
+
+
+def test_claim_winnings_non_existent_market(market, minter_account):
+    transaction = market.claim_winnings(1, minter_account['name'])
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+
+

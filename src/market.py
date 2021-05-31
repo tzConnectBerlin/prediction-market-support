@@ -339,10 +339,12 @@ class Market:
         market_map = self.get_market_map_storage(market_id, user)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
         supply_map = self.get_supply_map_storage(user, tokens)
+        ledger_map = self.get_ledger_map_storage(user, tokens)
         return {
             'market_map': market_map,
             'liquidity_provider_map': liquidity_provider_map,
-            'supply_map': supply_map
+            'supply_map': supply_map,
+            'ledger_map': ledger_map
         }
         
     def get_market_map_storage(self, market_id: int, user: str):
@@ -372,13 +374,16 @@ class Market:
             return None
 
     def get_ledger_map_storage(self, user: str, tokens: list):
-        ledger_map_dic = {}
+        ledger_map = {}
         user_address = get_public_key(self.accounts[user])
         for token in tokens:
             map_key = {"owner": user_address, "token_id": token}
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
-            if map_key in entry:
-                ledger_map_dic[token] = entry[map_key]()
+            try:
+                ledger_map[token['token_name']] = entry[token['token_value']]()
+            except:
+                ledger_map[token['token_name']] = 'Not available in ledger_map'
+        return ledger_map
 
     def get_supply_map_storage(self, user: str, tokens: list):
         supply_map = {}
