@@ -377,12 +377,12 @@ class Market:
         ledger_map = {}
         user_address = get_public_key(self.accounts[user])
         for token in tokens:
-            map_key = {"owner": user_address, "token_id": token}
+            map_key = {"owner": user_address, "token_id": token['token_name']}
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
             try:
-                ledger_map[token['token_name']] = entry[token['token_value']]()
+                ledger_map[map_key] = entry[token['token_value']]()
             except:
-                ledger_map[token['token_name']] = 'Not available in ledger_map'
+                ledger_map[map_key] = 'Not available in ledger_map'
         return ledger_map
 
     def get_supply_map_storage(self, user: str, tokens: list):
