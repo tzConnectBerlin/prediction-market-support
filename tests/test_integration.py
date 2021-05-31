@@ -203,10 +203,10 @@ def test_mint_token_on_cleared(market, minter_account):
     after_supply = after_storage["supply_map"]
     tokens = get_tokens_id_list(auction['id'])
     assert after_supply != {}
-    assert before_supply['no_token'] == after_supply['no_token'] + quantity
-    assert before_supply['yes_token'] == after_supply['yes_token'] + quantity
-    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] + quantity
-    assert before_supply['auction_reward'] == after_supply['auction_reward'] + quantity
+    assert before_supply['no_token']['total_supply'] + quantity == after_supply['no_token']['total_supply']
+    assert before_supply['yes_token']['total_supply'] + quantity == after_supply['yes_token']['total_supply']
+    assert before_supply['pool_liquidity']['total_supply'] + quantity == after_supply['pool_liquidity']['total_supply']
+    assert before_supply['auction_reward']['total_supply'] + quantity == after_supply['auction_reward']['total_supply']
 
 
 def test_mint_token_in_auction_phase(market, minter_account):
@@ -255,10 +255,10 @@ def test_burn_token_on_cleared(market, minter_account):
     before_supply = before_storage["supply_map"]
     after_supply = after_storage["supply_map"]
     assert after_supply != {}
-    assert before_supply['no_token'] == after_supply['no_token'] - quantity
-    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
-    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
-    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+    assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply'] - quantity
+    assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply'] - quantity
+    assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply'] - quantity
+    assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply'] - quantity
 
 
 def test_burn_token_in_auction_phase(market, minter_account):
@@ -308,10 +308,10 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     before_supply = before_storage["supply_map"]
     after_supply = after_storage["supply_map"]
     assert after_supply != {}
-    assert before_supply['no_token'] == after_supply['no_token'] - quantity
-    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
-    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
-    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+    assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
+    assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
+    assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
+    assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
 
 
 def test_swap_token_token_in_auction_phase(market, minter_account):
@@ -356,10 +356,10 @@ def test_add_liquidity_on_cleared(market, minter_account):
     before_supply = before_storage["supply_map"]
     after_supply = after_storage["supply_map"]
     assert after_supply != {}
-    assert before_supply['no_token'] == after_supply['no_token'] - quantity
-    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
-    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
-    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+    assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
+    assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
+    assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
+    assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
 
 
 def test_add_liquidity_in_auction_phase(market, minter_account):
@@ -409,10 +409,10 @@ def test_remove_liquidity_on_cleared(market, minter_account):
     before_supply = before_storage["supply_map"]
     after_supply = after_storage["supply_map"]
     assert after_supply != {}
-    assert before_supply['no_token'] == after_supply['no_token'] - quantity
-    assert before_supply['yes_token'] == after_supply['yes_token'] - quantity
-    assert before_supply['pool_liquidity'] == after_supply['pool_liquidity'] - quantity
-    assert before_supply['auction_reward'] == after_supply['auction_reward'] - quantity
+    assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
+    assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
+    assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
+    assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
 
 
 def test_remove_liquidity_in_auction_phase(market, minter_account):
