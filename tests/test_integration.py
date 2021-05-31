@@ -346,7 +346,7 @@ def test_swap_tokens_insufficient_currency_balance(market, non_financed_account)
 Add liquidity
 """
 
-
+#swap_liquidity should be renamed to update_liquidity
 def test_add_liquidity_on_cleared(market, minter_account):
     quantity = 100
     auction = get_random_market("minted")

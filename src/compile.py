@@ -70,7 +70,7 @@ def compile_expression(file, wrkdir):
     return result
 
 
-def preprocess_file(file, helper_directory, wrkdir):
+def preprocess_file(file, helper_directory, wrkdir=""):
     """
     Preprocess a file to be compiled
     :param file: path to the preprocessing file
