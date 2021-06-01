@@ -367,7 +367,7 @@ class Market:
             map_key = {'owner': user_address, 'token_id': token['token_value']}
             entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
             try:
-                ledger_map[token['token_name']] = entry[token['token_value']]()
+                ledger_map[token['token_name']] = entry[map_key]()
             except:
                 ledger_map[token['token_name']] = None
         return ledger_map
