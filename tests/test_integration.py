@@ -314,8 +314,8 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     )
     lst_token = ["yes", "no"]
     lst_token.remove(token_type)
-    before_supply = before_storage["supply_map"]
-    after_supply = after_storage["supply_map"]
+    before_supply = before_storage["ledger_map"]
+    after_supply = after_storage["ledger_map"]
     token_to_sell = token_type + '_token'
     token_to_buy = lst_token[0] + '_token'
     token_sell_new_supply, token_buy_new_supply = check_that_swap_was_correct(before_supply, token_to_sell, token_to_buy, quantity)
