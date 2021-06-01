@@ -11,7 +11,7 @@ from .conftest import get_random_market
 """
 Create Market
 """
-
+'''
 
 def test_create_market_correct_bet_success_fa12(
         stablecoin_id,
@@ -324,23 +324,24 @@ def test_burn_insufficient_currency_balance(market, non_financed_account):
     with pytest.raises(RpcError):
         log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
 
-
+'''
 """
 Swap token
 """
-
 
 def check_that_swap_was_correct(before_supply, buy_token_name, sell_token_name, sell_quantity):
     k = before_supply[buy_token_name]['total_supply'] * before_supply[sell_token_name]['total_supply']
     token_sell_new_supply = before_supply[sell_token_name]['total_supply'] + sell_quantity
     token_buy_new_supply = k / token_sell_new_supply
     return token_sell_new_supply, token_buy_new_supply
-
+    
 
 @pytest.mark.parametrize('token_type', ["yes", "no"])
 def test_swap_token_token_on_cleared(market, minter_account, token_type):
-    quantity = 20000
+    quantity = 200
     auction = get_random_market(["cleared"])
+    transaction = market.mint(auction['id'], minter_account['name'], 2 * quantity)
+    log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
     transaction = market.swap_tokens(auction['id'], minter_account['name'], token_type, quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
@@ -355,26 +356,29 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     after_supply = after_storage["ledger_map"]
     token_to_sell = token_type + '_token'
     token_to_buy = lst_token[0] + '_token'
-    token_sell_new_supply, token_buy_new_supply = check_that_swap_was_correct(before_supply, token_to_sell, token_to_buy, quantity)
-    logger.info(before_storage)
-    logger.info(after_storage)
+    # token_sell_new_supply, token_buy_new_supply = check_that_swap_was_correct(before_supply, token_to_sell, token_to_buy, quantity)
+    logger.debug(before_storage)
+    logger.debug(after_storage)
     assert after_supply != {}
-    logger.info("############################################################################")
-    logger.info("############################################################################")
-    logger.info("############################################################################")
-    logger.info(f"token to sell = {token_to_sell} and token to buy = {token_to_buy}")
-    logger.info(f"supply of token sell before = {before_supply[token_to_sell]['total_supply']}")
-    logger.info(f"token to sell new quantity by me = {token_sell_new_supply}")
-    logger.info(f"token to sell new quantity by dani = {after_supply[token_to_sell]['total_supply']}")
-    logger.info(f"supply of token buy before = {before_supply[token_to_buy]['total_supply']}")
-    logger.info(f"token to buy new quantity by me = {token_buy_new_supply}")
-    logger.info(f"token to buy new quantity by dani = {after_supply[token_to_buy]['total_supply']}")
+    logger.debug("############################################################################")
+    logger.debug("############################################################################")
+    logger.debug("############################################################################")
+    logger.debug(f"token to sell = {token_to_sell} and token to buy = {token_to_buy}")
+    logger.debug(f"before_supply dic.keys is = {before_supply.keys()}")
+    logger.debug(f"before_supply dic is = {before_supply}")
+    logger.debug(f"supply of token sell before = {before_supply[token_to_sell]}")
+    # logger.debug(f"token to sell new quantity by me = {token_sell_new_supply}")
+    logger.debug(f"token to sell new quantity by dani = {after_supply[token_to_sell]}")
+    logger.debug(f"supply of token buy before = {before_supply[token_to_buy]}")
+    # logger.debug(f"token to buy new quantity by me = {token_buy_new_supply}")
+    logger.debug(f"token to buy new quantity by dani = {after_supply[token_to_buy]}")
     assert False
     # assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
     # assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
     # assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
     # assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
 
+'''
 
 def test_swap_token_token_in_auction_phase(market, minter_account):
     auction = get_random_market(["bidded"])
@@ -576,3 +580,4 @@ def test_claim_winnings_non_existent_market(market, minter_account):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
 
 
+'''
