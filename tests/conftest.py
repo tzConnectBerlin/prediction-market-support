@@ -20,6 +20,10 @@ from src.utils import *
 market_pool = []
 reserved = []
 
+logger = logger.opt(colors=True)
+logger.add("file_{time}.log")
+
+
 test_accounts = [
     {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"},
     {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"},
