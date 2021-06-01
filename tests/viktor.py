@@ -17,6 +17,7 @@ def start(config_file, contract_id, stablecoin_id):
     market_map = markets['market_map']
     ledger_map = buis_storage['tokens']['ledger_map']
     supply_map = buis_storage['tokens']['supply_map']
+    
     return {"contract": contract,
             "client": account,
             "stablecoin": stablecoin,

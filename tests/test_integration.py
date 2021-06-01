@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import time
 
 import pytest
 from pytezos.rpc.node import RpcError
@@ -11,7 +12,7 @@ from .conftest import get_random_market
 """
 Create Market
 """
-'''
+
 
 def test_create_market_correct_bet_success_fa12(
         stablecoin_id,
@@ -324,16 +325,16 @@ def test_burn_insufficient_currency_balance(market, non_financed_account):
     with pytest.raises(RpcError):
         log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
 
-'''
+
 """
 Swap token
 """
 
-def check_that_swap_was_correct(before_supply, buy_token_name, sell_token_name, sell_quantity):
-    k = before_supply[buy_token_name]['total_supply'] * before_supply[sell_token_name]['total_supply']
-    token_sell_new_supply = before_supply[sell_token_name]['total_supply'] + sell_quantity
-    token_buy_new_supply = k / token_sell_new_supply
-    return token_sell_new_supply, token_buy_new_supply
+# def check_that_swap_was_correct(before_supply, buy_token_name, sell_token_name, sell_quantity):
+#     k = before_supply[buy_token_name]['total_supply'] * before_supply[sell_token_name]['total_supply']
+#     token_sell_new_supply = before_supply[sell_token_name]['total_supply'] + sell_quantity
+#     token_buy_new_supply = k / token_sell_new_supply
+#     return token_sell_new_supply, token_buy_new_supply
     
 
 @pytest.mark.parametrize('token_type', ["yes", "no"])
@@ -352,33 +353,34 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     )
     lst_token = ["yes", "no"]
     lst_token.remove(token_type)
-    before_supply = before_storage["ledger_map"]
-    after_supply = after_storage["ledger_map"]
+    before_ledger_supply = before_storage["ledger_map"]
+    after_ledger_supply = after_storage["ledger_map"]
     token_to_sell = token_type + '_token'
     token_to_buy = lst_token[0] + '_token'
     # token_sell_new_supply, token_buy_new_supply = check_that_swap_was_correct(before_supply, token_to_sell, token_to_buy, quantity)
     logger.debug(before_storage)
     logger.debug(after_storage)
-    assert after_supply != {}
-    logger.debug("############################################################################")
-    logger.debug("############################################################################")
-    logger.debug("############################################################################")
-    logger.debug(f"token to sell = {token_to_sell} and token to buy = {token_to_buy}")
-    logger.debug(f"before_supply dic.keys is = {before_supply.keys()}")
-    logger.debug(f"before_supply dic is = {before_supply}")
-    logger.debug(f"supply of token sell before = {before_supply[token_to_sell]}")
-    # logger.debug(f"token to sell new quantity by me = {token_sell_new_supply}")
-    logger.debug(f"token to sell new quantity by dani = {after_supply[token_to_sell]}")
-    logger.debug(f"supply of token buy before = {before_supply[token_to_buy]}")
-    # logger.debug(f"token to buy new quantity by me = {token_buy_new_supply}")
-    logger.debug(f"token to buy new quantity by dani = {after_supply[token_to_buy]}")
-    assert False
+    assert after_ledger_supply != {}
+    assert after_ledger_supply[token_to_sell] == before_ledger_supply[token_to_sell] - quantity
+    # logger.debug("############################################################################")
+    # logger.debug("############################################################################")
+    # logger.debug("############################################################################")
+    # logger.debug(f"token to sell = {token_to_sell} and token to buy = {token_to_buy}")
+    # logger.debug(f"before_supply dic.keys is = {before_supply.keys()}")
+    # logger.debug(f"before_supply dic is = {before_supply}")
+    # logger.debug(f"supply of token sell before = {before_supply[token_to_sell]}")
+    # # logger.debug(f"token to sell new quantity by me = {token_sell_new_supply}")
+    # logger.debug(f"token to sell new quantity by dani = {after_supply[token_to_sell]}")
+    # logger.debug(f"supply of token buy before = {before_supply[token_to_buy]}")
+    # # logger.debug(f"token to buy new quantity by me = {token_buy_new_supply}")
+    # logger.debug(f"token to buy new quantity by dani = {after_supply[token_to_buy]}")
+    
     # assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
     # assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
     # assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
     # assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
 
-'''
+
 
 def test_swap_token_token_in_auction_phase(market, minter_account):
     auction = get_random_market(["bidded"])
@@ -458,7 +460,7 @@ Remove liquidity
 
 def test_remove_liquidity_on_cleared(market, minter_account):
     quantity = 100
-    auction = get_random_market(["liquid"])
+    auction = get_random_market(["minted"])
     transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", 100)
     log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
     before_storage, after_storage = log_and_submit(
@@ -555,8 +557,12 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
 
 #There is something wrong here to check, the market keep being shown as not existing
-def test_claim_winning_lqt_provider(market, minter_account):
-    auction = get_random_market('resolved')
+@pytest.mark.parametrize('token_type', [True, False])
+def test_claim_winning_lqt_provider(market, minter_account, token_type):
+    auction = get_random_market('minted')
+    transaction = market.close_market(auction['id'], minter_account['name'], token_type)
+    log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+    time.sleep(10)
     transaction = market.claim_winnings(auction['id'], minter_account['name'])
     before_storage, after_storage = log_and_submit(
         transaction,
@@ -580,4 +586,3 @@ def test_claim_winnings_non_existent_market(market, minter_account):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
 
 
-'''
