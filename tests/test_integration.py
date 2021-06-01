@@ -115,17 +115,16 @@ Bet on Market
 """
 
 
-def test_auction_bet_new_address_correct_bet(market, liquidity_storage, revealed_account):
+def test_auction_bet_new_address_correct_bet(market, revealed_account):
     auction = get_random_market(["created"])
     quantity = 1000
     rate = 2**32
     transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
-    log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+    log_and_submit(transaction, revealed_account, auction["id"], error_func=raise_error)
     storage = market.get_storage(auction['id'], revealed_account['name'])
     bet = storage['liquidity_provider_map']['bet']
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
-    #uniswap contribution and yes_preference to check
 
 
 def test_auction_bet_existing_address_correct_bet(market, revealed_account):
@@ -133,8 +132,28 @@ def test_auction_bet_existing_address_correct_bet(market, revealed_account):
     quantity = 1000
     rate = 2**32
     transaction = market.bid_auction(auction['id'], revealed_account["name"], quantity, rate)
-    log_and_submit(transaction, auction['caller'], auction["id"], error_func=raise_error)
+    log_and_submit(transaction, revealed_account, auction["id"], error_func=raise_error)
     storage = market.get_storage(auction['id'], revealed_account['name'])
+    bet = storage['liquidity_provider_map']["bet"]
+    assert bet['quantity'] == quantity
+    assert bet['predicted_probability'] == rate
+
+
+@pytest.mark.parametrize("quantity,rate", [[0, 2**34], [1000, 2**65]])
+def test_auction_incorrect_bet(market, revealed_account, quantity, rate):
+    auction = get_random_market(["created"])
+    transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, revealed_account, auction["id"], error_func=raise_error)
+
+
+def test_auction_bet_insufficient_currency_balance(market, non_financed_account):
+    auction = get_random_market(["bidded"])
+    quantity = 1000
+    rate = 2**32
+    transaction = market.bid_auction(auction['id'], non_financed_account["name"], quantity, rate)
+    log_and_submit(transaction, non_financed_account, auction["id"], error_func=raise_error)
+    storage = market.get_storage(auction['id'], non_financed_account['name'])
     bet = storage['liquidity_provider_map']["bet"]
     assert bet['quantity'] == quantity
     assert bet['predicted_probability'] == rate
@@ -174,6 +193,23 @@ def test_clear_market_in_auction_phase(market):
     assert state['marketBootstrapped']['resolution'] is None
 
 
+def test_clear_market_with_no_bet_market(market):
+    auction = get_random_market(["created"])
+    transaction = market.auction_clear(auction['id'], auction['caller']['name'])
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+
+
+@pytest.mark.parametrize("quantity,rate", [[1, 100], [0, 2]])
+def test_clear_market_insufficient_liquidity_from_bets(market, revealed_account, quantity, rate):
+    auction = get_random_market(["created"])
+    transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
+    log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
+    transaction = market.auction_clear(auction['id'], revealed_account['name'])
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
+
+
 def test_clear_market_on_cleared(market):
     auction = get_random_market(["cleared"])
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
@@ -202,6 +238,7 @@ def test_withdraw_auction_cleared(market):
         auction["id"],
         error_func=raise_error
     )
+
 
 @pytest.mark.parametrize('random_nonce', [1,2,3,4,5,6,7,8])
 def test_withdraw_auction_bidded(market, random_nonce):

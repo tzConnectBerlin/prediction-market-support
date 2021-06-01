@@ -20,7 +20,7 @@ from src.utils import *
 market_pool = []
 reserved = []
 
-logger.add("tests/file_{time}.log", level='INFO')
+logger.add("tests/file_{time}.log", level='DEBUG')
 logger = logger.opt(colors=True)
 
 
@@ -384,10 +384,11 @@ def gen_resolved_markets(config, market, gen_cleared_markets):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def log_contract_state(market):
-    logger.info("___________________")
-    yield logger
-    logger.info("___________________")
+def log_contract_state(request):
+    logger.info(f"-----------------------------{request}-----------------------------")
+    logger.debug(request)
+    yield
+    logger.info(f"-----------------------------END OF THE TEST-----------------------------")
 
 
 def get_random_market(status=['created'], exclude=[]):
