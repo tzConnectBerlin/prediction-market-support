@@ -98,10 +98,70 @@ def config(contract_id, stablecoin_id):
 
 
 @pytest.fixture(scope="session", autouse=True)
+def market(config, get_accounts):
+    new_market = Market(get_accounts, config)
+    return new_market
+
+
+@pytest.fixture(scope="session", autouse=True)
+def stablecoin(config, get_accounts):
+    new_stablecoin = Stablecoin(get_accounts, config)
+    return new_stablecoin
+
+
+@pytest.fixture(scope="session", autouse=True)
+def client(config):
+    client = pytezos.using(
+        shell=config["endpoint"],
+        key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
+    )
+    return client
+
+
+@pytest.fixture(scope="session", autouse=True)
+def stablecoin_storage(client, stablecoin_id):
+    stablecoin = client.contract(stablecoin_id)
+    return stablecoin.storage['ledger']
+
+
+@pytest.fixture(scope="session", autouse=True)
+def questions_storage(client, config):
+    return get_market_map(client, config['contract'])
+
+
+@pytest.fixture(scope="session", autouse=True)
 def get_accounts(config):
     accounts = Accounts(endpoint=config["endpoint"])
     accounts.import_from_folder("tests/users")
     return accounts
+
+
+@pytest.fixture(scope="session", autouse=True)
+def financed_accounts(client, config: Config, stablecoin_id: str):
+    money_seeding = []
+    stablecoin_seeding = []
+    accounts_to_finance = random.choices(test_accounts, k=30)
+    for account in test_accounts:
+        if account in accounts_to_finance:
+            money_seed = client.transaction(
+                account['key'], amount=Decimal(10)
+            )
+            account['status'] += ',tezzed'
+            money_seeding.append(money_seed)
+            stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
+            stablecoin_seed = stablecoin.transfer({
+                'from': get_public_key(config['admin_account']),
+                'to': account['key'],
+                'value': 2 ** 42
+            })
+            account['status'] += ',financed'
+            stablecoin_seeding.append(stablecoin_seed.as_transaction())
+
+    bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
+    submit_transaction(bulk_transactions, error_func=print_error)
+    bulk_transactions = config["admin_account"].bulk(*money_seeding)
+    submit_transaction(bulk_transactions, error_func=print_error)
+    return accounts_to_finance
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -132,12 +192,31 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
                     try:
                         transaction = market.mint(ma['id'], account['name'], 2**16)
                         submit_transaction(transaction, error_func=print_error)
-                        ma['status'] = 'minted'
+                        ma['status'] +=',minted'
                         if 'minted' not in account['status']:
-                            account['status'] += 'minted'
+                            account['status'] += ',minted'
                     except:
                         continue
     return accounts_who_mint
+
+
+def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_markets):
+    accounts_whith_liquidity = random.choices(revealed_accounts, k=15)
+    market_with_minted_token = random.choices(gen_cleared_markets, k=15)
+    transactions = []
+    for account in test_accounts:
+        if account in accounts_whith_liquidity:
+            for ma in market_pool:
+                if ma in market_with_minted_token:
+                    try:
+                        transaction = market.mint(ma['id'], account['name'], 2**16)
+                        submit_transaction(transaction, error_func=print_error)
+                        ma['status'] += ',liquid'
+                        if 'sprayer' not in account['status']:
+                            account['status'] += ',sprayer'
+                    except:
+                        continue
+    return accounts_whith_liquidity
 
 
 @pytest.fixture(scope="function")
@@ -187,6 +266,14 @@ def minter_account():
     return account
 
 
+@pytest.fixture(scope="function")
+
+def sprayer_account():
+    selection = [x for x in test_accounts if 'sprayer' in x['status']]
+    account = random.choice(selection)
+    return account
+
+
 @pytest.fixture(scope="session", autouse="True")
 def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
@@ -194,7 +281,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
         for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
-            end_delay = random.uniform(0.2, 0.5)
+            end_delay = random.uniform(0.05, 0.15)
             end = datetime.now() + timedelta(minutes=end_delay)
             caller = random.choice(revealed_accounts)
             market_id, transaction = market.ask_question(
@@ -218,7 +305,6 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
                 })
         bulk_transactions = config["admin_account"].bulk(*transactions)
         submit_transaction(bulk_transactions, error_func=print_error)
-        sleep(2)
         transactions.clear()
     sleep(80)
     return market_pool
@@ -288,11 +374,14 @@ def log_contract_state(market):
     logger.debug("___________________")
 
 
-def get_random_market(status='created'):
-    pool = [x for x in market_pool if status == x['status']]
-    logger.debug(pool)
+def get_random_market(status=['created'], exclude=[]):
+    pool = [
+        x for x in market_pool if
+        any(status_el in x['status'] for status_el in status)
+    ]
     r_pool = random.choice(pool)
     pool.remove(r_pool)
+    logger.debug(f"selected market for test: {r_pool}")
     return r_pool
 
 
@@ -302,7 +391,7 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
+    #launch_sandbox()
     sleep(20)
 
 
@@ -325,7 +414,7 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    #stop_sandbox()
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -352,38 +441,6 @@ def get_random_account(status="created", exclude=""):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def market(config, get_accounts):
-    new_market = Market(get_accounts, config)
-    return new_market
-
-
-@pytest.fixture(scope="session", autouse=True)
-def stablecoin(config, get_accounts):
-    new_stablecoin = Stablecoin(get_accounts, config)
-    return new_stablecoin
-
-
-@pytest.fixture(scope="session", autouse=True)
-def client(config):
-    client = pytezos.using(
-        shell=config["endpoint"],
-        key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
-    )
-    return client
-
-
-@pytest.fixture(scope="session", autouse=True)
-def stablecoin_storage(client, stablecoin_id):
-    stablecoin = client.contract(stablecoin_id)
-    return stablecoin.storage['ledger']
-
-
-@pytest.fixture(scope="session", autouse=True)
-def questions_storage(client, config):
-    return get_market_map(client, config['contract'])
-
-
-@pytest.fixture(scope="session", autouse=True)
 def liquidity_storage(client, config):
     return get_question_liquidity_provider_map(client, config['contract'])
 
@@ -396,33 +453,3 @@ def ledger_storage(client, config):
 @pytest.fixture(scope="session", autouse=True)
 def supply_storage(client, config):
     return get_tokens_supplymap(client, config['contract'])
-
-
-@pytest.fixture(scope="session", autouse=True)
-def financed_accounts(client, config: Config, stablecoin_id: str):
-    money_seeding = []
-    stablecoin_seeding = []
-    accounts_to_finance = random.choices(test_accounts, k=30)
-    for account in test_accounts:
-        if account in accounts_to_finance:
-            money_seed = client.transaction(
-                account['key'], amount=Decimal(10)
-            )
-            account['status'] += ',tezzed'
-            money_seeding.append(money_seed)
-            stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
-            stablecoin_seed = stablecoin.transfer({
-                'from': get_public_key(config['admin_account']),
-                'to': account['key'],
-                'value': 2 ** 42
-            })
-            account['status'] += ',financed'
-            stablecoin_seeding.append(stablecoin_seed.as_transaction())
-
-    bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
-    bulk_transactions = config["admin_account"].bulk(*money_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
-    return accounts_to_finance
-
-
