@@ -17,7 +17,6 @@ from src.market import Market
 from src.stablecoin import Stablecoin
 from src.utils import *
 
-
 market_pool = []
 reserved = []
 
@@ -209,13 +208,19 @@ def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_marke
             for ma in market_pool:
                 if ma in market_with_minted_token:
                     try:
-                        transaction = market.mint(ma['id'], account['name'], 2**16)
+                        transaction = market.update_liquidity(
+                            ma['id'],
+                            account['name'],
+                            'payIn',
+                            2**16
+                        )
                         submit_transaction(transaction, error_func=print_error)
                         ma['status'] += ',liquid'
                         if 'sprayer' not in account['status']:
                             account['status'] += ',sprayer'
                     except:
                         continue
+    logger.error(accounts_whith_liquidity)
     return accounts_whith_liquidity
 
 
@@ -423,7 +428,6 @@ def pytest_fixture_setup(fixturedef, request):
     yield
     total = time() - start
     logger.error(total)
-
 
 
 def get_random_account(status="created", exclude=""):
