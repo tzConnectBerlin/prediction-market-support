@@ -162,9 +162,9 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
     try:
         os.mkdir(path)
     except OSError:
-        logger.warning("Creation of the directory %s failed" % path)
+        logger.debug("Creation of the directory %s failed" % path)
     else:
-        logger.warning("Successfully created the directory %s " % path)
+        logger.debug("Successfully created the directory %s " % path)
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = '/tmp'

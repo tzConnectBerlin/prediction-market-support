@@ -20,8 +20,8 @@ from src.utils import *
 market_pool = []
 reserved = []
 
+logger.add("tests/file_{time}.log", level='INFO')
 logger = logger.opt(colors=True)
-logger.add("file_{time}.log")
 
 
 test_accounts = [
@@ -88,15 +88,15 @@ def mock_functions(monkeypatch):
 @pytest.fixture(scope='session', autouse=True)
 def stablecoin_id():
     id = deploy_stablecoin()
-    logger.debug(f"stablecoin ID = {id}")
+    logger.info(f"stablecoin ID = {id}")
     return id
 
 
 @pytest.fixture(scope="session", autouse=True)
 def config(contract_id, stablecoin_id):
     config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id)
-    logger.debug(f"endpoint = {config['endpoint']}")
-    logger.debug(f"account originator = {config['admin_priv_key']}")
+    logger.info(f"endpoint = {config['endpoint']}")
+    logger.info(f"account originator = {config['admin_priv_key']}")
     return config
 
 
@@ -193,9 +193,14 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
             for ma in market_pool:
                 if ma in market_with_minted_token:
                     try:
-                        transaction = market.mint(ma['id'], account['name'], 2**16)
+                        transaction = market.mint(
+                            ma['id'],
+                            account['name'],
+                            2**16
+                        )
                         submit_transaction(transaction, error_func=print_error)
-                        ma['status'] +=',minted'
+                        if 'minted' not in ma['status']:
+                            ma['status'] += ',minted'
                         if 'minted' not in account['status']:
                             account['status'] += ',minted'
                     except:
@@ -203,6 +208,7 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
     return accounts_who_mint
 
 
+@pytest.fixture(scope="session", autouse=True)
 def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_markets):
     accounts_whith_liquidity = random.choices(revealed_accounts, k=15)
     market_with_minted_token = random.choices(gen_cleared_markets, k=15)
@@ -219,7 +225,8 @@ def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_marke
                             2**16
                         )
                         submit_transaction(transaction, error_func=print_error)
-                        ma['status'] += ',liquid'
+                        if 'liquid' not in ma['status']:
+                            ma['status'] += ',liquid'
                         if 'sprayer' not in account['status']:
                             account['status'] += ',sprayer'
                     except:
@@ -233,12 +240,12 @@ def revealed_account(revealed_accounts, stablecoin, get_accounts):
     selected_account = random.choice(revealed_accounts)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
-    logger.debug(f"acount use for the call: {selected_account}")
-    logger.debug(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"acount use for the call: {selected_account}")
+    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
     yield selected_account
-    logger.debug(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
 
 
 @pytest.fixture(scope="function")
@@ -246,12 +253,12 @@ def financed_account(financed_accounts, stablecoin, get_accounts):
     selected_account = random.choice(financed_accounts)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
-    logger.debug(f"acount use for the call: {selected_account}")
-    logger.debug(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"acount use for the call: {selected_account}")
+    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
     yield selected_account
-    logger.debug(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
 
 
 @pytest.fixture(scope="function")
@@ -260,12 +267,12 @@ def non_financed_account(stablecoin, get_accounts):
     selected_account = random.choice(selection)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
-    logger.debug(f"acount use for the call: {selected_account}")
-    logger.debug(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"acount use for the call: {selected_account}")
+    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
     yield selected_account
-    logger.debug(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
 
 
 @pytest.fixture(scope="function")
@@ -345,14 +352,14 @@ def gen_cleared_markets(config, market, gen_bid_markets):
         transaction = market.auction_clear(ma['id'], ma['caller']['name'])
         try:
             end = datetime.now()
-            logger.debug(f" who is the end {end.timestamp()} {ma['end']}")
+            logger.info(f" who is the end {end.timestamp()} {ma['end']}")
             submit_transaction(transaction, error_func=raise_error)
             ma['status'] = 'cleared'
             cleared.append(ma)
         except Exception as e:
             continue
     sleep(2)
-    logger.debug(len(cleared))
+    logger.info(len(cleared))
     return cleared
 
 
@@ -370,17 +377,17 @@ def gen_resolved_markets(config, market, gen_cleared_markets):
                 ma['status'] = 'resolved'
                 resolved.append(ma)
             except Exception as e:
-                logger.debug(e)
+                logger.info(e)
                 continue
-    logger.debug(len(resolved))
+    logger.info(len(resolved))
     return resolved
 
 
 @pytest.fixture(scope="function", autouse=True)
 def log_contract_state(market):
-    logger.debug("___________________")
+    logger.info("___________________")
     yield logger
-    logger.debug("___________________")
+    logger.info("___________________")
 
 
 def get_random_market(status=['created'], exclude=[]):
@@ -390,7 +397,7 @@ def get_random_market(status=['created'], exclude=[]):
     ]
     r_pool = random.choice(pool)
     pool.remove(r_pool)
-    logger.debug(f"selected market for test: {r_pool}")
+    logger.info(f"selected market for test: {r_pool}")
     return r_pool
 
 
@@ -439,12 +446,12 @@ def get_random_account(status="created", exclude=""):
     selected_account = random.choice(selection)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
-    logger.debug(f"acount use for the call: {selected_account}")
-    logger.debug(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"acount use for the call: {selected_account}")
+    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
     yield selected_account
-    logger.debug(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.debug(f"account tez balance before call: {tez_balance}")
+    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
+    logger.info(f"account tez balance before call: {tez_balance}")
     return selected_account
 
 

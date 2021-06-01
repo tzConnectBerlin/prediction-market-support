@@ -182,19 +182,6 @@ class Market:
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         return bulk_operations
 
-    def withdraw_auction(
-            self,
-            question: str,
-            user: str
-    ):
-        """
-        Take an alllocation and withdraw the tokens attributed to you
-
-        """
-        operation = self.pm_contracts(user).withdrawAuction(
-            question
-        )
-        return operation.as_transaction()
 
     def close_market(
             self,
@@ -335,7 +322,7 @@ class Market:
     ):
         time.sleep(1)
         tokens = get_tokens_id_list(market_id)
-        logger.error(market_id)
+        logger.debug(f'Querrying storage for market{market_id}')
         market_map = self.get_market_map_storage(market_id, user)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
         supply_map = self.get_supply_map_storage(user, tokens)
@@ -351,8 +338,8 @@ class Market:
         try:
             market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
         except:
-            logger.error(
-                f"\ndoes not exist in market_map, <green>market_id</> = {market_id}"
+            logger.debug(
+                f"does not exist in market_map, <green>market_id</> = {market_id}"
             )
             return None
         return market_map
@@ -368,8 +355,8 @@ class Market:
             ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
             return liquidity_provider_map
         except:
-            logger.error(
-                f"\ncan't get liquidity_provider_map for market_id = {market_id} and user = {user}"
+            logger.debug(
+                f"can't get liquidity_provider_map for market_id = {market_id} and user = {user}"
             )
             return None
 
@@ -382,7 +369,7 @@ class Market:
             try:
                 ledger_map[token['token_name']] = entry[token['token_value']]()
             except:
-                ledger_map[token['token_name']] = 'Not available in ledger_map'
+                ledger_map[token['token_name']] = None
         return ledger_map
 
     def get_supply_map_storage(self, user: str, tokens: list):
@@ -392,7 +379,7 @@ class Market:
             try:
                 supply_map[token['token_name']] = entry[token['token_value']]()
             except:
-                supply_map[token['token_name']] = 'Not available in supply_map'
+                supply_map[token['token_name']] = None
         if supply_map == {}:
             return None
         return supply_map
