@@ -320,7 +320,14 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
                     'status': 'created'
                 })
         bulk_transactions = config["admin_account"].bulk(*transactions)
-        submit_transaction(bulk_transactions, error_func=print_error)
+        res = submit_transaction(bulk_transactions, error_func=print_error)
+        logger.debug("-------------------------------RESULT OF THE OPERATION--------------------------------------")
+        logger.debug(res)
+        logger.debug("-------------------------------RESULT OF THE OPERATION--------------------------------------")
+        logger.debug("-------------------------------LIST OF GENERATED MARKETS------------------------------------")
+        for ma in market_pool:
+            logger.debug(ma)
+        logger.debug("-------------------------------LIST OF GENERATED MARKETS------------------------------------")
         transactions.clear()
     sleep(80)
     return market_pool

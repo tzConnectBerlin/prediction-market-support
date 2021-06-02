@@ -6,7 +6,8 @@ from loguru import logger
 
 from src.utils import get_tokens_id_list, log_and_submit, raise_error
 from .conftest import get_random_market
-
+import random
+from src.utils import id_generator
 
 """
 Create Market
@@ -239,13 +240,31 @@ def test_withdraw_auction_cleared(market):
         error_func=raise_error
     )
 
+import time
 
 @pytest.mark.parametrize('random_nonce', [1,2,3,4,5,6,7,8])
-def test_withdraw_auction_bidded(market, random_nonce):
+def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stablecoin_id):
     auction = get_random_market(["bidded"])
-    transaction = market.auction_withdraw(auction['id'], auction['caller']['name'])
+    quantity = random.randint(0, 900)
+    rate = random.randint(0, 2 ** 63)
+    end_delay = random.uniform(0.05, 0.15)
+    end = datetime.now() + timedelta(minutes=end_delay)
+    caller = random.choice(revealed_accounts)
+    market_id, transaction = market.ask_question(
+        id_generator(),
+        id_generator(),
+        caller['name'],
+        quantity,
+        rate,
+        id_generator(),
+        auction_end_date=end.timestamp(),
+        token_contract=stablecoin_id
+    )
+    log_and_submit(transaction, caller, auction["id"], error_func=raise_error)
+    time.sleep(10)
+    transaction = market.auction_withdraw(market_id, caller['name'])
     with pytest.raises(RpcError):
-        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+        log_and_submit(transaction, caller, market, auction['id'], error_func=raise_error)
 
 
 def test_withdraw_auction_resolved(market):
