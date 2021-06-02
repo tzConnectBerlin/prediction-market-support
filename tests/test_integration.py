@@ -261,7 +261,6 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
         token_contract=stablecoin_id
     )
     log_and_submit(transaction, caller, auction["id"], error_func=raise_error)
-    time.sleep(50)
     transaction = market.auction_withdraw(market_id, caller['name'])
     with pytest.raises(RpcError):
         log_and_submit(transaction, caller, market, auction['id'], error_func=raise_error)

@@ -75,7 +75,7 @@ def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def endpoint():
     endpoint = 'http://localhost:20000'
     logger.info(f'Endpoint is : {endpoint}')
