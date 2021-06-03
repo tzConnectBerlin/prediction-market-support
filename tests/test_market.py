@@ -8,7 +8,7 @@ from loguru import logger
 
 from src.utils import print_error, submit_transaction
 
-from .conftest import get_random_market
+from tests.conftest import get_random_market
 
 MULTIPLIER = 10 ** 5
 

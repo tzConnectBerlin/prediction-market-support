@@ -6,9 +6,8 @@ import pytest
 from pytezos.rpc.node import RpcError
 from loguru import logger
 
-from .conftest import *
+from tests.conftest import *
 from src.utils import get_tokens_id_list, log_and_submit, raise_error
-from .conftest import get_random_market
 import random
 from src.utils import id_generator
 
@@ -649,7 +648,3 @@ def test_claim_winnings_non_existent_market(market, minter_account):
     transaction = market.claim_winnings(1, minter_account['name'])
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
-<<<<<<< HEAD
-
-=======
->>>>>>> 0238d6973c067eeb57d9e6494ec0b8bb3371cd5c

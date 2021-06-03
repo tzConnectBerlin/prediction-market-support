@@ -1,5 +1,3 @@
-oracle.ini
-tests/oracle.ini
 compiled_contracts/
 files_to_ignore
 
@@ -248,4 +246,3 @@ modules.xml
 
 # Ignore cli.ini
 cli.ini
-tests/cli.ini
