@@ -268,8 +268,8 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
     """
     transaction = market.auction_withdraw(auction['id'], auction['caller']['name'])
     storage = market.get_storage(auction['id'], auction['caller']['name'])
-    state = storage['market_map']['state']
-    logger.debug(f"state map = {state}")
+    state_of_market = storage['market_map']['state']
+    logger.debug(f"state map = {state_of_market}")
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
 
