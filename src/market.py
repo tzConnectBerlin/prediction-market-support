@@ -1,7 +1,6 @@
 """
 Market management helper
 """
-import json
 import random
 import time
 from datetime import datetime, timedelta
@@ -10,7 +9,7 @@ from loguru import logger
 
 from src.accounts import Accounts
 from src.config import Config
-from src.utils import get_public_key, get_stablecoin, get_tokens_id_list, print_error, submit_transaction
+from src.utils import get_public_key, get_tokens_id_list
 
 logger = logger.opt(colors=True)
 
@@ -60,8 +59,8 @@ class Market:
         if token_contract is None:
             token_contract = self.config['stablecoin']
         if market_id is None:
-            market_id = random.randint(10, 2**63)
-        #Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
+            market_id = random.randint(10, 2 ** 63)
+        # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -181,7 +180,6 @@ class Market:
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         return bulk_operations
-
 
     def close_market(
             self,
@@ -323,7 +321,7 @@ class Market:
         time.sleep(1)
         tokens = get_tokens_id_list(market_id)
         logger.debug(f'Querrying storage for market{market_id}')
-        market_map = self.get_market_map_storage(market_id, user)
+        market_map = self.get_market_map_storage(market_id)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
         supply_map = self.get_supply_map_storage(user, tokens)
         ledger_map = self.get_ledger_map_storage(user, tokens)
@@ -333,10 +331,41 @@ class Market:
             'supply_map': supply_map,
             'ledger_map': ledger_map
         }
-        
-    def get_market_map_storage(self, market_id: int, user: str):
+
+    def is_cleared(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+                and 'marketBoorstraped' in market_map['state']
+                and market_map['state']['resolution'] is None
+        )
+
+    def is_resolved(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+                and 'marketBoorstraped' in market_map['state']
+                and market_map['state']['resolution'] is not None
+        )
+
+    def exist(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+        )
+
+    def has_liquidity_for_user(self, market_id: int, user: str):
+        tokens = get_tokens_id_list(market_id)
+        ledger_map = self.get_ledger_map_storage(user, tokens)
+        return (
+                ledger_map is not None
+        )
+
+    def get_market_map_storage(self, market_id: int):
         try:
-            market_map = self.pm_contracts(user).storage['business_storage']['markets']['market_map'][market_id]()
+            market_map = self.pm_contracts(
+                self.config['admin_account']
+            ).storage['business_storage']['markets']['market_map'][market_id]()
         except:
             logger.debug(
                 f"does not exist in market_map, <green>market_id</> = {market_id}"
@@ -383,3 +412,14 @@ class Market:
         if supply_map == {}:
             return None
         return supply_map
+
+    def get_all_bets_for_market(self, market_id: int):
+        for user in self.accounts.names():
+            liquidity = self.get_liquidity_provider_map_storage(market_id, user)
+            if liquidity is not None:
+                quantity = liquidity['bet']['quantity']
+                probability = liquidity['bet']['quantity']
+            logger.info(
+                f'User {user} with key {get_public_key(self.accounts[user])} \
+                betted {quantity} at the fixed probability if {probability}'
+            )

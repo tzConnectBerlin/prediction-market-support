@@ -156,11 +156,10 @@ def test_auction_bet_insufficient_currency_balance(market, non_financed_account)
     quantity = 1000
     rate = 2**32
     transaction = market.bid_auction(auction['id'], non_financed_account["name"], quantity, rate)
-    log_and_submit(transaction, non_financed_account, auction["id"], error_func=raise_error)
-    storage = market.get_storage(auction['id'], non_financed_account['name'])
-    bet = storage['liquidity_provider_map']["bet"]
-    assert bet['quantity'] == quantity
-    assert bet['predicted_probability'] == rate
+    with pytest.raises(RpcError):
+        log_and_submit(transaction, non_financed_account, auction["id"], error_func=raise_error)
+    assert True
+    assert True
 
 
 def test_auction_bet_non_existent_market_id(market, revealed_account):
@@ -204,7 +203,7 @@ def test_clear_market_with_no_bet_market(market):
         log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
 
 
-@pytest.mark.parametrize("quantity,rate", [[1, 100], [0, 2]])
+@pytest.mark.parametrize("quantity,rate", [[1, 100], [1, 2]])
 def test_clear_market_insufficient_liquidity_from_bets(market, revealed_account, quantity, rate):
     auction = get_random_market(["created"])
     transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
@@ -250,7 +249,7 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
     auction = get_random_market(["bidded"])
     quantity = random.randint(0, 900)
     rate = random.randint(0, 2 ** 63)
-    end_delay = random.uniform(0.05, 0.15)
+    end_delay = random.uniform(0.05, 0.10)
     end = datetime.now() + timedelta(minutes=end_delay)
     caller = random.choice(revealed_accounts)
     """
@@ -622,7 +621,7 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error)
 
-#There is something wrong here to check, the market keep being shown as not existing
+
 @pytest.mark.parametrize('token_type', [True, False])
 def test_claim_winning_lqt_provider(market, minter_account, token_type):
     auction = get_random_market('minted')
@@ -650,4 +649,7 @@ def test_claim_winnings_non_existent_market(market, minter_account):
     transaction = market.claim_winnings(1, minter_account['name'])
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0238d6973c067eeb57d9e6494ec0b8bb3371cd5c
