@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "buffalo",
+    "diesel",
+    "hybrid",
+    "grace",
+    "stay",
+    "punch",
+    "recycle",
+    "employ",
+    "nature",
+    "reduce",
+    "tornado",
+    "rice",
+    "situate",
+    "project",
+    "inner"
+  ],
+  "secret": "203380b933cc307a50dfdc054843fd9c8d6e3cf8",
+  "amount": "49558025062",
+  "pkh": "tz1bCwYgZcTQwLERvXS9UZghffENphBsEcho",
+  "password": "ThTGniZNl0",
+  "email": "akmdhksb.jswfhlwf@tezos.example.org"
+}

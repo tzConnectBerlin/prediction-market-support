@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "kiwi",
+    "strategy",
+    "thing",
+    "pencil",
+    "gift",
+    "note",
+    "increase",
+    "short",
+    "twenty",
+    "opera",
+    "crash",
+    "west",
+    "biology",
+    "approve",
+    "scale"
+  ],
+  "secret": "776ba351dafa431d6bf5e22e2bd7d788753bf3a6",
+  "amount": "40479197291",
+  "pkh": "tz1L5nZbXTV46KGVB4gRVNQ4RWxYoq3jLn1R",
+  "password": "D24UEFlrHN",
+  "email": "bilunniw.scpgnenx@tezos.example.org"
+}

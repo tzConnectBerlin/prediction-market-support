@@ -1,17 +1,17 @@
 """
 Market management helper
 """
-import json
 import random
+import time
 from datetime import datetime, timedelta
 
-import ipfshttpclient
-import pytz
+from loguru import logger
 
 from src.accounts import Accounts
 from src.config import Config
-from src.summary import get_questions
-from src.utils import get_public_key, get_stablecoin, print_error, submit_transaction
+from src.utils import get_public_key, get_tokens_id_list
+
+logger = logger.opt(colors=True)
 
 
 class Market:
@@ -42,7 +42,10 @@ class Market:
             user: str,
             quantity: int,
             rate: int,
-            auction_end_date: float = 5.0,
+            ipfs_hash: str,
+            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)),
+            market_id: int = None,
+            token_contract: str = None
     ):
         """
         Create a new prediction market
@@ -53,21 +56,11 @@ class Market:
         quantity: integer representing the quantity of stable coin generated
         rate: rate
         """
-        timenow = datetime.now().astimezone(pytz.utc)
-        auction_end_date = timenow + timedelta(minutes=auction_end_date)
-        param = {
-            'auctionEndDate': auction_end_date.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            'iconURL':
-                'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
-            'question': question,
-            'yesAnswer': answer,
-        }
-        token_contract = self.config['stablecoin']
-        #ipfs = ipfshttpclient.connect(self.config['ipfs_server'])
-        market_id = random.randint(10, 2**63)
-        #ipfs_hash = ipfs.add_str(json.dumps(param))
-        #Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
-        ipfs_hash = "dededde"
+        if token_contract is None:
+            token_contract = self.config['stablecoin']
+        if market_id is None:
+            market_id = random.randint(10, 2 ** 63)
+        # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -78,7 +71,7 @@ class Market:
                 }
             }
         operation = self.pm_contracts(user).marketCreate({
-            'auction_period_end': int(auction_end_date.timestamp()),
+            'auction_period_end': int(auction_end_date),
             'bet': {
                 'quantity': quantity,
                 'predicted_probability': rate
@@ -177,30 +170,16 @@ class Market:
         operations_list = []
         for user in self.accounts.names():
             data = {
-            'market_id': market_id,
-            'bet': {
-                'quantity': quantity,
-                'predicted_probability': rate
+                'market_id': market_id,
+                'bet': {
+                    'quantity': quantity,
+                    'predicted_probability': rate
                 }
             }
             operation = self.pm_contracts(user).auctionBet(data)
             operations_list.append(operation.as_transaction())
         bulk_operations = self.config["admin_account"].bulk(*operations_list)
         return bulk_operations
-
-    def withdraw_auction(
-            self,
-            question: str,
-            user: str
-    ):
-        """
-        Take an alllocation and withdraw the tokens attributed to you
-
-        """
-        operation = self.pm_contracts(user).withdrawAuction(
-            question
-        )
-        return operation.as_transaction()
 
     def close_market(
             self,
@@ -238,11 +217,11 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payIn',
-                'params': {
-                    'market_id': market_id,
-                    'amount': amount
-                }
+            'params': {
+                'market_id': market_id,
+                'amount': amount
             }
+        }
         )
         return operation.as_transaction()
 
@@ -260,12 +239,12 @@ class Market:
         user: user buying the tokens
         """
         operation = self.pm_contracts(user).marketEnterExit({
-                'direction': 'payOut',
-                'params': {
-                    'market_id': market_id,
-                    'amount': amount
-                }
+            'direction': 'payOut',
+            'params': {
+                'market_id': market_id,
+                'amount': amount
             }
+        }
         )
         return operation.as_transaction()
 
@@ -333,3 +312,114 @@ class Market:
             }
         })
         return operation.as_transaction()
+
+    def get_storage(
+            self,
+            market_id: int,
+            user: str,
+    ):
+        time.sleep(1)
+        tokens = get_tokens_id_list(market_id)
+        logger.debug(f'Querrying storage for market{market_id}')
+        market_map = self.get_market_map_storage(market_id)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
+        supply_map = self.get_supply_map_storage(user, tokens)
+        ledger_map = self.get_ledger_map_storage(user, tokens)
+        return {
+            'market_map': market_map,
+            'liquidity_provider_map': liquidity_provider_map,
+            'supply_map': supply_map,
+            'ledger_map': ledger_map
+        }
+
+    def is_cleared(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+                and 'marketBoorstraped' in market_map['state']
+                and market_map['state']['resolution'] is None
+        )
+
+    def is_resolved(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+                and 'marketBoorstraped' in market_map['state']
+                and market_map['state']['resolution'] is not None
+        )
+
+    def exist(self, market_id: int):
+        market_map = self.get_market_map_storage(market_id)
+        return (
+                market_map is not None
+        )
+
+    def has_liquidity_for_user(self, market_id: int, user: str):
+        tokens = get_tokens_id_list(market_id)
+        ledger_map = self.get_ledger_map_storage(user, tokens)
+        return (
+                ledger_map is not None
+        )
+
+    def get_market_map_storage(self, market_id: int):
+        try:
+            market_map = self.pm_contracts(
+                self.config['admin_account']
+            ).storage['business_storage']['markets']['market_map'][market_id]()
+        except:
+            logger.debug(
+                f"does not exist in market_map, <green>market_id</> = {market_id}"
+            )
+            return None
+        return market_map
+
+    def get_liquidity_provider_map_storage(self, market_id: int, user: str):
+        try:
+            map_key = {
+                'originator': get_public_key(self.accounts[user]),
+                'market_id': market_id
+            }
+            liquidity_provider_map = self.pm_contracts(
+                user
+            ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+            return liquidity_provider_map
+        except:
+            logger.debug(
+                f"can't get liquidity_provider_map for market_id = {market_id} and user = {user}"
+            )
+            return None
+
+    def get_ledger_map_storage(self, user: str, tokens: list):
+        ledger_map = {}
+        user_address = get_public_key(self.accounts[user])
+        for token in tokens:
+            map_key = {'owner': user_address, 'token_id': token['token_value']}
+            entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+            try:
+                ledger_map[token['token_name']] = entry[map_key]()
+            except:
+                ledger_map[token['token_name']] = None
+        return ledger_map
+
+    def get_supply_map_storage(self, user: str, tokens: list):
+        supply_map = {}
+        for token in tokens:
+            entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
+            try:
+                supply_map[token['token_name']] = entry[token['token_value']]()
+            except:
+                supply_map[token['token_name']] = None
+        if supply_map == {}:
+            return None
+        return supply_map
+
+    def get_all_bets_for_market(self, market_id: int):
+        for user in self.accounts.names():
+            liquidity = self.get_liquidity_provider_map_storage(market_id, user)
+            if liquidity is not None:
+                quantity = liquidity['bet']['quantity']
+                probability = liquidity['bet']['quantity']
+            logger.info(
+                f'User {user} with key {get_public_key(self.accounts[user])} \
+                betted {quantity} at the fixed probability if {probability}'
+            )

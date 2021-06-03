@@ -3,11 +3,15 @@
 Tooling for prediction markets market
 """
 
+import json
 import random
 from typing import List, Optional, Tuple, Union
 
+import pytz
 import typer
 import ipfshttpclient
+from datetime import datetime, timedelta
+import dateparser
 
 from src.accounts import Accounts
 from src.config import Config
@@ -61,9 +65,10 @@ def ask_question(
         question: str,
         answer: str,
         user: str,
+        ipfs_hash: str = typer.Argument(None),
         quantity: int = typer.Argument(5000 * MULTIPLIER),
         rate: int = typer.Argument(random.randint(0, 2 ** 64)),
-        auction_end_date: float = typer.Argument(1),
+        auction_end_date: str = typer.Argument("in 5 minutes")
 ):
     """
     Create a question in IPFS
@@ -75,12 +80,29 @@ def ask_question(
     rate: rate
     """
     check_account_loaded(user)
+    param = {
+        'auctionEndDate': auction_end_date,
+        'iconURL':
+            'https://images-na.ssl-images-amazon.com/images/I/41GqyirrgbL._AC_SX425_.jpg',
+        'question': question,
+        'yesAnswer': answer,
+    }
+    try:
+        auction_end_date = dateparser.parse(auction_end_date).timestamp()
+    except:
+        print("something is wrong with the chosen date format")
+        exit()
+    print(auction_end_date)
+    if ipfs_hash is None:
+        ipfs = ipfshttpclient.connect(state['config']['ipfs_server'])
+        ipfs_hash = ipfs.add_str(json.dumps(param))
     market_id, transaction = state["market"].ask_question(
         question,
         answer,
         user,
         quantity,
         rate,
+        ipfs_hash,
         auction_end_date
     )
     print(f"Created market {market_id} in PM contract")
@@ -433,16 +455,8 @@ def stablecoin_balance(
     Get balance for user
     """
     check_account_loaded(user)
-    user_address = get_public_key(state['accounts'][user])
-    balance = int(
-        get_stablecoin(state['config']['admin_account'],
-        state['config']['contract']).getBalance(
-            {'owner': user_address, 'contract_1': None}
-        ).view()
-    )
-    balance /= MULTIPLIER
-    print("balances:")
-    print(f"{user}: {balance}")
+    balance = state["stablecoin"].get_balance(user)
+    print(f"balance: {balance}")
 
 
 @app.callback()

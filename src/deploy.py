@@ -5,14 +5,13 @@ from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
 
 from src.compile import *
-from src.config import Config
 from src.utils import submit_transaction, print_error
+
+from loguru import logger
+
 
 from time import sleep
 
-WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
-
-config = Config()
 
 admin = {
         'pkh': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
@@ -20,8 +19,11 @@ admin = {
         'pk': 'edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn',
 }
 
+stablecoin_path = 'prediction-market-contracts/src/contracts/third-party'
+contract_path = 'prediction-market-contracts-lazy/'
+
 USDtzLeger = {
-        'path': config['stablecoin_path'],
+        'path': stablecoin_path + '/FA12Permissive.ligo',
         'storage': {
             'totalSupply': 0,
             'ledger': {
@@ -34,7 +36,7 @@ USDtzLeger = {
 }
 
 binary_contract = {
-    'path': config['contract_path'],
+    'path': contract_path + 'container/main.mligo.m4',
     'storage': {
         'lambda_repository':
             {
@@ -47,7 +49,7 @@ binary_contract = {
     }
 }
 
-helper_directory = '/home/killua/prediction-market-contracts-lazy/m4_helpers'
+helper_directory = contract_path + 'm4_helpers'
 
 shell = 'http://localhost:20000'
 
@@ -58,7 +60,7 @@ def wait_next_block(block_time, client):
     prev_block_dt = datetime.strptime(header['timestamp'], '%Y-%m-%dT%H:%M:%SZ')
     elapsed_sec = (datetime.utcnow() - prev_block_dt).seconds
     delay_sec = 0 if elapsed_sec > block_time else block_time - elapsed_sec
-    print(f'Wait {delay_sec} seconds until block {block_hash} is finalized')
+    logger.debug(f'Wait {delay_sec} seconds until block {block_hash} is finalized')
     for i in range(block_time):
         current_block_hash = client.shell.head.hash()
         if current_block_hash == block_hash:
@@ -79,12 +81,12 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
     """
     for i in range(num_block_wait):
         wait_next_block(block_time, client)
-        print(i)
+        logger.debug(i)
         try:
             pending_opg = client.shell.mempool.pending_operations[opg_hash]
             if not OperationResult.is_applied(pending_opg):
                 raise Exception("Operation is pending")
-            print(f'Still in mempool: {opg_hash}')
+            logger.debug(f'Still in mempool: {opg_hash}')
         except StopIteration:
             res = client.shell.blocks[-(i + 1):].find_operation(opg_hash)
             if not OperationResult.is_applied(res):
@@ -107,6 +109,7 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
     :return:
     """
     contract = compile_contract(file, wrkdir)
+    logger.debug(contract)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
@@ -115,12 +118,13 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
         return get_contract_id(client, 2, res["hash"])
 
 
-def deploy_stablecoin(key=admin['sk'], shell=shell):
-    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/src/contracts'
-    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'], shell)
+def deploy_stablecoin(key=admin['sk'], shell=shell, wrkdir=stablecoin_path):
+    wrkdir = os.path.abspath(wrkdir)
+    file_path = os.path.abspath(USDtzLeger['path'])
+    stablecoin_id = deploy_from_file(file_path, key, wrkdir, USDtzLeger['storage'], shell)
     if stablecoin_id is None:
         raise Exception("deploiement failed")
-    print(f"stablecoin was deployed at {stablecoin_id}")
+    logger.debug(f"stablecoin was deployed at {stablecoin_id}")
     return stablecoin_id
 
 
@@ -130,42 +134,44 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
     contract = client.contract(contract_id)
     for file in os.listdir(path):
         macro_filepath = f'{path}/{file}'
+        logger.error(macro_filepath)
         content = preprocess_file(macro_filepath, helper_directory)
         file_name = os.path.splitext(file)[0]
         filepath = f"{compiled_path}/{file_name}"
         write_to_file(content, filepath)
-        print(f"{filepath} was generated")
+        logger.debug(f"{filepath} was generated")
         content = compile_expression(filepath)
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
         sleep(2)
-        print(f"{filepath} lambda was deployed")
+        logger.debug(f"{filepath} lambda was deployed")
     operation = contract.sealContract()
     submit_transaction(operation.as_transaction())
 
 
-def deploy_market(key=admin['sk'], shell=shell):
+def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
     """
     Deploy the complete market on the specified shell
 
     :param key:
     :return: None
     """
-    print("deploying binary market")
+    logger.debug("deploying binary market")
     content = preprocess_file(binary_contract['path'], helper_directory)
-    path = "./compiled_contracts"
+    path = "compiled_contracts"
     try:
         os.mkdir(path)
     except OSError:
-        print("Creation of the directory %s failed" % path)
+        logger.debug("Creation of the directory %s failed" % path)
     else:
-        print("Successfully created the directory %s " % path)
+        logger.debug("Successfully created the directory %s " % path)
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
-    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/wolfram-oracle/'
-    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
-    lazy_contracts_path = '/home/killua/prediction-market-contracts-lazy/lazy/lazy_lambdas'
-    deploy_lambdas(lazy_contracts_path, market_id)
+    wrkdir = '/tmp'
+    market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=binary_contract['storage'], shell=shell)
+    lazy_contracts_path = contract_path + '/lazy/lazy_lambdas'
+    deploy_lambdas(lazy_contracts_path, market_id, compiled_path=path, shell=shell)
+    logger.debug(f"Binary market was deployed at {market_id}")
     print(f"Binary market was deployed at {market_id}")
     return market_id

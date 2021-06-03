@@ -4,9 +4,13 @@ import random
 import string
 import sys
 
+from loguru import logger
+
 from pytezos.rpc.node import RpcError
 
 from src.errors import contract_error
+
+logger = logger.opt(colors=True)
 
 
 def get_public_key(account):
@@ -31,6 +35,10 @@ def raise_error(_err_message):
     raise
 
 
+def return_error(err_message):
+    return err_message
+
+
 def print_error(err_message):
     """
     Receive an error message and print it
@@ -50,7 +58,6 @@ def print_error(err_message):
             print("Error:", err_code)
     else:
         print(err_message)
-    sys.exit()
 
 
 def print_and_ignore(err_message):
@@ -70,13 +77,12 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     Submit a transaction
     """
     try:
-        source = transaction.key.public_key_hash()
-        transaction_ = transaction.autofill(ttl=56)
-        res = transaction_.sign().inject()
-        transaction_.shell.wait_next_block(max_iterations=10)
+        transaction_ = transaction.autofill(ttl=56, counter=count)
+        res = transaction_.sign().inject(_async=False)
+        block_hash = transaction_.shell.wait_next_block(max_iterations=10)
+        logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
-        #print(str(r))
         err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
@@ -88,15 +94,19 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
                 if 'expected' in err_message:
                     count = int(err_message['expected'])
                 return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
+        logger.debug(f"the transaction couldn't be injected because of {err_message}")
         if error_func is not None:
-            error_func(err_message)
+            return error_func(err_message)
+        raise
 
 
-def get_tezos_client_path():
+def get_tezos_client_path(client_path):
     """
     Obtain the tezos client path
     """
-    return os.path.expanduser('~/.tezos-client')
+    if not os.path.isfile(client_path):
+        os.makedirs(client_path)
+    return os.path.expanduser(client_path)
 
 
 def get_market_map(client, contract_id, market_id=None):
@@ -116,7 +126,7 @@ def get_tokens_ledgermap(client, contract_id):
     contract = client.contract(contract_id)
     return contract.storage['business_storage']['tokens']['ledger_map']
 
-####Modify the functions to take parameters
+
 def get_tokens_supplymap(client, contract_id):
     """
     Return storage for tokens
@@ -130,7 +140,7 @@ def get_question_liquidity_provider_map(client, contract_id, market_id=None, add
     Return storage for liquidity provider
     """
     contract = client.contract(contract_id)
-    if market_id is None:
+    if market_id is None or address is None:
         return contract.storage['business_storage']['markets']['liquidity_provider_map']
     key = {'originator': address, 'market_id': market_id}
     return contract.storage['business_storage']['markets']['liquidity_provider_map'][key]()
@@ -146,5 +156,38 @@ def stablecoin_storage(client, contract_id, market_id=None):
     return stablecoin.storage['ledger'][market_id]
 
 
+def get_tokens_id_list(market_id: int):
+    token_list = [
+        {'token_name': 'no_token', 'token_value': market_id << 3},
+        {'token_name': 'yes_token', 'token_value': (market_id << 3) + 1},
+        {'token_name': 'pool_liquidity', 'token_value': (market_id << 3) + 2},
+        {'token_name': 'auction_reward', 'token_value': (market_id << 3) + 3},
+        {'token_name': 'liquidity_reward', 'token_value': (market_id << 3) + 4},
+    ]
+    return token_list
+
+
 def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
+
+def log_and_submit(transaction, account, market=None, market_id=None, error_func=raise_error):
+    entrypoint = transaction.json_payload()['contents'][0]['parameters']['entrypoint']
+    params = transaction.json_payload()['contents'][0]['parameters']['value']
+    logger.debug(f"{market_id} {account['key']} {entrypoint} {params}")
+    before_storage, after_storage = None, None
+    if market is not None:
+        try:
+            before_storage = market.get_storage(market_id, account['name'])
+            logger.debug(f"{before_storage}")
+        except Exception as e:
+            logger.debug(f"storage is not accessible before submit transaction: {e}")
+    result = submit_transaction(transaction, error_func=error_func)
+    logger.debug(f"Result from TRANSACTION = {result}")
+    if market is not None:
+        try:
+            after_storage = market.get_storage(market_id, account['name'])
+            logger.debug(f"{after_storage}")
+        except Exception as e:
+            logger.debug(f"storage is not accessible after submit transaction: {e}")
+    return before_storage, after_storage

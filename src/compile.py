@@ -3,10 +3,10 @@ import os
 from io import TextIOWrapper
 from subprocess import Popen, PIPE
 
-WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
+from loguru import logger
 
 
-def ligo_cmd(wrkdir=WORKING_DIRECTORY):
+def ligo_cmd(wrkdir):
     if wrkdir == "":
         wrkdir = "$PWD"
     cmd = f'docker run --rm -v {wrkdir}:{wrkdir} -w {wrkdir} ligolang/ligo:0.14.0 "$@"'
@@ -40,6 +40,7 @@ def compile_contract(file, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
@@ -53,6 +54,7 @@ def compile_storage(file, storage, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-storage {file} main '{storage}'"
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
@@ -63,11 +65,13 @@ def compile_expression(file, wrkdir=""):
     :param file: path to the file to compile
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-expression --init-file={file} cameligo f"
+    logger.debug(compile_command)
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
-def preprocess_file(file, helper_directory="", wrkdir=""):
+def preprocess_file(file, helper_directory, wrkdir=""):
     """
     Preprocess a file to be compiled
     :param file: path to the preprocessing file
@@ -78,6 +82,7 @@ def preprocess_file(file, helper_directory="", wrkdir=""):
         wrkdir = os.path.split(file)[0]
     compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={wrkdir}" {file}'
     result = run_command(compile_command)
+    logger.debug(result)
     return result
 
 
@@ -99,8 +104,9 @@ def launch_sandbox():
 
     :return:
     """
-    command = "sh tests/start_sandbox.sh"
+    command = "sh sandbox/start_sandbox.sh"
     result = run_command(command)
+    logger.debug(result)
     return result
 
 
@@ -110,6 +116,7 @@ def stop_sandbox():
 
     :return:
     """
-    command = "sh tests/stop_sandbox.sh"
+    command = "sh sandbox/stop_sandbox.sh"
     result = run_command(command)
+    logger.debug(result)
     return result

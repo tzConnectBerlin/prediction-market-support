@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "idea",
+    "debate",
+    "patrol",
+    "invite",
+    "crumble",
+    "fold",
+    "gorilla",
+    "endless",
+    "flavor",
+    "loan",
+    "humble",
+    "safe",
+    "pass",
+    "culture",
+    "room"
+  ],
+  "secret": "e9c11fdd6a8f5da8af9bf1cbb2ad517fd3b68cd1",
+  "amount": "14869925314",
+  "pkh": "tz1QahWZZHgrREnjThcxKXdmQMuqAWwYWoB9",
+  "password": "W4JBrcZ7gp",
+  "email": "ftmfpndk.wvdyirww@tezos.example.org"
+}

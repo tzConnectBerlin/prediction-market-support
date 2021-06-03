@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "enroll",
+    "census",
+    "milk",
+    "keep",
+    "lazy",
+    "jungle",
+    "key",
+    "puzzle",
+    "label",
+    "uncle",
+    "unlock",
+    "resist",
+    "surge",
+    "toilet",
+    "talk"
+  ],
+  "secret": "c4cc6c31d51651c96c0f38ad2204ae39edb56793",
+  "amount": "11889906350",
+  "pkh": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1",
+  "password": "zimkhFbiyR",
+  "email": "mgbllkvc.hynyropt@tezos.example.org"
+}

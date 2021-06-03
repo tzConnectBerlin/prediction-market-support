@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "nose",
+    "game",
+    "bright",
+    "ensure",
+    "urban",
+    "fine",
+    "card",
+    "surround",
+    "surface",
+    "trim",
+    "credit",
+    "rally",
+    "waste",
+    "cram",
+    "symbol"
+  ],
+  "secret": "d486e7059ce62f369ef1e2cd0ed876d10c2bda45",
+  "amount": "37024131124",
+  "pkh": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m",
+  "password": "BbfDsJLi1n",
+  "email": "wqvvxlhe.krbfhuqu@tezos.example.org"
+}

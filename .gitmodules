@@ -1,3 +1,9 @@
 [submodule "py-ipfs-http-client"]
 	path = py-ipfs-http-client
 	url = git@github.com:ipfs-shipyard/py-ipfs-http-client.git
+[submodule "prediction-market-contracts-lazy"]
+	path = prediction-market-contracts-lazy
+	url = git@github.com:tzConnectBerlin/prediction-market-contracts-lazy.git
+[submodule "prediction-market-contracts"]
+	path = prediction-market-contracts
+	url = git@github.com:tzConnectBerlin/prediction-market-contracts.git
