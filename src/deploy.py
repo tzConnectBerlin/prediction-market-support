@@ -5,9 +5,14 @@ from pytezos import pytezos, ContractInterface
 from pytezos.operation.result import OperationResult
 
 from src.compile import *
-from src.utils import submit_transaction
+from src.config import Config
+from src.utils import submit_transaction, print_error
 
 from time import sleep
+
+WORKING_DIRECTORY = os.environ['CONTRACT_DIR'] if 'CONTRACT_DIR' in os.environ else '$PWD'
+
+config = Config()
 
 admin = {
         'pkh': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
@@ -15,42 +20,36 @@ admin = {
         'pk': 'edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn',
 }
 
-Migration = {
-        'path': 'contracts/Migrations.ligo',
-        'storage': {
-            'last_completed_migration': 0,
-            'owner': admin['pkh']
-            }
-        }
-
 USDtzLeger = {
-        'path': 'contracts/third-party/FA12Permissive.ligo',
+        'path': config['stablecoin_path'],
         'storage': {
             'totalSupply': 0,
             'ledger': {
                 admin['pkh']: {
-                    'balance': 100000000000000000000,
+                    'balance': 2**65,
                     'allowances': {}
                 }
             }
         }
 }
 
-Market = {
-        'path': 'contracts/Market.mligo',
-        'storage': {
-        'last_token_created': 0,
-        'owner': admin['pkh'],
-        'questions': {},
-        'stablecoin': 'KT1VK3kD6Xu7rmmD467M168rcR3Th82HbLra',
-        'tokens': {
-            'ledger': {},
-            'operators': {},
-            'token_metadata': {},
-            'token_total_supply': {},
-        }
+binary_contract = {
+    'path': config['contract_path'],
+    'storage': {
+        'lambda_repository':
+            {
+                'creator': 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb',
+                'lambda_map': {}
+            },
+        'business_storage': {
+            'tokens': {'ledger_map': {}, 'supply_map': {}},
+            'markets': {'market_map': {}, 'liquidity_provider_map': {}}}
     }
 }
+
+helper_directory = '/home/killua/prediction-market-contracts-lazy/m4_helpers'
+
+shell = 'http://localhost:20000'
 
 
 def wait_next_block(block_time, client):
@@ -92,14 +91,12 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
                 raise Exception("Operation was not applied")
             metadata = res['contents'][0]['metadata']
             contract_id = metadata['operation_result']['originated_contracts'][0]
-            print(metadata)
-            print(contract_id)
             if contract_id is None:
                 raise
             return contract_id
 
 
-def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
+def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
     """
     Compile and deploy a ligo contract
 
@@ -109,30 +106,66 @@ def deploy_from_file(file, key, storage=None, shell="http://localhost:20000"):
     :param shell: where to deploy the contract
     :return:
     """
-    contract = compile_contract(file)
+    contract = compile_contract(file, wrkdir)
     ci = ContractInterface.from_michelson(contract)
     client = pytezos.using(shell=shell, key=key)
     operation = client.origination(script=ci.script(initial_storage=storage))
     res = submit_transaction(operation)
-    print(res)
     if res is not None and res["hash"]:
         return get_contract_id(client, 2, res["hash"])
 
 
-def deploy_market(key=admin['sk'], shell="http://localhost:20000"):
+def deploy_stablecoin(key=admin['sk'], shell=shell):
+    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/src/contracts'
+    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, wrkdir, USDtzLeger['storage'], shell)
+    if stablecoin_id is None:
+        raise Exception("deploiement failed")
+    print(f"stablecoin was deployed at {stablecoin_id}")
+    return stablecoin_id
+
+
+def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts', shell=shell):
+    transactions = []
+    client = pytezos.using(shell=shell, key=admin['sk'])
+    contract = client.contract(contract_id)
+    for file in os.listdir(path):
+        macro_filepath = f'{path}/{file}'
+        content = preprocess_file(macro_filepath, helper_directory)
+        file_name = os.path.splitext(file)[0]
+        filepath = f"{compiled_path}/{file_name}"
+        write_to_file(content, filepath)
+        print(f"{filepath} was generated")
+        content = compile_expression(filepath)
+        file_name = os.path.splitext(file_name)[0]
+        operation = contract.installLambda({'name': file_name, 'code': content})
+        res = submit_transaction(operation.as_transaction(), error_func=print_error)
+        sleep(2)
+        print(f"{filepath} lambda was deployed")
+    operation = contract.sealContract()
+    submit_transaction(operation.as_transaction())
+
+
+def deploy_market(key=admin['sk'], shell=shell):
     """
     Deploy the complete market on the specified shell
 
     :param key:
     :return: None
     """
-    print("deploying markets")
-    stablecoin_id = deploy_from_file(USDtzLeger['path'], key, USDtzLeger['storage'])
-    if stablecoin_id is None:
-        raise Exception("deploiement failed")
-    print(f"stablecoin was deployed at {stablecoin_id}")
-    Market['storage']['stablecoin'] = stablecoin_id
-    print(Market)
-    print("market was deployed")
-    market_id = deploy_from_file(Market['path'], key, Market['storage'])
+    print("deploying binary market")
+    content = preprocess_file(binary_contract['path'], helper_directory)
+    path = "./compiled_contracts"
+    try:
+        os.mkdir(path)
+    except OSError:
+        print("Creation of the directory %s failed" % path)
+    else:
+        print("Successfully created the directory %s " % path)
+    filepath = f"{path}/main.mligo"
+    write_to_file(content, filepath)
+    wrkdir = '/home/killua/Projects/tezos/prediction-market-contracts/wolfram-oracle/'
+    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
+    lazy_contracts_path = '/home/killua/prediction-market-contracts-lazy/lazy/lazy_lambdas'
+    deploy_lambdas(lazy_contracts_path, market_id)
+    print(f"Binary market was deployed at {market_id}")
     return market_id

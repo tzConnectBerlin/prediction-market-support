@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "limb",
+    "ring",
+    "era",
+    "differ",
+    "gown",
+    "crunch",
+    "vendor",
+    "pottery",
+    "story",
+    "payment",
+    "choose",
+    "middle",
+    "tube",
+    "safe",
+    "eight"
+  ],
+  "secret": "bbf322e8bcb0329ccc4eb69dd1cdd0f256969557",
+  "amount": "91203321044",
+  "pkh": "tz1itzGH43N8Y9QT1UzKJwJM8Y3qK8uckbXB",
+  "password": "OQnyLaF50l",
+  "email": "rkfwqkrh.arreknqk@tezos.example.org"
+}

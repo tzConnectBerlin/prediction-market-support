@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "drink",
+    "wonder",
+    "pair",
+    "ready",
+    "hour",
+    "entire",
+    "cluster",
+    "club",
+    "rather",
+    "ahead",
+    "neck",
+    "dentist",
+    "cabin",
+    "script",
+    "toy"
+  ],
+  "secret": "cca73ff5692335789024abbd15d150103e83e8b3",
+  "amount": "14463028648",
+  "pkh": "tz1MDwHYDLgPydL5iav7eee9mZhe6gntoLet",
+  "password": "NTX0lloM6i",
+  "email": "crxqvkjz.ulcbtypc@tezos.example.org"
+}

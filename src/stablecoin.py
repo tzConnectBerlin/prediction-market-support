@@ -34,15 +34,7 @@ class Stablecoin:
            self.market_id,
            value
         )
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
-    def burn(self, dest: str, value: int):
-        dest_address = self.accounts[dest].key.public_key_hash()
-        operation = self.client.burn({
-            'from': dest_address,
-            'value': value
-        })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def get_allowance(self, owner: str):
         """
@@ -52,20 +44,9 @@ class Stablecoin:
         operation = self.client.getAllowance({
             'owner': owner_address,
             'spender': self.market_id,
-            'contract_2': Undefined
+            'contract_2': self.market_id
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
-
-    def mint(self, to: str, value: int):
-        """
-        Mint stablecoin for account to
-        """
-        to_address = self.accounts[to].key.public_key_hash()
-        operation = self.client.mint({
-            'to': to_address,
-            'value': value
-        })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def transfer(self, src: str, dest: str, value: int):
         """
@@ -78,17 +59,16 @@ class Stablecoin:
             'to': dest_address,
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
 
     def fund(self, dest: str, value: int):
         """
         Fund a account with stablecoin
         """
-        src_address = self.client.key.public_key_hash()
         dest_address = self.accounts[dest].key.public_key_hash()
         operation = self.client.transfer({
-            'from': src_address,
+            'from': get_public_key(self.config["admin_account"]),
             'to': dest_address,
             'value': value
         })
-        submit_transaction(operation.as_transaction(), error_func=print_error)
+        return operation.as_transaction()
