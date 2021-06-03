@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
+from os import stat_result
 import time
 
 import pytest
 from pytezos.rpc.node import RpcError
 from loguru import logger
 
+from .conftest import *
 from src.utils import get_tokens_id_list, log_and_submit, raise_error
 from .conftest import get_random_market
 import random
@@ -13,7 +15,6 @@ from src.utils import id_generator
 """
 Create Market
 """
-
 
 def test_create_market_correct_bet_success_fa12(
         stablecoin_id,
@@ -44,6 +45,7 @@ def test_create_market_correct_bet_success_fa12(
     metadata = storage['market_map']['metadata']
     state = storage['market_map']['state']
     liquidity = storage['liquidity_provider_map']
+    
     assert metadata['adjudicator'] == revealed_account['key']
     assert 'auctionRunning' in state
     assert state['auctionRunning']['quantity'] == quantity
@@ -250,6 +252,7 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
     end_delay = random.uniform(0.05, 0.10)
     end = datetime.now() + timedelta(minutes=end_delay)
     caller = random.choice(revealed_accounts)
+    """
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -260,10 +263,16 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
         auction_end_date=end.timestamp(),
         token_contract=stablecoin_id
     )
-    log_and_submit(transaction, caller, auction["id"], error_func=raise_error)
-    transaction = market.auction_withdraw(market_id, caller['name'])
+    log_and_submit(transaction, caller, market_id, error_func=raise_error)
+    time.sleep(10)
+    """
+    transaction = market.auction_withdraw(auction['id'], auction['caller']['name'])
+    storage = market.get_storage(auction['id'], auction['caller']['name'])
+    state_of_market = storage['market_map']['state']
+    logger.debug(f"state map = {state_of_market}")
     with pytest.raises(RpcError):
-        log_and_submit(transaction, caller, market, auction['id'], error_func=raise_error)
+        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
+
 
 
 def test_withdraw_auction_resolved(market):
@@ -640,3 +649,7 @@ def test_claim_winnings_non_existent_market(market, minter_account):
     transaction = market.claim_winnings(1, minter_account['name'])
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+<<<<<<< HEAD
+
+=======
+>>>>>>> 0238d6973c067eeb57d9e6494ec0b8bb3371cd5c
