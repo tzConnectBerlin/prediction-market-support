@@ -134,6 +134,7 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
     contract = client.contract(contract_id)
     for file in os.listdir(path):
         macro_filepath = f'{path}/{file}'
+        logger.error(macro_filepath)
         content = preprocess_file(macro_filepath, helper_directory)
         file_name = os.path.splitext(file)[0]
         filepath = f"{compiled_path}/{file_name}"
@@ -158,7 +159,7 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
     """
     logger.debug("deploying binary market")
     content = preprocess_file(binary_contract['path'], helper_directory)
-    path = "/tmp/compiled_contracts"
+    path = "compiled_contracts"
     try:
         os.mkdir(path)
     except OSError:
@@ -168,9 +169,9 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = '/tmp'
-    market_id = deploy_from_file(filepath, key, wrkdir, binary_contract['storage'], shell)
+    market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=binary_contract['storage'], shell=shell)
     lazy_contracts_path = contract_path + '/lazy/lazy_lambdas'
-    deploy_lambdas(lazy_contracts_path, market_id)
+    deploy_lambdas(lazy_contracts_path, market_id, compiled_path=path, shell=shell)
     logger.debug(f"Binary market was deployed at {market_id}")
     print(f"Binary market was deployed at {market_id}")
     return market_id

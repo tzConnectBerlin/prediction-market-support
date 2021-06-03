@@ -65,6 +65,7 @@ def compile_expression(file, wrkdir=""):
     :param file: path to the file to compile
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-expression --init-file={file} cameligo f"
+    logger.debug(compile_command)
     result = run_command(compile_command)
     logger.debug(result)
     return result
@@ -103,7 +104,7 @@ def launch_sandbox():
 
     :return:
     """
-    command = "sh tests/start_sandbox.sh"
+    command = "sh sandbox/start_sandbox.sh"
     result = run_command(command)
     logger.debug(result)
     return result
@@ -115,7 +116,7 @@ def stop_sandbox():
 
     :return:
     """
-    command = "sh tests/stop_sandbox.sh"
+    command = "sh sandbox/stop_sandbox.sh"
     result = run_command(command)
     logger.debug(result)
     return result
