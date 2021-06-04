@@ -77,7 +77,7 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     Submit a transaction
     """
     try:
-        transaction_ = transaction.autofill(ttl=56, counter=count)
+        transaction_ = transaction.autofill(ttl=60, counter=count)
         res = transaction_.sign().inject(_async=False)
         block_hash = transaction_.shell.wait_next_block(max_iterations=10)
         logger.debug(f"block baked: {block_hash}")
