@@ -162,7 +162,7 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def financed_revealed_accounts(financed_accounts, config, get_accounts):
+def revealed_accounts(financed_accounts, config, get_accounts):
     accounts_obj = get_accounts
     accounts_to_reveal = random.choices(financed_accounts, k=20)
     #non_financed_accounts_to_reveal = [x in test_accounts if 'financed' not in x['status']]
@@ -179,8 +179,8 @@ def financed_revealed_accounts(financed_accounts, config, get_accounts):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def accounts_who_minted(config, market, financed_revealed_accounts, gen_cleared_markets):
-    accounts_who_mint = random.choices(financed_revealed_accounts, k=15)
+def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
+    accounts_who_mint = random.choices(revealed_accounts, k=15)
     market_with_minted_token = random.choices(gen_cleared_markets, k=15)
     transactions = []
     for account in test_accounts:
@@ -204,8 +204,8 @@ def accounts_who_minted(config, market, financed_revealed_accounts, gen_cleared_
 
 """
 @pytest.fixture(scope="session", autouse=True)
-def accounts_with_liquidity(config, market, financed_revealed_accounts, gen_cleared_markets):
-    accounts_whith_liquidity = random.choices(financed_revealed_accounts, k=15)
+def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_markets):
+    accounts_whith_liquidity = random.choices(revealed_accounts, k=15)
     market_with_minted_token = random.choices(gen_cleared_markets, k=15)
     transactions = []
     for account in test_accounts:
@@ -231,8 +231,8 @@ def accounts_with_liquidity(config, market, financed_revealed_accounts, gen_clea
 """
 
 @pytest.fixture(scope="function")
-def revealed_account(financed_revealed_accounts, stablecoin, get_accounts):
-    selected_account = random.choice(financed_revealed_accounts)
+def revealed_account(revealed_accounts, stablecoin, get_accounts):
+    selected_account = random.choice(revealed_accounts)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
     logger.info(f"acount use for the call: {selected_account}")
@@ -290,7 +290,7 @@ def sprayer_account():
 
 
 @pytest.fixture(scope="session", autouse="True")
-def gen_markets(financed_revealed_accounts, config, market, stablecoin_id):
+def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
     for i in range(2):
         for index in range(40):
@@ -298,7 +298,7 @@ def gen_markets(financed_revealed_accounts, config, market, stablecoin_id):
             rate = random.randint(0, 2 ** 63)
             end_delay = random.uniform(0.05, 0.15)
             end = datetime.now() + timedelta(minutes=end_delay)
-            caller = random.choice(financed_revealed_accounts)
+            caller = random.choice(revealed_accounts)
             market_id, transaction = market.ask_question(
                 id_generator(),
                 id_generator(),
