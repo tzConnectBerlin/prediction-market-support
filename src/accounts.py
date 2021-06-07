@@ -3,6 +3,7 @@ import os
 import subprocess
 
 import glob
+from loguru import logger
 from pytezos import pytezos, Key
 
 from src.utils import submit_transaction, get_tezos_client_path
@@ -44,7 +45,7 @@ class Accounts:
         )
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, ignored_accounts=[], client_path='~/.tezos-client'):
+    def import_from_tezos_client(self, ignored_accounts=[], client_path='.tezos-client'):
         """
         Import account from tezos client
         """
@@ -52,7 +53,8 @@ class Accounts:
         with open(path, 'r') as f:
             try:
                 data = json.loads(f.read())
-            except:
+            except Exception as e:
+                logger.info(e)
                 raise Exception('there is something wrong with the key file')
         for x in data:
             if x['name'] not in ignored_accounts:

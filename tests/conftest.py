@@ -413,8 +413,8 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
-    launch_sandbox()
-    sleep(20)
+    #launch_sandbox()
+    #sleep(20)
 
 
 def pytest_sessionstart(session):
@@ -436,7 +436,7 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    stop_sandbox()
+    #stop_sandbox()
 
 
 @pytest.hookimpl(hookwrapper=True)

@@ -32,7 +32,8 @@ start () {
              --number-of-b 4 \
              --add-bootstrap-account="$alice@2_000_000_000_000" \
              --add-bootstrap-account="$bob@2_000_000_000_000" \
-             --tezos-baker tezos-baker-008-PtEdo2Zk \
+             --time-between-blocks 0 \
+             --timestamp-delay 0 \
              --no-baking \
              --no-daemons-for=alice \
              --no-daemons-for=bob \

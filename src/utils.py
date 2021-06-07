@@ -104,8 +104,13 @@ def get_tezos_client_path(client_path):
     """
     Obtain the tezos client path
     """
-    if not os.path.isfile(client_path):
+    logger.error(client_path)
+    if not os.path.exists(client_path):
         os.makedirs(client_path)
+    if not os.path.exists(client_path + '/secret_keys'):
+        with open(client_path + '/secret_keys', 'x') as file:
+            file.write('[]')
+            logger.info('secret_keys file created')
     return os.path.expanduser(client_path)
 
 

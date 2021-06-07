@@ -399,6 +399,8 @@ def list_accounts():
     """
     accounts = state['accounts']
     account_list = accounts.names()
+    if len(account_list) == 0:
+        print("No account available")
     for account_name in account_list:
         print(
             f'name: {account_name}   balance: {accounts[account_name].balance()}'
@@ -459,10 +461,26 @@ def stablecoin_balance(
     print(f"balance: {balance}")
 
 
+@app.command()
+def import_accounts(
+        users: List[str],
+        force: bool = typer.Option(None, "--force", "-f")
+):
+    for user in users:
+        username = typer.prompt(f"Please associate a name for this account {user}")
+        state['accounts'].import_from_file(user, username)
+        state['accounts'].import_to_tezos_client(username)
+        typer.echo(f"{username} was imported")
+        state["accounts"].activate_account(username)
+        typer.echo(f"{username} was activated")
+        state["accounts"].reveal_account(username)
+        typer.echo(f"{username} was revealed")
+
+
 @app.callback()
 def main(
-        import_accounts: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
-        ignored_accounts: Optional[List[str]] = typer.Option(None, "--ignore-account"),
+        accounts_to_import: Optional[List[str]] = typer.Option(None, "--with-account", "-w"),
+        accounts_to_ignore: Optional[List[str]] = typer.Option(None, "--ignore-account"),
         endpoint: str = typer.Option(None, "--endpoint", "-e"),
         contract: str = typer.Option(None, "--contract", "-c"),
         admin_key: str = typer.Option(None),
@@ -479,20 +497,11 @@ def main(
         endpoint=endpoint,
     )
     state['accounts'] = Accounts(state['config']['endpoint'])
-    if import_accounts is not None:
-        for account in import_accounts:
-            account_name = typer.prompt("Please associate a name for this account")
-            state['accounts'].import_from_file(account, account_name)
-            if force is not None:
-                state["accounts"].import_to_tezos_client(account_name)
-                typer.echo(f"{account_name} was imported")
-                state["accounts"].activate_account(account_name)
-                typer.echo(f"{account_name} was activated")
-                state["accounts"].reveal_account(account_name)
-                typer.echo(f"{account_name} was revealed")
-    state['accounts'].import_from_tezos_client(ignored_accounts)
+    if accounts_to_import is not None:
+        import_accounts(accounts_to_import, force)
+    state['accounts'].import_from_tezos_client(accounts_to_ignore)
     state['market'] = Market(state['accounts'], state['config'])
-    state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
+    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
 
 if __name__ == "__main__":

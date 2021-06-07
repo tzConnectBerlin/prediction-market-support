@@ -18,8 +18,6 @@ Create Market
 def test_create_market_correct_bet_success_fa12(
         stablecoin_id,
         market,
-        questions_storage,
-        liquidity_storage,
         revealed_account):
     quantity = 1000
     end = datetime.now() + timedelta(minutes=5)
@@ -177,7 +175,6 @@ def test_auction_bet_market_already_cleared(market, revealed_account):
 """
 Clear market
 """
-
 
 def test_clear_market_in_auction_phase(market):
     auction = get_random_market(["bidded"])
