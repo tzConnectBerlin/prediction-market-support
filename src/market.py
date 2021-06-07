@@ -28,6 +28,7 @@ class Market:
         self.accounts = accounts
         self.config = config
         self.contract = self.config['contract']
+        self.adminClient = self.config['admin_account'].contract(self.contract)
 
     def pm_contracts(
             self,
@@ -318,9 +319,9 @@ class Market:
             market_id: int,
             user: str,
     ):
-        time.sleep(1)
+        time.sleep(3)
         tokens = get_tokens_id_list(market_id)
-        logger.debug(f'Querrying storage for market{market_id}')
+        logger.debug(f'Querrying storage for market: {market_id}')
         market_map = self.get_market_map_storage(market_id)
         liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
         supply_map = self.get_supply_map_storage(user, tokens)
@@ -363,10 +364,9 @@ class Market:
 
     def get_market_map_storage(self, market_id: int):
         try:
-            market_map = self.pm_contracts(
-                self.config['admin_account']
-            ).storage['business_storage']['markets']['market_map'][market_id]()
-        except:
+            market_map = self.adminClient.storage['business_storage']['markets']['market_map'][market_id]()
+        except Exception as e:
+            logger.error(e)
             logger.debug(
                 f"does not exist in market_map, <green>market_id</> = {market_id}"
             )

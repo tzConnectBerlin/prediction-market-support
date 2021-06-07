@@ -346,7 +346,10 @@ def gen_bid_markets(gen_markets, market, config):
         submit_transaction(bulk_transactions, error_func=print_error)
         for ma in selection:
             ma['status'] = 'bidded'
-        sleep(2)
+    logger.info('#####################BIDDED MARKETS##########################')
+    logger.info(selection)
+    logger.info(len(selection))
+    logger.info('#############################################################')
     return selection
 
 
@@ -364,8 +367,10 @@ def gen_cleared_markets(config, market, gen_bid_markets):
             cleared.append(ma)
         except Exception as e:
             continue
-    sleep(2)
+    logger.info('#####################CLEARED MARKETS##########################')
+    logger.info(cleared)
     logger.info(len(cleared))
+    logger.info('##############################################################')
     return cleared
 
 
@@ -385,7 +390,10 @@ def gen_resolved_markets(config, market, gen_cleared_markets):
             except Exception as e:
                 logger.info(e)
                 continue
-    logger.info(len(resolved))
+    logger.info('#####################RESOLVED MARKETS##########################')
+    logger.info(selection)
+    logger.info(len(selection))
+    logger.info('###############################################################')
     return resolved
 
 
@@ -439,13 +447,8 @@ def pytest_unconfigure(config):
     #stop_sandbox()
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_fixture_setup(fixturedef, request):
-    start = time()
-    yield
-    total = time() - start
-    logger.error(total)
-
+#@pytest.hookimpl(hookwrapper=True)
+#def pytest_fixture_setup(fixturedef, request):
 
 def get_random_account(status="created", exclude=""):
     selection = [x for x in test_accounts if status not in x['status'] and status not in exclude]
