@@ -99,7 +99,10 @@ class Accounts:
         Reveal account
         """
         operation = self.accounts[account_name].reveal()
-        submit_transaction(operation)
+        try:
+            submit_transaction(operation)
+        except:
+            return
 
     def get_account(self, account_name: str):
         """
