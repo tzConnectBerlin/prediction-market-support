@@ -28,7 +28,10 @@ class Market:
         self.accounts = accounts
         self.config = config
         self.contract = self.config['contract']
-        self.adminClient = self.config['admin_account'].contract(self.contract)
+        try:
+            self.adminClient = self.config['admin_account'].contract(self.contract)
+        except:
+            self.adminClient = None
 
     def pm_contracts(
             self,

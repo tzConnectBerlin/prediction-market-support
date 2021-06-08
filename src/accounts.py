@@ -9,6 +9,8 @@ from pytezos import pytezos, Key
 from src.utils import submit_transaction, get_tezos_client_path
 
 
+
+
 class Accounts:
     """
     User Class for Handling tezos accounts
@@ -73,6 +75,8 @@ class Accounts:
         subprocess.run(
             [
                 'tezos-client',
+                '-d',
+                '.tezos-client',
                 '-E',
                 host,
                 'import',
@@ -90,9 +94,11 @@ class Accounts:
         """
         Activate account
         """
-        if self.accounts[account_name].balance() == 0:
+        if self.accounts[account_name].balance() != 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
+        else:
+            print('the activation is not valid, the account does not have any tez')
 
     def reveal_account(self, account_name: str):
         """

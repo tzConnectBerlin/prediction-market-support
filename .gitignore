@@ -1,5 +1,6 @@
 compiled_contracts/
 files_to_ignore
+.tezos-client
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
