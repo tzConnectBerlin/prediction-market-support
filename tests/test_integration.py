@@ -446,28 +446,28 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
 
 def test_swap_token_token_in_auction_phase(market, minter_account):
     auction = get_random_market(["bidded"])
-    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100, 5)
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
 def test_swap_token_resolved_market(market, minter_account):
     auction = get_random_market(["resolved"])
-    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], "yes", 100, 5)
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
 
 
 def test_swap_token_inexistent_market(market, minter_account):
     auction = get_random_market(["minted"])
-    transaction = market.swap_tokens(1, minter_account['name'], "yes", 100)
+    transaction = market.swap_tokens(1, minter_account['name'], "yes", 100, 5)
     with pytest.raises(RpcError):
         log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
 
 
 def test_swap_tokens_insufficient_currency_balance(market, non_financed_account):
     auction = get_random_market(["minted"])
-    transaction = market.swap_tokens(auction['id'], non_financed_account['name'], "yes", 100)
+    transaction = market.swap_tokens(auction['id'], non_financed_account['name'], "yes", 100, 5)
     with pytest.raises(RpcError):
         log_and_submit(transaction, non_financed_account, market, auction["id"], error_func=raise_error)
 
