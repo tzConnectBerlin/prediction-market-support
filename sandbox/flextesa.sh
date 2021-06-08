@@ -30,6 +30,7 @@ start () {
              --root "$root_path" --size 1 "$@" \
              --set-history-mode N000:archive \
              --number-of-b 1 \
+             --time-between-blocks 5 \
              --add-bootstrap-account="$alice@2_000_000_000_000" \
              --add-bootstrap-account="$bob@2_000_000_000_000" \
              --no-baking \

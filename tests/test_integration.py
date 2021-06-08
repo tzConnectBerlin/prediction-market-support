@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from os import stat_result
-import time
+from time import sleep
 
 import pytest
 from pytezos.rpc.node import RpcError
@@ -176,6 +176,7 @@ def test_auction_bet_market_already_cleared(market, revealed_account):
 Clear market
 """
 
+
 def test_clear_market_in_auction_phase(market):
     auction = get_random_market(["bidded"])
     transaction = market.auction_clear(auction['id'], auction['caller']['name'])
@@ -202,8 +203,6 @@ def test_clear_market_with_no_bet_market(market):
 @pytest.mark.parametrize("quantity,rate", [[1, 100], [1, 2]])
 def test_clear_market_insufficient_liquidity_from_bets(market, revealed_account, quantity, rate):
     auction = get_random_market(["created"])
-    transaction = market.bid_auction(auction['id'], revealed_account['name'], quantity, rate)
-    log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
     transaction = market.auction_clear(auction['id'], revealed_account['name'])
     with pytest.raises(RpcError):
         log_and_submit(transaction, revealed_account, market, auction['id'], error_func=raise_error)
@@ -238,10 +237,8 @@ def test_withdraw_auction_cleared(market):
         error_func=raise_error
     )
 
-import time
 
-@pytest.mark.parametrize('random_nonce', [1,2,3,4,5,6,7,8])
-def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stablecoin_id):
+def test_withdraw_auction_bidded(market, revealed_accounts, stablecoin_id):
     auction = get_random_market(["bidded"])
     quantity = random.randint(0, 900)
     rate = random.randint(0, 2 ** 63)
@@ -268,7 +265,6 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
     logger.debug(f"state map = {state_of_market}")
     with pytest.raises(RpcError):
         log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
-
 
 
 def test_withdraw_auction_resolved(market):
@@ -423,24 +419,7 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     logger.debug(after_storage)
     assert after_ledger_supply != {}
     assert after_ledger_supply[token_to_sell] == before_ledger_supply[token_to_sell] - quantity
-    # logger.debug("############################################################################")
-    # logger.debug("############################################################################")
-    # logger.debug("############################################################################")
-    # logger.debug(f"token to sell = {token_to_sell} and token to buy = {token_to_buy}")
-    # logger.debug(f"before_supply dic.keys is = {before_supply.keys()}")
-    # logger.debug(f"before_supply dic is = {before_supply}")
-    # logger.debug(f"supply of token sell before = {before_supply[token_to_sell]}")
-    # # logger.debug(f"token to sell new quantity by me = {token_sell_new_supply}")
-    # logger.debug(f"token to sell new quantity by dani = {after_supply[token_to_sell]}")
-    # logger.debug(f"supply of token buy before = {before_supply[token_to_buy]}")
-    # # logger.debug(f"token to buy new quantity by me = {token_buy_new_supply}")
-    # logger.debug(f"token to buy new quantity by dani = {after_supply[token_to_buy]}")
-    
-    # assert before_supply['no_token']['total_supply'] == after_supply['no_token']['total_supply']
-    # assert before_supply['yes_token']['total_supply'] == after_supply['yes_token']['total_supply']
-    # assert before_supply['pool_liquidity']['total_supply'] == after_supply['pool_liquidity']['total_supply']
-    # assert before_supply['auction_reward']['total_supply'] == after_supply['auction_reward']['total_supply']
-
+    assert after_ledger_supply[token_to_buy] > before_ledger_supply[token_to_buy] + quantity
 
 
 def test_swap_token_token_in_auction_phase(market, minter_account):
@@ -475,16 +454,24 @@ def test_swap_tokens_insufficient_currency_balance(market, non_financed_account)
 Add liquidity
 """
 
-#swap_liquidity should be renamed to update_liquidity
+
 def test_add_liquidity_on_cleared(market, minter_account):
     quantity = 100
     auction = get_random_market(["minted"])
-    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", 100)
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", quantity)
     log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
-    before_storage, after_storage = log_and_submit(transaction, minter_account, market, 1, error_func=raise_error)
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        minter_account,
+        market,
+        auction['id'],
+        error_func=raise_error
+    )
+    before_ledger = before_storage["ledger_map"]
     after_ledger = after_storage["ledger_map"]
-    logger.info(before_storage)
-    logger.info(after_ledger)
+    logger.error(after_ledger)
+    logger.error(before_ledger)
+    assert before_ledger['pool_liquidity'] == after_ledger['pool_liquidity'] + quantity
 
 
 def test_add_liquidity_in_auction_phase(market, minter_account):
@@ -522,8 +509,9 @@ Remove liquidity
 def test_remove_liquidity_on_cleared(market, minter_account):
     quantity = 100
     auction = get_random_market(["minted"])
-    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", 100)
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payIn", quantity)
     log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
+    transaction = market.update_liquidity(auction['id'], minter_account['name'], "payOut", quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
         minter_account,
@@ -531,7 +519,11 @@ def test_remove_liquidity_on_cleared(market, minter_account):
         auction['id'],
         error_func=raise_error
     )
-    assert False
+    before_ledger = before_storage["ledger_map"]
+    after_ledger = after_storage["ledger_map"]
+    logger.error(after_ledger)
+    logger.error(before_ledger)
+    assert before_ledger['pool_liquidity'] == after_ledger['pool_liquidity'] - quantity
 
 
 def test_remove_liquidity_in_auction_phase(market, minter_account):
@@ -621,13 +613,13 @@ def test_resolve_non_existent_market_id(market, revealed_account, token_type):
 @pytest.mark.parametrize('token_type', [True, False])
 def test_claim_winning_lqt_provider(market, minter_account, token_type):
     auction = get_random_market('minted')
-    transaction = market.close_market(auction['id'], minter_account['name'], token_type)
+    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
     log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
-    time.sleep(10)
-    transaction = market.claim_winnings(auction['id'], minter_account['name'])
+    sleep(3)
+    transaction = market.claim_winnings(auction['id'], auction['caller']['name'])
     before_storage, after_storage = log_and_submit(
         transaction,
-        minter_account,
+        auction['caller'],
         market,
         auction['id'],
         error_func=raise_error
