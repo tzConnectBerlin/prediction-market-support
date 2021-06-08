@@ -3,6 +3,7 @@ from pytezos import pytezos
 from src.config import Config
 from src.utils import get_public_key, get_stablecoin, get_tokens_id_list, print_error, submit_transaction
 
+
 def start(config_file, contract_id, stablecoin_id):
     config = Config(
         config_file=config_file,
@@ -10,6 +11,7 @@ def start(config_file, contract_id, stablecoin_id):
     )
     # tokens = get_tokens_id_list(market_id)
     config = config
+    market = market
     account = config.get_admin_account()
     contract = account.contract(contract_id)
     stablecoin = account.contract(stablecoin_id)
@@ -21,6 +23,7 @@ def start(config_file, contract_id, stablecoin_id):
     
     return {
             "config": config,
+            "market": market,
             "contract": contract,
             "client": account,
             "stablecoin": stablecoin,

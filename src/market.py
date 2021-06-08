@@ -295,7 +295,8 @@ class Market:
             market_id: int,
             user: str,
             token_to_sell: str,
-            amount: int
+            amount: int,
+            min_amount_of_bought_token_accepted: int
     ):
         """
         Swap one outcome token through the liquidity pool for its opposing pair
@@ -304,13 +305,15 @@ class Market:
         market_id: id of the concerned market
         token_to_sell: the type of token to sell (yes or no)
         amount: the amount to token to sell
+        min_amount_of_bought_token_accepted: minimum amount that a user agrees to buy of a token
         """
         operation = self.pm_contracts(user).swapTokens({
             'token_to_sell': token_to_sell,
             'params': {
                 'market_id': market_id,
                 'amount': amount
-            }
+            },
+            'slippage_control': min_amount_of_bought_token_accepted
         })
         return operation.as_transaction()
 

@@ -193,13 +193,20 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
                             account['name'],
                             2**16
                         )
-                        submit_transaction(transaction, error_func=print_error)
+                        submit_transaction(transaction, error_func=raise_error)
                         if 'minted' not in ma['status']:
                             ma['status'] += ',minted'
                         if 'minted' not in account['status']:
                             account['status'] += ',minted'
-                    except:
+                        print("#######################")
+                        print("WE SRE MINTING")
+                    except Exception as e:
+                        print("WE GOT ERROR")
+                        logger.error(e)
                         continue
+    print("#######################")
+    print("WE ARE NOT MINTING")
+    print(accounts_who_mint)
     return accounts_who_mint
 
 """
@@ -276,8 +283,12 @@ def non_financed_account(stablecoin, get_accounts):
 
 
 @pytest.fixture(scope="function")
-def minter_account():
+def minter_account(accounts_who_minted):
     selection = [x for x in test_accounts if 'minted' in x['status']]
+    logger.debug("########################")
+    logger.debug("########################")
+    logger.debug(f"test account dic {test_accounts}")
+    logger.debug(f"selection list = {selection}")
     account = random.choice(selection)
     return account
 

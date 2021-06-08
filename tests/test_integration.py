@@ -255,7 +255,7 @@ def test_withdraw_auction_bidded(market, random_nonce, revealed_accounts, stable
         caller['name'],
         quantity,
         rate,
-        id_generator(),
+        id_generator(),s
         auction_end_date=end.timestamp(),
         token_contract=stablecoin_id
     )
@@ -398,13 +398,14 @@ Swap token
 
 @pytest.mark.parametrize('token_type', ["yes", "no"])
 def test_swap_token_token_on_cleared(market, minter_account, token_type):
-    quantity = 20000
-    auction = get_random_market(["minted"])
+    # quantity = 20000
+    # auction = get_random_market(["minted"])
     quantity = 200
+    min_buy = 1
     auction = get_random_market(["cleared"])
     transaction = market.mint(auction['id'], minter_account['name'], 2 * quantity)
     log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)
-    transaction = market.swap_tokens(auction['id'], minter_account['name'], token_type, quantity)
+    transaction = market.swap_tokens(auction['id'], minter_account['name'], token_type, quantity, min_buy)
     before_storage, after_storage = log_and_submit(
         transaction,
         minter_account,
