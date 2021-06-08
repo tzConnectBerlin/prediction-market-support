@@ -155,9 +155,9 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
             stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
     bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
+    submit_transaction(bulk_transactions, error_func=raise_error)
     bulk_transactions = config["admin_account"].bulk(*money_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
+    submit_transaction(bulk_transactions, error_func=raise_error)
     return accounts_to_finance
 
 
@@ -198,15 +198,9 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
                             ma['status'] += ',minted'
                         if 'minted' not in account['status']:
                             account['status'] += ',minted'
-                        print("#######################")
-                        print("WE SRE MINTING")
                     except Exception as e:
-                        print("WE GOT ERROR")
                         logger.error(e)
                         continue
-    print("#######################")
-    print("WE ARE NOT MINTING")
-    print(accounts_who_mint)
     return accounts_who_mint
 
 """
@@ -285,10 +279,6 @@ def non_financed_account(stablecoin, get_accounts):
 @pytest.fixture(scope="function")
 def minter_account(accounts_who_minted):
     selection = [x for x in test_accounts if 'minted' in x['status']]
-    logger.debug("########################")
-    logger.debug("########################")
-    logger.debug(f"test account dic {test_accounts}")
-    logger.debug(f"selection list = {selection}")
     account = random.choice(selection)
     return account
 

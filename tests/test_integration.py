@@ -401,7 +401,7 @@ def test_swap_token_token_on_cleared(market, minter_account, token_type):
     # quantity = 20000
     # auction = get_random_market(["minted"])
     quantity = 200
-    min_buy = 1
+    min_buy = 30
     auction = get_random_market(["cleared"])
     transaction = market.mint(auction['id'], minter_account['name'], 2 * quantity)
     log_and_submit(transaction, minter_account, market, auction["id"], error_func=raise_error)

@@ -149,7 +149,7 @@ class Market:
         """
         data = {
             'direction': direction,
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -218,7 +218,7 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payIn',
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -241,7 +241,7 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payOut',
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -283,7 +283,7 @@ class Market:
         """
         operation = self.pm_contracts(user).swapLiquidity({
             'direction': direction,
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -309,7 +309,7 @@ class Market:
         """
         operation = self.pm_contracts(user).swapTokens({
             'token_to_sell': token_to_sell,
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             },
