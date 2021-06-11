@@ -173,9 +173,9 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
             stablecoin_seeding.append(stablecoin_seed.as_transaction())
 
     bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
+    submit_transaction(bulk_transactions, error_func=raise_error)
     bulk_transactions = config["admin_account"].bulk(*money_seeding)
-    submit_transaction(bulk_transactions, error_func=print_error)
+    submit_transaction(bulk_transactions, error_func=raise_error)
     return accounts_to_finance
 
 
@@ -211,13 +211,14 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
                             account['name'],
                             2**16
                         )
-                        submit_transaction(transaction, error_func=print_error)
+                        submit_transaction(transaction, error_func=raise_error)
                         if 'minted' not in ma['status']:
                             ma['status'] = 'minted'
                         if 'minted' not in account['status']:
                             account['status'] += ',minted'
                         selection.append(ma)
-                    except:
+                    except Exception as e:
+                        logger.error(e)
                         continue
     assert len(selection) > 0
     return accounts_who_mint
@@ -269,7 +270,7 @@ def non_financed_account(stablecoin, get_accounts):
 
 
 @pytest.fixture(scope="function")
-def minter_account():
+def minter_account(accounts_who_minted):
     selection = [x for x in test_accounts if 'minted' in x['status']]
     account = random.choice(selection)
     return account

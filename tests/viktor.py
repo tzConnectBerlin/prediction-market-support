@@ -5,6 +5,7 @@ from src.accounts import Accounts
 from src.market import Market
 from src.utils import get_public_key, get_stablecoin, get_tokens_id_list, print_error, submit_transaction
 
+
 def start(config_file, contract_id, stablecoin_id):
     config = Config(
         config_file=config_file,
@@ -25,6 +26,7 @@ def start(config_file, contract_id, stablecoin_id):
     
     return {
             "config": config,
+            "market": market,
             "contract": contract,
             "client": account,
             "market": market,
