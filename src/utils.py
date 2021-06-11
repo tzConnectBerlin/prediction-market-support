@@ -6,11 +6,17 @@ import sys
 
 from loguru import logger
 
+from pytezos import pytezos
 from pytezos.rpc.node import RpcError
 
 from src.errors import contract_error
 
 logger = logger.opt(colors=True)
+
+client = pytezos.using(
+    shell="http://localhost:20000",
+    key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
+)
 
 
 def get_public_key(account):
@@ -79,8 +85,12 @@ def submit_transaction(transaction, count=None, tries=3, error_func=None):
     try:
         transaction_ = transaction.autofill(ttl=60, counter=count)
         res = transaction_.sign().inject(_async=False)
-        block_hash = transaction_.shell.wait_next_block(max_iterations=10)
-        logger.debug(f"block baked: {block_hash}")
+        if hasattr(sys, '_called_from_test'):
+            client.bake_block().fill().work().sign().inject()
+        else:
+            client.bake_block().fill().work().sign().inject()
+            #block_hash = transaction_.shell.wait_next_block(max_iterations=10)
+            #logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])

@@ -24,10 +24,13 @@ class Stablecoin:
         if self.client is None:
             try: 
                 self.client = self.config['admin_account'].contract(
-                        self.config['stablecoin']
+                    self.config['stablecoin']
                 )
-            except:
-                logger.debug("Stablecoin was not found")
+            except Exception as e:
+                logger.debug(e)
+                logger.debug(
+                    f'Stablecoin contract {self.config["stablecoin"]} was not found on {self.config["endpoint"]}'
+                )
                 raise
         return self.client
 
@@ -57,7 +60,7 @@ class Stablecoin:
             'owner': owner_address,
             'spender': self.market_id,
             'contract_2': self.market_id
-/home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle/src/stablecoin.py        })
+        })
         return operation.as_transaction()
 
     def transfer(self, src: str, dest: str, value: int):
@@ -89,5 +92,5 @@ class Stablecoin:
         user_address = self.accounts[user].key.public_key_hash()
         balance = self.get_client().getBalance(
             {'owner': user_address, 'contract_1': Undefined}
-        ).view()
+        ).callback_view()
         return int(balance)

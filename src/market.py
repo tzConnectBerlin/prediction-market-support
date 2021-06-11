@@ -65,6 +65,7 @@ class Market:
         if market_id is None:
             market_id = random.randint(10, 2 ** 63)
         # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
+        logger.debug(self.config['stablecoin'])
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -320,15 +321,14 @@ class Market:
     def get_storage(
             self,
             market_id: int,
-            user: str,
+            user: str = "",
     ):
-        time.sleep(3)
         tokens = get_tokens_id_list(market_id)
         logger.debug(f'Querrying storage for market: {market_id}')
         market_map = self.get_market_map_storage(market_id)
-        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
-        supply_map = self.get_supply_map_storage(user, tokens)
-        ledger_map = self.get_ledger_map_storage(user, tokens)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id)
+        supply_map = self.get_supply_map_storage(tokens)
+        ledger_map = self.get_ledger_map_storage(tokens)
         return {
             'market_map': market_map,
             'liquidity_provider_map': liquidity_provider_map,
@@ -376,44 +376,51 @@ class Market:
             return None
         return market_map
 
-    def get_liquidity_provider_map_storage(self, market_id: int, user: str):
-        try:
-            map_key = {
-                'originator': get_public_key(self.accounts[user]),
-                'market_id': market_id
-            }
-            liquidity_provider_map = self.pm_contracts(
-                user
-            ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
-            return liquidity_provider_map
-        except:
-            logger.debug(
-                f"can't get liquidity_provider_map for market_id = {market_id} and user = {user}"
-            )
-            return None
-
-    def get_ledger_map_storage(self, user: str, tokens: list):
-        ledger_map = {}
-        user_address = get_public_key(self.accounts[user])
-        for token in tokens:
-            map_key = {'owner': user_address, 'token_id': token['token_value']}
-            entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+    def get_liquidity_provider_map_storage(self, market_id: int, users: list = None):
+        liquidity_provider_map = {}
+        if users is None:
+            users = self.accounts.names()
+        for user in users:
             try:
-                ledger_map[token['token_name']] = entry[map_key]()
+                map_key = {
+                    'originator': get_public_key(self.accounts[user]),
+                    'market_id': market_id
+                }
+                liquidity_provider_map[user] = self.pm_contracts(
+                    user
+                ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
             except:
-                ledger_map[token['token_name']] = None
+                continue
+        return liquidity_provider_map
+
+    def get_ledger_map_storage(self, tokens: list, users: list = None):
+        ledger_map = {}
+        if users is None:
+            users = self.accounts.names()
+        for user in users:
+            user_address = get_public_key(self.accounts[user])
+            token_map = {}
+            count = 0
+            for token in tokens:
+                map_key = {'owner': user_address, 'token_id': token['token_value']}
+                entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+                try:
+                    token_map[token['token_name']] = entry[map_key]()
+                    count += 1
+                except:
+                    token_map[token['token_name']] = 0
+            if count > 0:
+                ledger_map[user] = token_map
         return ledger_map
 
-    def get_supply_map_storage(self, user: str, tokens: list):
+    def get_supply_map_storage(self, tokens: list):
         supply_map = {}
         for token in tokens:
-            entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
+            entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
             try:
                 supply_map[token['token_name']] = entry[token['token_value']]()
             except:
-                supply_map[token['token_name']] = None
-        if supply_map == {}:
-            return None
+                supply_map[token['token_name']] = 0
         return supply_map
 
     def get_all_bets_for_market(self, market_id: int):

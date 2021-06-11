@@ -29,14 +29,14 @@ start () {
     flextesa mini-net \
              --root "$root_path" --size 1 "$@" \
              --set-history-mode N000:archive \
-             --number-of-b 1 \
-             --time-between-blocks 5 \
+             --number-of-b 2 \
+             --time-b "$time_bb" \
              --add-bootstrap-account="$alice@2_000_000_000_000" \
              --add-bootstrap-account="$bob@2_000_000_000_000" \
              --no-baking \
-             --no-daemons-for=alice \
              --no-daemons-for=bob \
              --until-level 200_000_000 \
+             --timestamp-delay=-3600 \
              --protocol-kind "$default_protocol"
 }
 

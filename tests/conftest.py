@@ -1,13 +1,17 @@
 # content of conftest.py
 import os
-import pytest
 import random
+import sys
+
 from time import sleep, time
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+import pytest
+
 from loguru import logger
 from pytezos import pytezos
+from unittest.mock import patch, MagicMock
 
 from src.accounts import Accounts
 from src.config import Config
@@ -63,6 +67,36 @@ test_accounts = [
 ]
 
 
+@pytest.fixture(scope='session', autouse=True)
+def endpoint():
+    endpoint = 'http://localhost:20000'
+    logger.info(f'Endpoint is : {endpoint}')
+    return endpoint
+
+
+@pytest.fixture(scope="session", autouse=True)
+def client(endpoint):
+    client = pytezos.using(
+        shell=endpoint,
+        key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
+    )
+    return client
+
+
+def submit_transaction_fixture(client):
+    logger.info("Patching submit transaction")
+    with patch(
+        'src.utils.submit_transaction',
+        autospec=True,
+    ) as mock_submit:
+        logger.info(mock_submit.call_args)
+        args, kwargs = mock_submit.call_args
+        submit_transaction(*args, **kwargs)
+        client.bake_block().fill().work().sign().inject()
+        yield
+    logger.info("patchin complete unpatching")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def contract_id():
     id = deploy_market()
@@ -73,13 +107,6 @@ def contract_id():
 @pytest.fixture(scope="session", autouse=True)
 def mock_get_tezos_client_path():
     return os.path.join('tests/users', 'secret_keys')
-
-
-@pytest.fixture(scope='session', autouse=True)
-def endpoint():
-    endpoint = 'http://localhost:20000'
-    logger.info(f'Endpoint is : {endpoint}')
-    return endpoint
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -99,13 +126,6 @@ def stablecoin_id(endpoint):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def config(contract_id, stablecoin_id, endpoint):
-    config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id, endpoint=endpoint)
-    logger.info(f"account originator = {config['admin_priv_key']}")
-    return config
-
-
-@pytest.fixture(scope="session", autouse=True)
 def market(config, get_accounts):
     new_market = Market(get_accounts, config)
     return new_market
@@ -118,12 +138,10 @@ def stablecoin(config, get_accounts):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def client(config):
-    client = pytezos.using(
-        shell=config["endpoint"],
-        key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
-    )
-    return client
+def config(contract_id, stablecoin_id, endpoint):
+    config = Config(config_file="tests/cli.ini", contract=contract_id, stablecoin=stablecoin_id, endpoint=endpoint)
+    logger.info(f"account originator = {config['admin_priv_key']}")
+    return config
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -182,7 +200,7 @@ def revealed_accounts(financed_accounts, config, get_accounts):
 def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
     accounts_who_mint = random.choices(revealed_accounts, k=15)
     market_with_minted_token = random.choices(gen_cleared_markets, k=15)
-    transactions = []
+    selection = []
     for account in test_accounts:
         if account in accounts_who_mint:
             for ma in market_pool:
@@ -195,40 +213,15 @@ def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
                         )
                         submit_transaction(transaction, error_func=print_error)
                         if 'minted' not in ma['status']:
-                            ma['status'] += ',minted'
+                            ma['status'] = 'minted'
                         if 'minted' not in account['status']:
                             account['status'] += ',minted'
+                        selection.append(ma)
                     except:
                         continue
+    assert len(selection) > 0
     return accounts_who_mint
 
-"""
-@pytest.fixture(scope="session", autouse=True)
-def accounts_with_liquidity(config, market, revealed_accounts, gen_cleared_markets):
-    accounts_whith_liquidity = random.choices(revealed_accounts, k=15)
-    market_with_minted_token = random.choices(gen_cleared_markets, k=15)
-    transactions = []
-    for account in test_accounts:
-        if account in accounts_whith_liquidity:
-            for ma in market_pool:
-                if ma in market_with_minted_token:
-                    try:
-                        transaction = market.update_liquidity(
-                            ma['id'],
-                            account['name'],
-                            'payIn',
-                            2**16
-                        )
-                        submit_transaction(transaction, error_func=print_error)
-                        if 'liquid' not in ma['status']:
-                            ma['status'] += ',liquid'
-                        if 'sprayer' not in account['status']:
-                            account['status'] += ',sprayer'
-                    except:
-                        continue
-    logger.error(accounts_whith_liquidity)
-    return accounts_whith_liquidity
-"""
 
 @pytest.fixture(scope="function")
 def revealed_account(revealed_accounts, stablecoin, get_accounts):
@@ -346,6 +339,7 @@ def gen_bid_markets(gen_markets, market, config):
         submit_transaction(bulk_transactions, error_func=print_error)
         for ma in selection:
             ma['status'] = 'bidded'
+    assert len(selection) > 0
     logger.info('#####################BIDDED MARKETS##########################')
     logger.info(selection)
     logger.info(len(selection))
@@ -367,6 +361,7 @@ def gen_cleared_markets(config, market, gen_bid_markets):
             cleared.append(ma)
         except Exception as e:
             continue
+    assert len(cleared) > 0
     logger.info('#####################CLEARED MARKETS##########################')
     logger.info(cleared)
     logger.info(len(cleared))
@@ -390,6 +385,7 @@ def gen_resolved_markets(config, market, gen_cleared_markets):
             except Exception as e:
                 logger.info(e)
                 continue
+    assert len(selection) > 0
     logger.info('#####################RESOLVED MARKETS##########################')
     logger.info(selection)
     logger.info(len(selection))
@@ -421,6 +417,7 @@ def pytest_configure():
     This hook is called for every plugin and initial conftest
     file after command line options have been parsed.
     """
+    sys._called_from_test = True
     #launch_sandbox()
     #sleep(20)
 
@@ -444,6 +441,7 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
+    del sys._called_from_test
     #stop_sandbox()
 
 
@@ -462,18 +460,3 @@ def get_random_account(status="created", exclude=""):
     logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
     return selected_account
-
-
-@pytest.fixture(scope="session", autouse=True)
-def liquidity_storage(client, config):
-    return get_question_liquidity_provider_map(client, config['contract'])
-
-
-@pytest.fixture(scope="session", autouse=True)
-def ledger_storage(client, config):
-    return get_tokens_ledgermap(client, config['contract'])
-
-
-@pytest.fixture(scope="session", autouse=True)
-def supply_storage(client, config):
-    return get_tokens_supplymap(client, config['contract'])

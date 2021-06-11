@@ -94,7 +94,7 @@ class Accounts:
         """
         Activate account
         """
-        if self.accounts[account_name].balance() != 0:
+        if self.accounts[account_name].balance() == 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
         else:

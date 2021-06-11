@@ -1,0 +1,5 @@
+200 test_clear_market_with_no_bet_market doesnt raise, check market structure
+232 test_withdraw_auction_cleared Caller has not provided liquidity or participated in the auction
+474 verify the right value is modified
+526 veify the right value is modified
+617 market already resolved error
