@@ -290,10 +290,8 @@ def test_mint_token_on_cleared(market, minter_account):
     )
     before_supply = before_storage["supply_map"]
     after_supply = after_storage["supply_map"]
-    name = minter_account['name']
-    assert name in after_supply
-    assert before_supply[name]['no_token']['total_supply'] + quantity == after_supply['no_token']['total_supply']
-    assert before_supply[name]['yes_token']['total_supply'] + quantity == after_supply['yes_token']['total_supply']
+    assert before_supply['no_token']['total_supply'] + quantity == after_supply['no_token']['total_supply']
+    assert before_supply['yes_token']['total_supply'] + quantity == after_supply['yes_token']['total_supply']
 
 def test_mint_token_in_auction_phase(market, minter_account):
     auction = get_random_market(["bidded"])
@@ -575,7 +573,6 @@ def test_claim_winning_lqt_provider(market, minter_account, token_type):
     auction = get_random_market('minted')
     transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
     log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
-    sleep(3)
     transaction = market.claim_winnings(auction['id'], auction['caller']['name'])
     before_storage, after_storage = log_and_submit(
         transaction,
