@@ -78,19 +78,19 @@ def print_and_ignore(err_message):
     sys.exit()
 
 
-def submit_transaction(transaction, count=None, tries=3, error_func=None):
+def submit_transaction(transaction, count=None, tries=10, error_func=None):
     """
     Submit a transaction
     """
     try:
         transaction_ = transaction.autofill(ttl=60, counter=count)
         res = transaction_.sign().inject(_async=False)
-        if hasattr(sys, '_called_from_test'):
-            client.bake_block().fill().work().sign().inject()
-        else:
-            client.bake_block().fill().work().sign().inject()
-            #block_hash = transaction_.shell.wait_next_block(max_iterations=10)
-            #logger.debug(f"block baked: {block_hash}")
+        #if hasattr(sys, '_called_from_test'):
+           # client.bake_block().fill().work().sign().inject()
+        #else:
+           # client.bake_block().fill().work().sign().inject()
+        block_hash = transaction_.shell.wait_next_block(max_iterations=10)
+        logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
         err_message = ast.literal_eval(str(r)[1:-2])

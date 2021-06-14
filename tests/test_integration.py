@@ -461,7 +461,7 @@ def test_swap_token_token_on_cleared(market, revealed_account, token_type):
     # quantity = 20000
     auction = get_random_market(["cleared"])
     quantity = 200
-    min_buy = 100
+    min_buy = 5
     transaction = market.mint(auction['id'], revealed_account['name'], 3 * quantity)
     log_and_submit(transaction, revealed_account, market, auction["id"], error_func=raise_error)
     transaction = market.swap_tokens(auction['id'], revealed_account['name'], token_type, quantity, min_buy)
@@ -478,8 +478,9 @@ def test_swap_token_token_on_cleared(market, revealed_account, token_type):
     after_ledger_supply = after_storage["ledger_map"]
     token_to_sell = token_type + '_token'
     token_to_buy = lst_token[0] + '_token'
-    assert after_ledger_supply[token_to_sell] == before_ledger_supply[token_to_sell] - quantity
-    assert after_ledger_supply[token_to_buy] >= before_ledger_supply[token_to_buy]
+    name = revealed_account['name']
+    assert after_ledger_supply[name][token_to_sell] == before_ledger_supply[name][token_to_sell] - quantity
+    assert after_ledger_supply[name][token_to_buy] >= before_ledger_supply[name][token_to_buy]
 
 
 def test_swap_token_token_in_auction_phase(market, revealed_account):
