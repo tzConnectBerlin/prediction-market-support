@@ -18,6 +18,7 @@ class Accounts:
 
     def __init__(self, endpoint):
         self.accounts = {}
+        self._clients = {}
         self.endpoint = endpoint
 
     def __getitem__(self, account_name: str):

@@ -144,7 +144,6 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
-        sleep(2)
         logger.info(f"{filepath} lambda is deployed")
     operation = contract.sealContract()
     submit_transaction(operation.as_transaction())

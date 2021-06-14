@@ -126,12 +126,6 @@ def stablecoin_id(endpoint):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def market(config, get_accounts):
-    new_market = Market(get_accounts, config)
-    return new_market
-
-
-@pytest.fixture(scope="session", autouse=True)
 def stablecoin(config, get_accounts):
     new_stablecoin = Stablecoin(get_accounts, config)
     return new_stablecoin
@@ -149,6 +143,12 @@ def get_accounts(config):
     accounts = Accounts(endpoint=config["endpoint"])
     accounts.import_from_folder("tests/users")
     return accounts
+
+
+@pytest.fixture(scope="session", autouse=True)
+def market(config, get_accounts):
+    new_market = Market(get_accounts, config)
+    return new_market
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -196,34 +196,6 @@ def revealed_accounts(financed_accounts, config, get_accounts):
     return accounts_to_reveal
 
 
-@pytest.fixture(scope="session", autouse=True)
-def accounts_who_minted(config, market, revealed_accounts, gen_cleared_markets):
-    accounts_who_mint = random.choices(revealed_accounts, k=15)
-    market_with_minted_token = random.choices(gen_cleared_markets, k=15)
-    selection = []
-    for account in test_accounts:
-        if account in accounts_who_mint:
-            for ma in market_pool:
-                if ma in market_with_minted_token:
-                    try:
-                        transaction = market.mint(
-                            ma['id'],
-                            account['name'],
-                            2**16
-                        )
-                        submit_transaction(transaction, error_func=raise_error)
-                        if 'minted' not in ma['status']:
-                            ma['status'] = 'minted'
-                        if 'minted' not in account['status']:
-                            account['status'] += ',minted'
-                        selection.append(ma)
-                    except Exception as e:
-                        logger.error(e)
-                        continue
-    assert len(selection) > 0
-    return accounts_who_mint
-
-
 @pytest.fixture(scope="function")
 def revealed_account(revealed_accounts, stablecoin, get_accounts):
     selected_account = random.choice(revealed_accounts)
@@ -251,7 +223,7 @@ def financed_account(financed_accounts, stablecoin, get_accounts):
 
 
 @pytest.fixture(scope="function")
-def non_financed_account(stablecoin, get_accounts):
+def non_financed_account(client, stablecoin, get_accounts):
     selection = [x for x in test_accounts if 'financed' not in x['status']]
     selected_account = random.choice(selection)
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
@@ -264,6 +236,10 @@ def non_financed_account(stablecoin, get_accounts):
         logger.info(f"Non financed account: {selected_account} already available on the network")
     logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
+    client.transaction(
+        selected_account['key'], amount=Decimal(10)
+    )
+    submit_transaction(client, raise_error)
     yield selected_account
     logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
@@ -286,7 +262,7 @@ def sprayer_account():
 @pytest.fixture(scope="session", autouse="True")
 def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
-    for i in range(2):
+    for i in range(3):
         for index in range(40):
             quantity = random.randint(0, 900)
             rate = random.randint(0, 2 ** 63)
@@ -313,7 +289,7 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
                     'status': 'created'
                 })
         bulk_transactions = config["admin_account"].bulk(*transactions)
-        res = submit_transaction(bulk_transactions, error_func=print_error)
+        res = submit_transaction(bulk_transactions, error_func=raise_error)
         logger.info("-------------------------------RESULT OF THE OPERATION--------------------------------------")
         logger.info(res)
         logger.info("-------------------------------RESULT OF THE OPERATION--------------------------------------")
@@ -322,13 +298,13 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id):
             logger.info(ma)
         logger.info("-------------------------------LIST OF GENERATED MARKETS------------------------------------")
         transactions.clear()
-    sleep(80)
+    sleep(40)
     return market_pool
 
 
 @pytest.fixture(scope="session", autouse="True")
 def gen_bid_markets(gen_markets, market, config):
-    selection = random.sample(gen_markets, k=60)
+    selection = random.sample(gen_markets, k=80)
     for i in range(1):
         for ma in selection:
             transactions = market.multiple_bids(
@@ -350,7 +326,7 @@ def gen_bid_markets(gen_markets, market, config):
 
 @pytest.fixture(scope="session", autouse="True")
 def gen_cleared_markets(config, market, gen_bid_markets):
-    selection = random.sample(gen_bid_markets, k=40)
+    selection = random.sample(gen_bid_markets, k=60)
     cleared = []
     for ma in selection:
         transaction = market.auction_clear(ma['id'], ma['caller']['name'])
@@ -403,8 +379,7 @@ def log_contract_state(request):
 
 def get_random_market(status=['created'], exclude=[]):
     pool = [
-        x for x in market_pool if
-        any(status_el in x['status'] for status_el in status)
+        x for x in market_pool if x['status'] in status
     ]
     r_pool = random.choice(pool)
     pool.remove(r_pool)

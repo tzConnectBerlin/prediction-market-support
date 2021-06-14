@@ -28,6 +28,7 @@ class Market:
         self.accounts = accounts
         self.config = config
         self.contract = self.config['contract']
+        self._clients = {}
         try:
             self.adminClient = self.config['admin_account'].contract(self.contract)
         except:
@@ -37,7 +38,9 @@ class Market:
             self,
             user: str
     ):
-        return self.accounts[user].contract(self.contract)
+        if user not in self._clients:
+            self._clients[user] = self.accounts[user].contract(self.contract)
+        return self._clients[user]
 
     def ask_question(
             self,
@@ -47,7 +50,7 @@ class Market:
             quantity: int,
             rate: int,
             ipfs_hash: str,
-            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)),
+            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)).timestamp(),
             market_id: int = None,
             token_contract: str = None
     ):
@@ -65,7 +68,6 @@ class Market:
         if market_id is None:
             market_id = random.randint(10, 2 ** 63)
         # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
-        logger.debug(self.config['stablecoin'])
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
         else:
@@ -274,7 +276,9 @@ class Market:
             market_id: int,
             user: str,
             direction: str,
-            amount: int
+            amount: int,
+            slippage_control_yes: int,
+            slippage_control_no: int,
     ):
         """
         Update the liquidity for the market
@@ -286,10 +290,16 @@ class Market:
         amount: The amount of liquidity tokens to receive or burn
         """
         operation = self.pm_contracts(user).swapLiquidity({
-            'direction': direction,
-            'trade': {
-                'market_id': market_id,
-                'amount': amount
+            'slippage_control': {
+                'token_a': slippage_control_yes,
+                'token_b': slippage_control_no
+            },
+            'params': {
+                'direction': direction,
+                'trade': {
+                    'market_id': market_id,
+                    'amount': amount
+                }
             }
         })
         return operation.as_transaction()
@@ -333,10 +343,10 @@ class Market:
         supply_map = self.get_supply_map_storage(tokens)
         ledger_map = self.get_ledger_map_storage(tokens)
         return {
-            'market_map': market_map,
+            'ledger_map': ledger_map,
             'liquidity_provider_map': liquidity_provider_map,
+            'market_map': market_map,
             'supply_map': supply_map,
-            'ledger_map': ledger_map
         }
 
     def is_cleared(self, market_id: int):
@@ -426,13 +436,7 @@ class Market:
                 supply_map[token['token_name']] = 0
         return supply_map
 
-    def get_all_bets_for_market(self, market_id: int):
-        for user in self.accounts.names():
-            liquidity = self.get_liquidity_provider_map_storage(market_id, user)
-            if liquidity is not None:
-                quantity = liquidity['bet']['quantity']
-                probability = liquidity['bet']['quantity']
-            logger.info(
-                f'User {user} with key {get_public_key(self.accounts[user])} \
-                betted {quantity} at the fixed probability if {probability}'
-            )
+#   logger.info(
+#       f'User {user} with key {get_public_key(self.accounts[user])} \
+#       betted {quantity} at the fixed probability if {probability}'
+#   )

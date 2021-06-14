@@ -19,6 +19,7 @@ class Stablecoin:
         self.client = None
         self.config = config
         self.market_id = config['contract']
+        self._clients = {}
     
     def get_client(self):
         if self.client is None:
@@ -34,12 +35,13 @@ class Stablecoin:
                 raise
         return self.client
 
-
     def pm_contracts(
             self,
             user: str
     ):
-        return self.accounts[user].contract(self.config['stablecoin'])
+        if user not in self._clients:
+            self._clients[user] = self.accounts[user].contract(self.contract)
+        return self._clients[user]
 
     def approve_market(self, owner: str, value: int):
         """

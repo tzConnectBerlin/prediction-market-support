@@ -92,7 +92,6 @@ def ask_question(
     except:
         print("something is wrong with the chosen date format")
         exit()
-    print(auction_end_date)
     if ipfs_hash is None:
         ipfs = ipfshttpclient.connect(state['config']['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
@@ -287,16 +286,24 @@ def swap_liquidity(
         market_id: int,
         user: str,
         direction: str,
-        amount: int
+        amount: int,
+        slippage_control_yes: int = typer.Argument(None),
+        slippage_control_no: int = typer.Argument(None)
 ):
     """
     Update the liquidity for the market
     """
+    if slippage_control_no is None:
+        slippage_control_no = amount
+    if slippage_control_yes is None:
+        slippage_control_yes = amount
     transaction = state["market"].update_liquidity(
         market_id,
         user,
         direction,
-        amount
+        amount,
+        slippage_control_yes,
+        slippage_control_no
     )
     submit_transaction(transaction, error_func=print_error)
 
@@ -509,6 +516,7 @@ def main(
     state['market'] = Market(state['accounts'], state['config'])
     state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
+
 
 if __name__ == "__main__":
     app()

@@ -36,6 +36,7 @@ zmq = "^0.0.0"
 pytest-mock = "^3.5.1"
 mock = "^4.0.3"
 pytest-profiling = "^1.7.0"
+snakeviz = "^2.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
