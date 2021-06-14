@@ -236,10 +236,10 @@ def non_financed_account(client, stablecoin, get_accounts):
         logger.info(f"Non financed account: {selected_account} already available on the network")
     logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
-    client.transaction(
+    transaction = client.transaction(
         selected_account['key'], amount=Decimal(10)
     )
-    submit_transaction(client, raise_error)
+    submit_transaction(transaction, raise_error)
     yield selected_account
     logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
@@ -252,20 +252,13 @@ def minter_account(accounts_who_minted):
     return account
 
 
-@pytest.fixture(scope="function")
-def sprayer_account():
-    selection = [x for x in test_accounts if 'sprayer' in x['status']]
-    account = random.choice(selection)
-    return account
-
-
 @pytest.fixture(scope="session", autouse="True")
 def gen_markets(revealed_accounts, config, market, stablecoin_id):
     transactions = []
     for i in range(3):
         for index in range(40):
-            quantity = random.randint(0, 900)
-            rate = random.randint(0, 2 ** 63)
+            quantity = random.randint(1, 900)
+            rate = random.randint(1, 2 ** 63)
             end_delay = random.uniform(0.05, 0.15)
             end = datetime.now() + timedelta(minutes=end_delay)
             caller = random.choice(revealed_accounts)
