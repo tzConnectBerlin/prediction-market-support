@@ -85,10 +85,6 @@ def submit_transaction(transaction, count=None, tries=10, error_func=None):
     try:
         transaction_ = transaction.autofill(ttl=60, counter=count)
         res = transaction_.sign().inject(_async=False)
-        #if hasattr(sys, '_called_from_test'):
-           # client.bake_block().fill().work().sign().inject()
-        #else:
-           # client.bake_block().fill().work().sign().inject()
         block_hash = transaction_.shell.wait_next_block(max_iterations=10)
         logger.debug(f"block baked: {block_hash}")
         return res

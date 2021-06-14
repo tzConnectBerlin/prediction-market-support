@@ -229,6 +229,10 @@ def non_financed_account(client, stablecoin, get_accounts):
     stablecoin_balance = stablecoin.get_balance(selected_account["name"])
     tez_balance = get_accounts[selected_account['name']].balance()
     logger.info(f"acount used for the call: {selected_account}")
+    transaction = client.transaction(
+        selected_account['key'], amount=Decimal(10)
+    )
+    submit_transaction(transaction, raise_error)
     try:
         get_accounts.activate_account(account_name=selected_account['name'])
         get_accounts.reveal_account(account_name=selected_account['name'])
@@ -236,10 +240,6 @@ def non_financed_account(client, stablecoin, get_accounts):
         logger.info(f"Non financed account: {selected_account} already available on the network")
     logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")
-    transaction = client.transaction(
-        selected_account['key'], amount=Decimal(10)
-    )
-    submit_transaction(transaction, raise_error)
     yield selected_account
     logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
     logger.info(f"account tez balance before call: {tez_balance}")

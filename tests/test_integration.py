@@ -527,7 +527,7 @@ Add liquidity
 def test_add_liquidity_on_cleared(market, revealed_account):
     quantity = 100
     auction = get_random_market(["cleared"])
-    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", quantity, quantity, quantity)
+    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", quantity * 3, quantity, quantity)
     log_and_submit(transaction, revealed_account, market, auction["id"], error_func=raise_error)
     before_storage, after_storage = log_and_submit(
         transaction,
@@ -550,7 +550,7 @@ def test_add_liquidity_on_cleared(market, revealed_account):
 
 def test_add_liquidity_in_auction_phase(market, revealed_account):
     auction = get_random_market(["bidded"])
-    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", 100, 100, 100)
+    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", 300, 100, 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
             transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
@@ -559,7 +559,7 @@ def test_add_liquidity_in_auction_phase(market, revealed_account):
 
 def test_add_liquidity_resolved_market(market, revealed_account):
     auction = get_random_market(["resolved"])
-    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", 100, 100, 100)
+    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", 300, 100, 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
             transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
@@ -567,7 +567,7 @@ def test_add_liquidity_resolved_market(market, revealed_account):
 
 
 def test_add_liquidity_inexistent_market(market, revealed_account):
-    transaction = market.update_liquidity(1, revealed_account['name'], "payIn", 100, 100, 100)
+    transaction = market.update_liquidity(1, revealed_account['name'], "payIn", 300, 100, 100)
     with pytest.raises(RpcError, match=r'No such market'):
         log_and_submit(
             transaction, revealed_account, 1, error_func=raise_error, logging=LOGGING_RAISE
@@ -576,7 +576,7 @@ def test_add_liquidity_inexistent_market(market, revealed_account):
 
 def test_add_liquidity_insufficient_currency_balance(market, non_financed_account):
     auction = get_random_market(["cleared"])
-    transaction = market.update_liquidity(auction['id'], non_financed_account['name'], "payIn", 100, 100, 100)
+    transaction = market.update_liquidity(auction['id'], non_financed_account['name'], "payIn", 300, 100, 100)
     with pytest.raises(RpcError, match=r'not today satan'):
         log_and_submit(
             transaction, non_financed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
@@ -591,9 +591,9 @@ Remove liquidity
 def test_remove_liquidity_on_cleared(market, revealed_account):
     quantity = 100
     auction = get_random_market(["cleared"])
-    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", quantity, quantity, quantity)
+    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payIn", 3 * quantity, quantity, quantity)
     log_and_submit(transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payOut", quantity, quantity, quantity)
+    transaction = market.update_liquidity(auction['id'], revealed_account['name'], "payOut", 2 * quantity, quantity, quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
         revealed_account,
