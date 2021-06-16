@@ -444,7 +444,7 @@ class Market:
         for token in tokens:
             entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
             try:
-                key = token['name '] if debug is True else token['token_value']
+                key = token['token_name'] if debug is True else token['token_value']
                 value = entry[token['token_value']]()
                 supply_map[key] = entry[token['token_value']]()
             except:

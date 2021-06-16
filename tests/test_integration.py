@@ -18,7 +18,7 @@ LOGGING_RAISE = False
 def test_empty():
     assert True
 
-'''
+
 """
 Create Market
 """
@@ -248,9 +248,10 @@ def test_clear_market_on_cleared(market):
 
 
 def test_clear_non_existent_market_id(market, revealed_account):
-    transaction = market.auction_clear(1, revealed_account['name'])
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.auction_clear(1, account['name'])
     with pytest.raises(RpcError, match=r'No such market'):
-        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
+        log_and_submit(transaction, account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
 
 
 """
@@ -259,23 +260,27 @@ Auction withdraw
 
 
 def test_withdraw_auction_cleared(market, stablecoin_id, revealed_account):
-    end = datetime.now() + timedelta(minutes=5)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
     market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
-        revealed_account["name"],
-        0,
-        2 ** 32,
-        "dededede",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
         auction_end_date=end.timestamp(),
         market_id=None,
-        token_contract=stablecoin_id
+        token_contract=None #stablecoin_id
     )
-    transaction = market.auction_withdraw(market_id, revealed_account['name'])
-    # this should be working
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_withdraw(market_id, account["name"])
     before_storage, after_storage = log_and_submit(
         transaction,
-        revealed_account,
+        account,
         market,
         market_id,
         error_func=raise_error
@@ -283,64 +288,118 @@ def test_withdraw_auction_cleared(market, stablecoin_id, revealed_account):
 
 
 def test_withdraw_auction_bidded(market, revealed_accounts, stablecoin_id):
-    auction = get_random_market(["bidded"])
-    quantity = random.randint(0, 900)
-    rate = random.randint(0, 2 ** 63)
-    end_delay = random.uniform(0.05, 0.10)
-    end = datetime.now() + timedelta(minutes=end_delay)
-    caller = random.choice(revealed_accounts)
-    """
-    market_id, transaction = market.ask_question(
-        id_generator(),
-        id_generator(),
-        caller['name'],
-        quantity,
-        rate,
-        id_generator(),s
-        auction_end_date=end.timestamp(),
-        token_contract=stablecoin_id
-    )
-    log_and_submit(transaction, caller, market_id, error_func=raise_error)
-    """
-    transaction = market.auction_withdraw(auction['id'], auction['caller']['name'])
-    storage = market.get_storage(auction['id'], auction['caller']['name'])
-    state_of_market = storage['market_map']['state']
-    logger.debug(f"state map = {state_of_market}")
-    with pytest.raises(RpcError, match=r'not today satan'):
-        log_and_submit(
-            transaction, auction['caller'], market, auction['id'], error_func=raise_error, logging=LOGGING_RAISE
-        )
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
 
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_withdraw(market_id, account["name"])
+    with pytest.raises(RpcError, match=r'Market not bootstrapped'):
+        log_and_submit(
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
+        )
 
 def test_withdraw_auction_resolved(market):
-    auction = get_random_market(["resolved"])
-    transaction = market.auction_withdraw(auction['id'], auction['caller']['name'])
-    with pytest.raises(RpcError, match=r'not today satan'):
-        log_and_submit(
-            transaction, auction['caller'], market, auction['id'], error_func=raise_error, logging=LOGGING_RAISE
-        )
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
 
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], True)
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_withdraw(market_id, account["name"])
+    before_storage, after_storage = log_and_submit(
+        transaction,
+        account,
+        market,
+        market_id,
+        error_func=raise_error
+    )
+
+
+def test_withdraw_without_participating_in_the_market(market):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    attacker = {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_withdraw(market_id, attacker["name"])
+    with pytest.raises(RpcError, match=r'(Caller has not provided liquidity or participated in the)'):
+        log_and_submit(transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE)
 
 def test_withdraw_auction_non_existent_market_id(market, revealed_account):
-    transaction = market.auction_withdraw(1, revealed_account['name'])
-    with pytest.raises(RpcError, match=r'not today satan'):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.auction_withdraw(1, account['name'])
+    with pytest.raises(RpcError, match=r'(No such market|Caller has not provided liquidity or participated in the)'):
         log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
 
 
 """
 Mint token
 """
-
-
+import time
 def test_mint_token_on_cleared(market, revealed_account):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
+    # time.sleep(1)
     quantity = 100
-    auction = get_random_market(["cleared"])
-    transaction = market.mint(auction['id'], revealed_account['name'], quantity)
+    transaction = market.mint(market_id, account['name'], quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
-        revealed_account,
+        account,
         market,
-        auction['id'],
+        market_id,
         error_func=raise_error
     )
     before_supply = before_storage["supply_map"]
@@ -350,36 +409,90 @@ def test_mint_token_on_cleared(market, revealed_account):
 
 
 def test_mint_token_in_auction_phase(market, revealed_account):
-    auction = get_random_market(["bidded"])
-    transaction = market.mint(auction['id'], revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
+    transaction = market.mint(market_id, account['name'], 100)
     with pytest.raises(RpcError, match=r'Market not bootstrapped'):
         log_and_submit(
-            transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 def test_mint_resolved_market(market, revealed_account):
-    auction = get_random_market(["resolved"])
-    transaction = market.mint(auction['id'], revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], True)
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
+    transaction = market.mint(market_id, account['name'], 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
-            transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 def test_mint_inexistent_market(market, revealed_account):
-    transaction = market.mint(1, revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.mint(1, account['name'], 100)
     with pytest.raises(RpcError, match=r'No such market'):
-        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
+        log_and_submit(transaction, account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
 
 
-def test_mint_insufficient_currency_balance(market, non_financed_account):
-    auction = get_random_market(["cleared"])
-    transaction = market.mint(auction['id'], non_financed_account['name'], 100)
+def test_mint_insufficient_currency_balance(market, stablecoin):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    
+    transaction = market.mint(market_id, attacker['name'], 100)
     with pytest.raises(RpcError, match=r'NotEnoughBalance'):
         log_and_submit(
-            transaction, non_financed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
+    
 
 
 """
@@ -388,22 +501,40 @@ Burn token
 
 
 def test_burn_token_on_cleared(market, revealed_account):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
     quantity = 100
-    auction = get_random_market(["cleared"])
-    transaction = market.mint(auction['id'], revealed_account['name'], quantity)
+    
+    transaction = market.mint(market_id, account['name'], quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
-        revealed_account,
+        account,
         market,
-        auction['id'],
+        market_id,
         error_func=raise_error
     )
-    transaction = market.burn(auction['id'], revealed_account['name'], quantity)
+    transaction = market.burn(market_id, account['name'], quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
-        revealed_account,
+        account,
         market,
-        auction['id'],
+        market_id,
         error_func=raise_error
     )
     before_supply = before_storage["supply_map"]
@@ -413,35 +544,87 @@ def test_burn_token_on_cleared(market, revealed_account):
 
 
 def test_burn_token_in_auction_phase(market, revealed_account):
-    auction = get_random_market(["bidded"])
-    transaction = market.burn(auction['id'], revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.burn(market_id, account['name'], 100)
     with pytest.raises(RpcError, match=r'Market not bootstrapped'):
         log_and_submit(
-            transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 def test_burn_resolved_market(market, revealed_account):
-    auction = get_random_market(["resolved"])
-    transaction = market.burn(auction['id'], revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], True)
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    
+    transaction = market.burn(market_id, account['name'], 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
-            transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 def test_burn_inexistent_market(market, revealed_account):
-    transaction = market.burn(1, revealed_account['name'], 100)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.burn(1, account['name'], 100)
     with pytest.raises(RpcError, match=r'No such market'):
-        log_and_submit(transaction, revealed_account, 1, error_func=raise_error)
+        log_and_submit(transaction, account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
 
 
-def test_burn_insufficient_currency_balance(market, non_financed_account):
-    auction = get_random_market(["cleared"])
-    transaction = market.burn(auction['id'], non_financed_account['name'], 100)
+def test_burn_insufficient_currency_balance(market):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
+    transaction = market.burn(market_id, attacker['name'], 100)
     with pytest.raises(RpcError, match=r'Not enough balance in source account'):
         log_and_submit(
-            transaction, non_financed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
@@ -653,11 +836,26 @@ Resolve Market
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_cleared_phase(market, revealed_account, token_type):
-    auction = get_random_market(["cleared"])
-    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
-    log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error)
-    storage = market.get_storage(auction['id'], auction['caller']['name'])
-    state = storage['market_map']['state']
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], token_type)
+    before_storage, after_storage = log_and_submit(transaction, account, market, market_id, logging=True)
+    state = after_storage['market_map']['state']
     assert 'marketBootstrapped' in state
     assert 'auctionRunning' not in state
     assert state['marketBootstrapped']['resolution'] is not None
@@ -665,13 +863,28 @@ def test_resolve_market_in_cleared_phase(market, revealed_account, token_type):
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_auction_phase(market, token_type):
-    auction = get_random_market(["bidded"])
-    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+
+    transaction = market.close_market(market_id, account['name'], token_type)
     before_storage, after_storage = log_and_submit(
         transaction,
-        auction['caller'],
+        account,
         market,
-        auction['id'],
+        market_id,
         error_func=raise_error
     )
     state = after_storage['market_map']['state']
@@ -682,53 +895,129 @@ def test_resolve_market_in_auction_phase(market, token_type):
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_already_resolved(market, token_type):
-    auction = get_random_market(["resolved"])
-    transaction = market.close_market(auction['id'], auction['caller']['name'], token_type)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], token_type)
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    
+    transaction = market.close_market(market_id, account['name'], token_type)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
-            transaction, auction['caller'], market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_unauthorized_account(market, revealed_account, token_type):
-    auction = get_random_market(["cleared"])
-    transaction = market.close_market(auction['id'], revealed_account['name'], token_type)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    
+    transaction = market.close_market(market_id, attacker['name'], token_type)
     with pytest.raises(RpcError, match=r'Access denied: unauthorized caller'):
         log_and_submit(
-            transaction, revealed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
+            transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
 
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_non_existent_market_id(market, revealed_account, token_type):
-    transaction = market.close_market(1, revealed_account['name'], token_type)
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.close_market(1, account['name'], token_type)
     with pytest.raises(RpcError, match=r'No such market'):
-        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
+        log_and_submit(transaction, account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
 
+''' 
+Claim winnings
+'''
 
 @pytest.mark.parametrize('token_type', [True, False])
 def test_claim_winning_lqt_provider(market, revealed_account, token_type):
-    auction = get_random_market('resolved')
-    transaction = market.claim_winnings(auction['id'], auction['caller']['name'])
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.close_market(market_id, account['name'], token_type)
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_withdraw(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.claim_winnings(market_id, account['name'])
     before_storage, after_storage = log_and_submit(
         transaction,
-        auction['caller'],
-        market=market,
-        market_id=auction['id'],
+        account,
+        market,
+        market_id,
         error_func=raise_error
     )
 
 
 def test_claim_winnings_unresolved_market(market):
-    auction = get_random_market('cleared')
-    transaction = market.claim_winnings(auction['id'], auction['caller']['name'])
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    end = datetime.now() + timedelta(minutes=0.002)
+
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        account["name"],
+        1000,
+        2 ** 63,
+        account['key'],
+        auction_end_date=end.timestamp(),
+        market_id=None,
+        token_contract=None #stablecoin_id
+    )
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.auction_clear(market_id, account["name"])
+    log_and_submit(transaction, account, market, market_id, logging=True)
+    transaction = market.claim_winnings(market_id, account['name'])
     with pytest.raises(RpcError, match=r'Market not resolved'):
-        log_and_submit(transaction, auction['caller'], market, auction['id'], error_func=raise_error, logging=LOGGING_RAISE)
+        log_and_submit(transaction, account, market, market_id, error_func=raise_error, logging=LOGGING_RAISE)
 
 
-def test_claim_winnings_non_existent_market(market, revealed_account):
-    transaction = market.claim_winnings(1, revealed_account['name'])
+def test_claim_winnings_non_existent_market(market):
+    account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
+    transaction = market.claim_winnings(1, account['name'])
     with pytest.raises(RpcError, match=r'No such market'):
-        log_and_submit(transaction, revealed_account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
-'''
+        log_and_submit(transaction, account, market, 1, error_func=raise_error, logging=LOGGING_RAISE)

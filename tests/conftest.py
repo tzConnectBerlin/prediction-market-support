@@ -24,7 +24,7 @@ from src.stablecoin import Stablecoin
 from src.utils import *
 
 
-import ujson
+# import ujson
 market_pool = []
 reserved = []
 
@@ -152,18 +152,18 @@ def submit_transaction_fixture(client):
 
 @pytest.fixture(scope="session", autouse=True)
 def contract_id(endpoint, stablecoin_id):
-    id = deploy_market(shell=endpoint, storage=binary_contract)
-    if os.path.exists('data.json'):
-        with open('data.json', "r") as outfile:
-            data = eval(outfile.read())
-            logger.info(data['business_storage'])
-            logger.info(binary_contract['storage']['business_storage'])
-            binary_contract['storage']['business_storage'] = data['business_storage']
-    logger.info('aaaaaaFILe')
-    logger.info(binary_contract['storage']['business_storage'])
-    for key, _value in binary_contract['storage']['business_storage']['markets']['market_map']:
-        logger.info(f"{key} {_value}")
-        binary_contract['storage']['business_storage']['markets']['market_map'][key]['metadata']['fa12'] = stablecoin_id
+    id = deploy_market(shell=endpoint)
+    # if os.path.exists('data.json'):
+    #     with open('data.json', "r") as outfile:
+    #         data = eval(outfile.read())
+    #         logger.info(data['business_storage'])
+    #         logger.info(binary_contract['storage']['business_storage'])
+    #         binary_contract['storage']['business_storage'] = data['business_storage']
+    # logger.info('aaaaaaFILe')
+    # logger.info(binary_contract['storage']['business_storage'])
+    # for key, _value in binary_contract['storage']['business_storage']['markets']['market_map']:
+    #     logger.info(f"{key} {_value}")
+    #     binary_contract['storage']['business_storage']['markets']['market_map'][key]['metadata']['fa12'] = stablecoin_id
     logger.info(f"Binary prediction contract deployed at address {id}")
     return id
 
@@ -228,14 +228,16 @@ def market(config, get_accounts):
 def financed_accounts(client, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
-    accounts_to_finance = random.choices(test_accounts, k=30)
+    # accounts_to_finance = random.choices(test_accounts, k=30)
+    count = 0
     for account in test_accounts:
-        if True:
-            money_seed = client.transaction(
-                account['key'], amount=Decimal(10)
-            )
-            account['status'] += ',tezzed'
-            money_seeding.append(money_seed)
+
+        money_seed = client.transaction(
+            account['key'], amount=Decimal(10)
+        )
+        account['status'] += ',tezzed'
+        money_seeding.append(money_seed)
+        if count < 30:
             stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
             stablecoin_seed = stablecoin.transfer({
                 'from': get_public_key(config['admin_account']),
@@ -244,13 +246,14 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
             })
             account['status'] += ',financed'
             stablecoin_seeding.append(stablecoin_seed.as_transaction())
+            count += 1
 
     bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
     sleep(3)
     bulk_transactions = config["admin_account"].bulk(*money_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
-    return accounts_to_finance
+    return test_accounts
 
 
 @pytest.fixture(scope="session", autouse=True)
