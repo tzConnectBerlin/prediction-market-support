@@ -24,7 +24,7 @@ from src.stablecoin import Stablecoin
 from src.utils import *
 
 
-import ujson
+# import ujson
 market_pool = []
 reserved = []
 
@@ -226,7 +226,7 @@ def market(config, get_accounts):
 def financed_accounts(client, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
-    for i in range(25):
+    for i in range(30):
         account = test_accounts[i]
         if True:
             money_seed = client.transaction(
@@ -234,21 +234,22 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
             )
             account['status'] += ',tezzed'
             money_seeding.append(money_seed)
-            stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
-            stablecoin_seed = stablecoin.transfer({
-                'from': get_public_key(config['admin_account']),
-                'to': account['key'],
-                'value': 2 ** 42
-            })
-            account['status'] += ',financed'
-            stablecoin_seeding.append(stablecoin_seed.as_transaction())
+    # accounts_to_finance = random.choices(test_accounts, k=30)
+    count = 0
+    for account in test_accounts:
+
+        money_seed = client.transaction(
+            account['key'], amount=Decimal(10)
+        )
+        account['status'] += ',tezzed'
+        money_seeding.append(money_seed)
 
     bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
     sleep(3)
     bulk_transactions = config["admin_account"].bulk(*money_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
-    return funded_accounts
+    return test_accounts
 
 
 @pytest.fixture(scope="session", autouse=True)
