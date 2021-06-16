@@ -14,12 +14,6 @@ from src.utils import id_generator
 
 LOGGING_RAISE = False
 
-#exist to load fixtures and check how long the function takes
-def test_empty():
-    assert True
-
-
-'''
 """
 Create Market
 """
@@ -584,7 +578,6 @@ def test_burn_insufficient_currency_balance(market, non_financed_account):
         log_and_submit(
             transaction, non_financed_account, market, auction["id"], error_func=raise_error, logging=LOGGING_RAISE
         )
-'''
 
 """
 Swap token
@@ -762,13 +755,9 @@ def test_add_liquidity_on_cleared(market, stablecoin_id):
     before_ledger = before_storage["ledger_map"]
     after_ledger = after_storage["ledger_map"]
     name = caller['name']
-    logger.error(before_ledger)
-    logger.error(after_ledger)
-    logger.error(before_ledger[name])
-    logger.error(after_ledger[name])
-    assert before_ledger[name]['pool_liquidity'] + quantity == after_ledger['pool_liquidity']
-    assert before_ledger[name]['yes_token'] != after_ledger['yes_token']
-    assert before_ledger[name]['no_token'] != after_ledger['no_token']
+    assert before_ledger[name]['pool_liquidity'] + quantity == after_ledger[name]['pool_liquidity']
+    assert before_ledger[name]['yes_token'] != after_ledger[name]['yes_token']
+    assert before_ledger[name]['no_token'] != after_ledger[name]['no_token']
 
 
 def test_add_liquidity_in_auction_phase(market, stablecoin_id):
@@ -785,12 +774,6 @@ def test_add_liquidity_in_auction_phase(market, stablecoin_id):
         auction_end_date=end.timestamp(),
         token_contract=stablecoin_id
     )
-    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.multiple_bids(market_id)
-    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.auction_clear(market_id, caller['name'])
-    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.mint(market_id, caller['name'], 2 * quantity)
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_withdraw(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
@@ -855,7 +838,7 @@ def test_add_liquidity_insufficient_currency_balance(market, stablecoin_id):
     transaction = market.auction_clear(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
     transaction = market.update_liquidity(market_id, attacker['name'], "payIn", 300, 900, 900)
-    with pytest.raises(RpcError, match=r'not today satan'):
+    with pytest.raises(RpcError, match=r'Not enough balance in source account'):
         log_and_submit(
             transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
         )
@@ -900,9 +883,9 @@ def test_remove_liquidity_on_cleared(market, stablecoin_id):
     before_ledger = before_storage["ledger_map"]
     after_ledger = after_storage["ledger_map"]
     name = caller['name']
-    assert before_ledger[name]['pool_liquidity'] - quantity == after_ledger['pool_liquidity']
-    assert before_ledger[name]['yes_token'] != after_ledger['yes_token']
-    assert before_ledger[name]['no_token'] != after_ledger['no_token']
+    assert before_ledger[name]['pool_liquidity'] - quantity == after_ledger['name']['pool_liquidity']
+    assert before_ledger[name]['yes_token'] != after_ledger['name']['yes_token']
+    assert before_ledger[name]['no_token'] != after_ledger[name]['no_token']
 
 
 def test_remove_liquidity_in_auction_phase(market, stablecoin_id):
@@ -945,6 +928,7 @@ def test_remove_liquidity_resolved_market(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.close_market(market_id, caller['name'], True)
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+    transaction = market.update_liquidity(market_id, caller['name'], "payOut", 100, 100, 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
             transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -978,6 +962,7 @@ def test_remove_liquidity_insufficient_currency_balance(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_clear(market_id, caller['name'])
     log_and_submit(transaction, attacker, market, market_id, error_func=raise_error)
+    transaction = market.update_liquidity(market_id, caller['name'], "payOut", 100, 100, 100)
     with pytest.raises(RpcError, match=r'Not enough balance in source account'):
         log_and_submit(
             transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -989,7 +974,6 @@ Resolve Market
 """
 
 
-'''
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_cleared_phase(market, caller, token_type):
     auction = get_random_market(["cleared"])
@@ -1070,4 +1054,3 @@ def test_claim_winnings_non_existent_market(market, caller):
     transaction = market.claim_winnings(1, caller['name'])
     with pytest.raises(RpcError, match=r'No such market'):
         log_and_submit(transaction, caller, market, 1, error_func=raise_error, logging=LOGGING_RAISE)
-'''

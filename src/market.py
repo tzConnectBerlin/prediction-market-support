@@ -394,7 +394,6 @@ class Market:
         liquidity_provider_map = {}
         if users is None:
             users = self.accounts.names()
-        logger.error(users)
         for user in users:
             try:
                 map_key = {
@@ -404,14 +403,12 @@ class Market:
                 value = self.pm_contracts(
                     user
                 ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
-                logger.error(value)
                 if debug is True:
                     liquidity_provider_map[user] = value
                 else:
                     liquidity_provider_map[(map_key['originator'], map_key['market_id'])] = value
             except:
                 continue
-        logger.error(liquidity_provider_map)
         return liquidity_provider_map
 
     def get_ledger_map_storage(self, tokens: list, users: list = None, debug=True):
@@ -433,8 +430,7 @@ class Market:
                         ledger_map[(map_key['owner'], map_key['token_id'])] = value
                     count += 1
                 except:
-                    if debug is True:
-                        token_map[token['token_name']] = 0
+                    token_map[token['token_name']] = 0
             if debug is True and count > 0:
                 ledger_map[user] = token_map
         return ledger_map
@@ -448,9 +444,7 @@ class Market:
                 value = entry[token['token_value']]()
                 supply_map[key] = entry[token['token_value']]()
             except:
-                if debug is True:
-                    supply_map[token['token_name']] = 0
-        logger.error(supply_map)
+                supply_map[token['token_name']] = 0
         return supply_map
 
 #   logger.info(
