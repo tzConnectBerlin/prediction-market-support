@@ -4,6 +4,8 @@ import random
 import string
 import sys
 
+import ujson as json
+
 from loguru import logger
 
 from pytezos import pytezos
@@ -15,7 +17,7 @@ logger = logger.opt(colors=True)
 
 client = pytezos.using(
     shell="http://localhost:20000",
-    key="edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq"
+    key="edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn"
 )
 
 
@@ -89,20 +91,24 @@ def submit_transaction(transaction, count=None, tries=10, error_func=None):
         logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
+        '''
         err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
             if 'counter_in_the_past' in err_message['id']:
                 if 'expected' in err_message:
                     count = int(err_message['expected'])
+                    logger.debug(f"count: {count}")
                 return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
             elif 'counter_in_the_future' in err_message['id']:
                 if 'expected' in err_message:
                     count = int(err_message['expected'])
+                    logger.debug(f"count: {count}")
                 return submit_transaction(transaction, count=count, tries=tries, error_func=error_func)
         logger.debug(f"the transaction couldn't be injected because of {err_message}")
         if error_func is not None:
             return error_func(err_message)
+        '''
         raise
 
 

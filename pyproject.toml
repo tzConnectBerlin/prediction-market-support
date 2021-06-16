@@ -23,6 +23,7 @@ pytest = "^6.2.4"
 loguru = "^0.5.3"
 pytest-sugar = "^0.9.4"
 pytest-xdist = "^2.2.1"
+ujson = "^4.0.2"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.5"

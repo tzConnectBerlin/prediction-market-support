@@ -1,0 +1,1202 @@
+{
+  "7334551595870091115": {
+    "metadata": {
+      "ipfs_hash": "93ORMNLBSYW3CTA7B", "description": "Question: JXJ90FVG2AXLPFCHH Answer: ILW8GTWAITOERN5X7", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754730, "quantity": 149, "yes_preference": 869514597728895760804, "uniswap_contribution": 869514597728895760804}
+    }
+  },
+  "6159105148248513064": {
+    "metadata": {
+      "ipfs_hash": "D8MY9LTLSOIX1XWS4", "description": "Question: FVYCAFLXX5GZE40SH Answer: 4RB6EA7GOC3YYBVDS", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754730, "quantity": 663, "yes_preference": 5495592789281647146081, "uniswap_contribution": 5495592789281647146081}
+    }
+  },
+  "5545807144026812818": {
+    "metadata": {
+      "ipfs_hash": "0IPWYA7RKU8LJC0T3", "description": "Question: B0ADJXAQJCHU57CZA Answer: LUF2MNW5VGE5RKB5P", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754730, "quantity": 165, "yes_preference": 739341899920068988785, "uniswap_contribution": 739341899920068988785}
+    }
+  },
+  "7237950590816190367": {
+    "metadata": {
+      "ipfs_hash": "01YBHXW7ISYJ3R80X", "description": "Question: IMO7LYW769LZGYB03 Answer: IYVHNRFKIOSOWSYS4", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754730, "quantity": 631, "yes_preference": 4712488779966502405769, "uniswap_contribution": 4712488779966502405769}
+    }
+  },
+  "1016320943422715699": {
+    "metadata": {
+      "ipfs_hash": "I3WZLTMQU3FCG62AN", "description": "Question: ALEIL2RXPFPQOQ2G9 Answer: UI8BXPSE04XLAO9VE", "adjudicator": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 770, "yes_preference": 5468711639431792089030, "uniswap_contribution": 5468711639431792089030}
+    }
+  },
+  "5481615930153701215": {
+    "metadata": {
+      "ipfs_hash": "5O0MKIQ5V6MGXMTP9", "description": "Question: TEIEH4BWXFV090DB3 Answer: Y2RSG6T9MB19JEDN5", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 291, "yes_preference": 50273782109404748910, "uniswap_contribution": 50273782109404748910}
+    }
+  },
+  "8096114438035756791": {
+    "metadata": {
+      "ipfs_hash": "AXUIDQSWGCNBR8RBZ", "description": "Question: HHSJKSPT4PGVNU5C5 Answer: MOVP8COMD8IXM723G", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 204, "yes_preference": 1374457222890096166260, "uniswap_contribution": 1374457222890096166260}
+    }
+  },
+  "6361911566398426247": {
+    "metadata": {
+      "ipfs_hash": "7JR9I550FAIC6U2NG", "description": "Question: BNEWVEMB1UNWKNRQQ Answer: 23677PU31JFL0YDVZ", "adjudicator": "tz1ZJARU2TodXW8cFhYuai3VmLpY1qqkHq9B", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 777, "yes_preference": 3467438645036302509930, "uniswap_contribution": 3467438645036302509930}
+    }
+  },
+  "3252749340003547847": {
+    "metadata": {
+      "ipfs_hash": "C4LF8CQ8RJA0CICYB", "description": "Question: 3LA405EVOAK2X3DII Answer: UF4I7TA0G59D7ZHQW", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 221, "yes_preference": 2013105125537259145314, "uniswap_contribution": 2013105125537259145314}
+    }
+  },
+  "8621371004865949079": {
+    "metadata": {
+      "ipfs_hash": "4PEX11H2AO0PN6D1P", "description": "Question: CAD8QEK3RFG94P0SE Answer: JCTZQUFFUMKQ346VV", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 727, "yes_preference": 4467561837068789496329, "uniswap_contribution": 4467561837068789496329}
+    }
+  },
+  "7227092239222366542": {
+    "metadata": {
+      "ipfs_hash": "OAI0BX5C7ZPI5G6WO", "description": "Question: UMHMWAARD9JOBYAR8 Answer: GBZ72UKJ560U5L0J4", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 672, "yes_preference": 1507619597085047707968, "uniswap_contribution": 1507619597085047707968}
+    }
+  },
+  "7841674611595828634": {
+    "metadata": {
+      "ipfs_hash": "2V9BTVZMTQE10UXJP", "description": "Question: 3524KUB8YY1HF0FBF Answer: QGOG4I1OJLHUL1NGR", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 373, "yes_preference": 800777841757241452532, "uniswap_contribution": 800777841757241452532}
+    }
+  },
+  "5485586344684817502": {
+    "metadata": {
+      "ipfs_hash": "P5D74IIRT6TWW2VP4", "description": "Question: Y5E8DPG3J32IUW35S Answer: IOIRK91YEL4QH3R2H", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 203, "yes_preference": 1147502212484414180457, "uniswap_contribution": 1147502212484414180457}
+    }
+  },
+  "342775785281014442": {
+    "metadata": {
+      "ipfs_hash": "9FLSP7YUXE0W8VB72", "description": "Question: ZPIXW4EBI4VUCAPFC Answer: T1PXVLNNZPNDB4VM6", "adjudicator": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 749, "yes_preference": 1536213094529913340450, "uniswap_contribution": 1536213094529913340450}
+    }
+  },
+  "2366954183879842709": {
+    "metadata": {
+      "ipfs_hash": "AFJGYO4CWYN2U4N23", "description": "Question: Z74OGY2BC2UV4N2HZ Answer: URTTXUO1JKJ1UAMXY", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 93, "yes_preference": 271199388278428284285, "uniswap_contribution": 271199388278428284285}
+    }
+  },
+  "4697111233960802478": {
+    "metadata": {
+      "ipfs_hash": "LCCN1VP2VQLPNWZ0B", "description": "Question: I32N9839VKTOXR5BQ Answer: U2QVJQINMNZ3AE1WB", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 221, "yes_preference": 779352856182732696696, "uniswap_contribution": 779352856182732696696}
+    }
+  },
+  "5281705292288317036": {
+    "metadata": {
+      "ipfs_hash": "IYDM8YAI4VTN5THXT", "description": "Question: 9Y8U20ZE1HICGRB6B Answer: JD9VXTL1YA9VIRR8E", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 157, "yes_preference": 479642647850769140864, "uniswap_contribution": 479642647850769140864}
+    }
+  },
+  "7665401085116397294": {
+    "metadata": {
+      "ipfs_hash": "8C52M2N14JXCN6B31", "description": "Question: VEJ3R0PKNTU9MO3V1 Answer: UOQPFWU5D7VEZYKZO", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 191, "yes_preference": 87035164236418859631, "uniswap_contribution": 87035164236418859631}
+    }
+  },
+  "3489672535555139606": {
+    "metadata": {
+      "ipfs_hash": "BKFXYPEWDS1BUMQB2", "description": "Question: UJ4TJLSPD93OLV7OZ Answer: XNLEXSZI41KG9O4G0", "adjudicator": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 615, "yes_preference": 4895001579881855039235, "uniswap_contribution": 4895001579881855039235}
+    }
+  },
+  "4800726769498263404": {
+    "metadata": {
+      "ipfs_hash": "XZM8FFH4GNGITEDER", "description": "Question: V78NHLYI84075LCTU Answer: 9HQ9040G2YWI3X9TF", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 874, "yes_preference": 1483288048871320564330, "uniswap_contribution": 1483288048871320564330}
+    }
+  },
+  "6361207040504077710": {
+    "metadata": {
+      "ipfs_hash": "BTO26RPY5FS6TGV24", "description": "Question: 2JY9B19AKOXRXTZLG Answer: 2JC3GM7QPARK73PCI", "adjudicator": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 729, "yes_preference": 3308470523741664262944, "uniswap_contribution": 3308470523741664262944}
+    }
+  },
+  "4905965173910055917": {
+    "metadata": {
+      "ipfs_hash": "W9EOHCPGA70CV0NTA", "description": "Question: 113B17BWG36GEQSSU Answer: NCQWWDHB633UZCE0M", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 663, "yes_preference": 1275986042200115880543, "uniswap_contribution": 1275986042200115880543}
+    }
+  },
+  "7320424871329777499": {
+    "metadata": {
+      "ipfs_hash": "G8L28DZC47JUBGQ0G", "description": "Question: ACHYPSQR8K9AYG8FX Answer: U7P4U78NV10F1ZM9W", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 448, "yes_preference": 463281487485055578752, "uniswap_contribution": 463281487485055578752}
+    }
+  },
+  "3075632129564394067": {
+    "metadata": {
+      "ipfs_hash": "TE0VILT143A3YAJQ7", "description": "Question: 0O0J7H7LUADTX4KYU Answer: VUZHSE3ZLXKFF33E8", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 669, "yes_preference": 5235562062825589351431, "uniswap_contribution": 5235562062825589351431}
+    }
+  },
+  "4585009622094992512": {
+    "metadata": {
+      "ipfs_hash": "BTQZ505CUIRX6M3UK", "description": "Question: 74U3C5XRW0PG14LOW Answer: 39IP0N0OI8P5S8OR1", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 180, "yes_preference": 884460222821424362400, "uniswap_contribution": 884460222821424362400}
+    }
+  },
+  "6300870798561815556": {
+    "metadata": {
+      "ipfs_hash": "3GG6U67JJVKB5OH8W", "description": "Question: HO9JIIHHMVBVKMOK8 Answer: D3AXMTPHZE9TX7PM8", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 347, "yes_preference": 2723017826342863607062, "uniswap_contribution": 2723017826342863607062}
+    }
+  },
+  "722827060669081418": {
+    "metadata": {
+      "ipfs_hash": "N4VUMN21DBG6I9ST8", "description": "Question: OX3Y83Z376OKSAA7T Answer: 04KI4UKCMGOXCHKGN", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 169, "yes_preference": 221007446888562471332, "uniswap_contribution": 221007446888562471332}
+    }
+  },
+  "6973533222447248477": {
+    "metadata": {
+      "ipfs_hash": "F2ZFXNQC74XJTBBOV", "description": "Question: J0UTIZ45BR01YGELT Answer: MJT06PFXRF50C4N1U", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 674, "yes_preference": 6176244485842688332602, "uniswap_contribution": 6176244485842688332602}
+    }
+  },
+  "1483610721934391060": {
+    "metadata": {
+      "ipfs_hash": "5QH7V4ME6FMDGA5VL", "description": "Question: ACWKPQZSHV6708XLY Answer: 16O9P53OV9E9Y6N3Q", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 398, "yes_preference": 246002012128915756046, "uniswap_contribution": 246002012128915756046}
+    }
+  },
+  "1577910897344520315": {
+    "metadata": {
+      "ipfs_hash": "IE6S0QWBQ5PNOYEYH", "description": "Question: NDHWMVFXR575H8H86 Answer: VQQFBSFFWDBTJKK7L", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 378, "yes_preference": 1812990396848082488190, "uniswap_contribution": 1812990396848082488190}
+    }
+  },
+  "7621155902224637508": {
+    "metadata": {
+      "ipfs_hash": "FSG0TVBYW9SERUKMJ", "description": "Question: 3U5PLSMWA5EFBW13R Answer: 56EY3MLCR325E1KW1", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 507, "yes_preference": 1176475708607657403309, "uniswap_contribution": 1176475708607657403309}
+    }
+  },
+  "7570218234146439556": {
+    "metadata": {
+      "ipfs_hash": "MCD2BCS7RZKBIG1PL", "description": "Question: YR0XERFPIZLD8JV4T Answer: XQGROAL5PLZ0FR9OC", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 805, "yes_preference": 6216143704055269499690, "uniswap_contribution": 6216143704055269499690}
+    }
+  },
+  "7269122714240254195": {
+    "metadata": {
+      "ipfs_hash": "HR8UR0E2DGWZPBUYF", "description": "Question: 1BG5PRX678ASLF018 Answer: 7ZSERNTKKSVO9XWSW", "adjudicator": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 616, "yes_preference": 3044807845145355582832, "uniswap_contribution": 3044807845145355582832}
+    }
+  },
+  "9106481847709559295": {
+    "metadata": {
+      "ipfs_hash": "MALQOKFER1WC4LKTD", "description": "Question: CAF217GNQ9K5GLNFC Answer: 9Z1QOW05WUFVMN74B", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 527, "yes_preference": 1458698286790684049924, "uniswap_contribution": 1458698286790684049924}
+    }
+  },
+  "6306838302374676015": {
+    "metadata": {
+      "ipfs_hash": "Z9DREXRS4PGRWI77N", "description": "Question: 7GMTDHJS6BO51TRPI Answer: OG6U0QJQQUDB5AP3H", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 704, "yes_preference": 3042395470485935144768, "uniswap_contribution": 3042395470485935144768}
+    }
+  },
+  "34026610771149976": {
+    "metadata": {
+      "ipfs_hash": "F79LEMQYPSZ3W9QLO", "description": "Question: UGGNFMLFJPODTIKJ7 Answer: 5RIQQ4XF098PF1V3L", "adjudicator": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 427, "yes_preference": 3577027867525600044144, "uniswap_contribution": 3577027867525600044144}
+    }
+  },
+  "4365203380488814773": {
+    "metadata": {
+      "ipfs_hash": "DSAS5XJIGZKNRJ1LJ", "description": "Question: 35XCLUJUYGENC450I Answer: I5K4JRLNGXSAPESE2", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 573, "yes_preference": 656653873706612264520, "uniswap_contribution": 656653873706612264520}
+    }
+  },
+  "2890523250936816119": {
+    "metadata": {
+      "ipfs_hash": "DCA5FPC4X6ZVJHUAO", "description": "Question: MET96QVDW7XFKNFIP Answer: JOC0ZJRR52008GPNN", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 562, "yes_preference": 2813620722694828349658, "uniswap_contribution": 2813620722694828349658}
+    }
+  },
+  "2488057923306570192": {
+    "metadata": {
+      "ipfs_hash": "RJ99BZM6QCZIWMV7S", "description": "Question: 64EZXT9BPPO7EBFTH Answer: 7UR17EB87SQY3EI6D", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754731, "quantity": 344, "yes_preference": 1060823714491975013016, "uniswap_contribution": 1060823714491975013016}
+    }
+  },
+  "8522224692286582088": {
+    "metadata": {
+      "ipfs_hash": "ZIMTUQ5H30D132105", "description": "Question: OMPPQAWSHBN8F7ND3 Answer: 8HCGKR4Z6YUU267CX", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754732, "quantity": 418, "yes_preference": 1141433094196457378646, "uniswap_contribution": 1141433094196457378646}
+    }
+  },
+  "1962857801615318848": {
+    "metadata": {
+      "ipfs_hash": "UAFJNIEUWRNPYFH99", "description": "Question: KF69VA8PU7AMA6EWI Answer: S4XAL91ASYPG5GODJ", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 183, "yes_preference": 560902758195079260720, "uniswap_contribution": 560902758195079260720}
+    }
+  },
+  "7017246205403968795": {
+    "metadata": {
+      "ipfs_hash": "U82BTJQNCOOMZJUM3", "description": "Question: ZWJ8SACPXQXVZ5QV7 Answer: L39OQYLLDNQC8H3KP", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 455, "yes_preference": 3041633456528482402405, "uniswap_contribution": 3041633456528482402405}
+    }
+  },
+  "5904763143864441859": {
+    "metadata": {
+      "ipfs_hash": "JUW1RG1ZJWJS7BUVA", "description": "Question: 0B8GIZO76MYULZOOS Answer: 6JMAKSQQYDADGLJLU", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 382, "yes_preference": 663311762384710035834, "uniswap_contribution": 663311762384710035834}
+    }
+  },
+  "1256273176586330979": {
+    "metadata": {
+      "ipfs_hash": "680YWEQX6SVJ6YKPY", "description": "Question: E36NOBR0S48F81YQO Answer: X2KG95KYZVQT7AA71", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 716, "yes_preference": 13144537053775906180, "uniswap_contribution": 13144537053775906180}
+    }
+  },
+  "6237297121360125911": {
+    "metadata": {
+      "ipfs_hash": "1OACP3CCRJHBJQZKZ", "description": "Question: 9T92664S05JROLP2B Answer: 98CTAFZTJWPD9MYP0", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 360, "yes_preference": 1663893033716886871680, "uniswap_contribution": 1663893033716886871680}
+    }
+  },
+  "6543472271184017601": {
+    "metadata": {
+      "ipfs_hash": "ZK166UZV4QD3ECEKI", "description": "Question: RH81D6FYNS3MKQB5C Answer: KFIEXGFVQIISN8UAT", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 320, "yes_preference": 1755531510282983882880, "uniswap_contribution": 1755531510282983882880}
+    }
+  },
+  "728874111117462315": {
+    "metadata": {
+      "ipfs_hash": "XVEF9LOI1GJBQXB66", "description": "Question: 3FPJHRUQI35DXDUW6 Answer: 3KHAKPQSGHI9X0CAU", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 13, "yes_preference": 81356280863351645476, "uniswap_contribution": 81356280863351645476}
+    }
+  },
+  "185087643813725741": {
+    "metadata": {
+      "ipfs_hash": "ISJRQQJW2YA9DSOT7", "description": "Question: R8BJX5XNGD5IKVN86 Answer: GHS2Y63MWBZJ1EQEQ", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 667, "yes_preference": 2754720731130830506600, "uniswap_contribution": 2754720731130830506600}
+    }
+  },
+  "8432699470335992248": {
+    "metadata": {
+      "ipfs_hash": "WM5F2VVPDDI7I997Q", "description": "Question: PCRCSU0BMBRB237U2 Answer: 028CN71OUIV7Q0RW2", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 790, "yes_preference": 3665694753159005815420, "uniswap_contribution": 3665694753159005815420}
+    }
+  },
+  "8769063959849402546": {
+    "metadata": {
+      "ipfs_hash": "PYJJSMLZWIH729OEC", "description": "Question: YY29BTHNWORJK92SN Answer: YCADCB686R0VQ92CU", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 87, "yes_preference": 496946404785170651916, "uniswap_contribution": 496946404785170651916}
+    }
+  },
+  "486637298140607269": {
+    "metadata": {
+      "ipfs_hash": "QGQ9KFELEY6DHW1J7", "description": "Question: PQCHQ08IA1JB9WV9K Answer: 68EVNNFRLI7OGK1ZZ", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 7, "yes_preference": 14446420513236047917, "uniswap_contribution": 14446420513236047917}
+    }
+  },
+  "880544431343137899": {
+    "metadata": {
+      "ipfs_hash": "SJ9QLW6VNYO3Z3SKN", "description": "Question: B6MDZON4IXWBRN1JL Answer: D46SCKXBTTR54DMC7", "adjudicator": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 500, "yes_preference": 2401006867641004628500, "uniswap_contribution": 2401006867641004628500}
+    }
+  },
+  "3001177371163022795": {
+    "metadata": {
+      "ipfs_hash": "F7O6B7VZ30EBJJEAN", "description": "Question: VP394QP7K2CFMV2EA Answer: 95IVPTJ5NWAUIJTOS", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 138, "yes_preference": 1253139506435883181122, "uniswap_contribution": 1253139506435883181122}
+    }
+  },
+  "9038065214309701813": {
+    "metadata": {
+      "ipfs_hash": "AFNHC3A5D1431IGE6", "description": "Question: M86NYL3ZN96UC1PSQ Answer: BK6S3IERAQYZI26EH", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 545, "yes_preference": 1505959275153146995345, "uniswap_contribution": 1505959275153146995345}
+    }
+  },
+  "8511431837412411105": {
+    "metadata": {
+      "ipfs_hash": "3JCCY7Y9SGQX47B1V", "description": "Question: DGIXFU344JV847OH5 Answer: 4LVVKGR36MK7Q7I7R", "adjudicator": "tz1UZFiTE2G5vxRicUeiyov5yt6Zku6fC3dt", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 492, "yes_preference": 613180760167946908572, "uniswap_contribution": 613180760167946908572}
+    }
+  },
+  "1575037068996251435": {
+    "metadata": {
+      "ipfs_hash": "C3XTS1P4WSTJ4XHLV", "description": "Question: J43US799OCR8N3P58 Answer: XZVA9D4G6JJYBKQZK", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 567, "yes_preference": 2134455968456839642230, "uniswap_contribution": 2134455968456839642230}
+    }
+  },
+  "3976273916943549486": {
+    "metadata": {
+      "ipfs_hash": "CKGQNNTE98R61ZB6O", "description": "Question: RL4R42JH4TW6QZGFQ Answer: QHO3Z0265ZX9PU4J6", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 374, "yes_preference": 3041881488709617546586, "uniswap_contribution": 3041881488709617546586}
+    }
+  },
+  "3329234851484675648": {
+    "metadata": {
+      "ipfs_hash": "MRNIHX6BZ6JRNB6O9", "description": "Question: ISBM1UAD0QVX16GES Answer: QFLTFC7AKDJL3D3QO", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 846, "yes_preference": 6504435323841859136568, "uniswap_contribution": 6504435323841859136568}
+    }
+  },
+  "4555221080057497041": {
+    "metadata": {
+      "ipfs_hash": "9AMNWNUJYK30PSUA7", "description": "Question: NAA0BM86C4C6SGPN8 Answer: 178HWSERSJ9U4I4LR", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 330, "yes_preference": 796408231628582893650, "uniswap_contribution": 796408231628582893650}
+    }
+  },
+  "6001776990161742238": {
+    "metadata": {
+      "ipfs_hash": "LR97FM6K4BFDOYQT3", "description": "Question: KQLSKCES3MFI4M6GV Answer: FSKPSBYIBT9J36CZ9", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 601, "yes_preference": 62303912476550451791, "uniswap_contribution": 62303912476550451791}
+    }
+  },
+  "1315421868735540744": {
+    "metadata": {
+      "ipfs_hash": "UJZDO6C1ZX5PY428I", "description": "Question: 6JL7PO6C3HNPCW3AF Answer: YLKCM8PS3A3GKA8MZ", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 412, "yes_preference": 2721210092396054251972, "uniswap_contribution": 2721210092396054251972}
+    }
+  },
+  "2465386636869219682": {
+    "metadata": {
+      "ipfs_hash": "NJ4Y7UR9D1X3ZFU2V", "description": "Question: Q407JJ6YDELSRHQ83 Answer: 3PQ7WHHHA6DPMB4MI", "adjudicator": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 534, "yes_preference": 1887637697192274210246, "uniswap_contribution": 1887637697192274210246}
+    }
+  },
+  "2044391148138005802": {
+    "metadata": {
+      "ipfs_hash": "WMG8461D748FRGJNC", "description": "Question: C53FW4N3RVE59ZVPT Answer: 71LC1ITRW5KSKZVHS", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 344, "yes_preference": 1360039003553705803128, "uniswap_contribution": 1360039003553705803128}
+    }
+  },
+  "4142336503505332288": {
+    "metadata": {
+      "ipfs_hash": "5WAWLHULZOHVFJW88", "description": "Question: UZC5Q6KKF9JYWU88W Answer: EB2CVO74I5PYMH2H9", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 523, "yes_preference": 3859054303221322351556, "uniswap_contribution": 3859054303221322351556}
+    }
+  },
+  "6949264585113979820": {
+    "metadata": {
+      "ipfs_hash": "L34SI5EB74EP2H1TV", "description": "Question: ARVCYNH9B6XASGUF8 Answer: JNSREYND2LXJOBGPO", "adjudicator": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 89, "yes_preference": 313046074002450988543, "uniswap_contribution": 313046074002450988543}
+    }
+  },
+  "6629233626559280439": {
+    "metadata": {
+      "ipfs_hash": "NMNI48J8W22XQ3I9I", "description": "Question: EM1ZYMK8QWK6OQQ9R Answer: JUEMC25XIGC33FKSB", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 484, "yes_preference": 1834524085470854103920, "uniswap_contribution": 1834524085470854103920}
+    }
+  },
+  "2583515728514109392": {
+    "metadata": {
+      "ipfs_hash": "PJ125TOFOUJHB1NPA", "description": "Question: ED8GY7RPYVKV6K8F6 Answer: 8GXQGF178KU6I29B8", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 812, "yes_preference": 6405306761773139097444, "uniswap_contribution": 6405306761773139097444}
+    }
+  },
+  "4816392892243527016": {
+    "metadata": {
+      "ipfs_hash": "0X7HNB0X496U4FO3A", "description": "Question: S0347XFQR9WL6DGMU Answer: 8E46O91LSEL8NR4FO", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 566, "yes_preference": 2183798312474542681728, "uniswap_contribution": 2183798312474542681728}
+    }
+  },
+  "3009063894502484810": {
+    "metadata": {
+      "ipfs_hash": "1D2UG9V619IWO2484", "description": "Question: P9XLKV9SCZ8M8NYE9 Answer: 4FFK18FTPSD64CDOZ", "adjudicator": "tz1ZJARU2TodXW8cFhYuai3VmLpY1qqkHq9B", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 399, "yes_preference": 1752001248421942404810, "uniswap_contribution": 1752001248421942404810}
+    }
+  },
+  "2337231252766374898": {
+    "metadata": {
+      "ipfs_hash": "AQCEE8GT5IBN4AFWN", "description": "Question: 919TLIL9NW08HMCYK Answer: U9F37JMLHH0H510PH", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 843, "yes_preference": 11216129580329374026, "uniswap_contribution": 11216129580329374026}
+    }
+  },
+  "7243064523368518017": {
+    "metadata": {
+      "ipfs_hash": "YX7HJF8LIVJEWV1QG", "description": "Question: 4P7MCA6QYUQ914QG6 Answer: S2QHCYCI5IML4BSJD", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 493, "yes_preference": 2129091640574812687116, "uniswap_contribution": 2129091640574812687116}
+    }
+  },
+  "4954656401895924346": {
+    "metadata": {
+      "ipfs_hash": "PDD35Z5515QBA9NFB", "description": "Question: 5YAH1K0DCWO912FRD Answer: TZAZQABJOHJ85OHH4", "adjudicator": "tz1dWWkzwEKWg9S7sA3A2gFcZXzyz3ekHNRE", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 84, "yes_preference": 646192881246311035140, "uniswap_contribution": 646192881246311035140}
+    }
+  },
+  "5298725771233181817": {
+    "metadata": {
+      "ipfs_hash": "9JXG4BFXXRNHKDPCB", "description": "Question: 269ZGO0S0ER70E4WJ Answer: VFFLRD1D8K8866IHN", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 194, "yes_preference": 1001627383684607997504, "uniswap_contribution": 1001627383684607997504}
+    }
+  },
+  "7956623477339960895": {
+    "metadata": {
+      "ipfs_hash": "E6HO9VLKL2XT1ME4C", "description": "Question: 8M2X8G1R9F4KNRRPR Answer: GZH3JETI8L7MBOXXT", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754734, "quantity": 148, "yes_preference": 682452326663240930888, "uniswap_contribution": 682452326663240930888}
+    }
+  },
+  "6178570878763939581": {
+    "metadata": {
+      "ipfs_hash": "NRXWZ5OH6CKCYBAWR", "description": "Question: QOVDR7RLPY7F7M78N Answer: PKW7TKNPLR84BWI8M", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 103, "yes_preference": 698769975560518820373, "uniswap_contribution": 698769975560518820373}
+    }
+  },
+  "8002981474618644990": {
+    "metadata": {
+      "ipfs_hash": "162LZVT0F7P6NE5NU", "description": "Question: 5E98QXDUTIYJGYAES Answer: FREO2458YBP764QFU", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 603, "yes_preference": 2199486577481514453627, "uniswap_contribution": 2199486577481514453627}
+    }
+  },
+  "4153544823550032054": {
+    "metadata": {
+      "ipfs_hash": "EDFLNQZFPQ4NDZX88", "description": "Question: W8KK26X41IHT4RVJW Answer: 5L9OEL197HB8S7QIO", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 290, "yes_preference": 1751220194491549184670, "uniswap_contribution": 1751220194491549184670}
+    }
+  },
+  "756626933514447011": {
+    "metadata": {
+      "ipfs_hash": "0QNDG39GBYHSZ1O7O", "description": "Question: XBY6BJ0RH48V3G3HJ Answer: 4824TUXKRFLC18YK1", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 335, "yes_preference": 1581102836872131833385, "uniswap_contribution": 1581102836872131833385}
+    }
+  },
+  "36935347224162346": {
+    "metadata": {
+      "ipfs_hash": "T1LYKF8GE7KA1JXJZ", "description": "Question: OBZ6CRSXFGW187ECU Answer: YUSFPTPRVT2QEVOG0", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 136, "yes_preference": 627307889473757054616, "uniswap_contribution": 627307889473757054616}
+    }
+  },
+  "6491322772913872004": {
+    "metadata": {
+      "ipfs_hash": "XSMTWBQHWCTK17J3S", "description": "Question: QNOQVREJLJFID7GHJ Answer: GJ0YR3BBLJ8D31DP4", "adjudicator": "tz1ZJARU2TodXW8cFhYuai3VmLpY1qqkHq9B", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754735, "quantity": 608, "yes_preference": 3060089579887572269984, "uniswap_contribution": 3060089579887572269984}
+    }
+  },
+  "1912965099927606587": {
+    "metadata": {
+      "ipfs_hash": "M7USSCNZRE2V1ER2P", "description": "Question: KRUS086PLSUZBJQMR Answer: C2PBZ2WSEEQSXUYON", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 214, "yes_preference": 1236812951485691592496, "uniswap_contribution": 1236812951485691592496}
+    }
+  },
+  "6620299238066518925": {
+    "metadata": {
+      "ipfs_hash": "C5ZDEAMF9SBONZZEI", "description": "Question: H4II7JX7G0903KU5U Answer: JZKFD69PSTPI1TO4J", "adjudicator": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 818, "yes_preference": 5988226977891467633256, "uniswap_contribution": 5988226977891467633256}
+    }
+  },
+  "4753801911945514208": {
+    "metadata": {
+      "ipfs_hash": "LRKK5Z8FKVOMX21AW", "description": "Question: VT7SY6VFL8DG8QVY5 Answer: G8NGW9VK28AWA9WQF", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 162, "yes_preference": 1017967310455945658724, "uniswap_contribution": 1017967310455945658724}
+    }
+  },
+  "7250875509052626084": {
+    "metadata": {
+      "ipfs_hash": "CGAR2P85LI9LC4RBP", "description": "Question: HZTENT6SJWBLD4UM4 Answer: S32YVZJP3Z5BRO5PS", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 433, "yes_preference": 1056579054484776222516, "uniswap_contribution": 1056579054484776222516}
+    }
+  },
+  "1162202908610053698": {
+    "metadata": {
+      "ipfs_hash": "BH015IDEZDFMFCGUV", "description": "Question: IP0I1K1WLTBF33HPJ Answer: CE0KQL279OP1SYESX", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 653, "yes_preference": 5996148072027115520214, "uniswap_contribution": 5996148072027115520214}
+    }
+  },
+  "6551139983534070877": {
+    "metadata": {
+      "ipfs_hash": "3CAZ81D9W5N20ZVC5", "description": "Question: KK5I8QHEZG3Q3SK7F Answer: 1I4BGJHZJMTOPXXD4", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 273, "yes_preference": 931942349085978307623, "uniswap_contribution": 931942349085978307623}
+    }
+  },
+  "414807960654497706": {
+    "metadata": {
+      "ipfs_hash": "R75U6JJ8RZGA3ZHJ4", "description": "Question: K5NISAT1ZEOAHXBUC Answer: RNJ0JTRE0W468SC3R", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 75, "yes_preference": 14257089995721701175, "uniswap_contribution": 14257089995721701175}
+    }
+  },
+  "1084245057606830515": {
+    "metadata": {
+      "ipfs_hash": "K58UFAPCCF35ZTZ1B", "description": "Question: SXCMNTTW4YV4BO87E Answer: X1C9JH06OWF89C4VV", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 312, "yes_preference": 2763918532203030426744, "uniswap_contribution": 2763918532203030426744}
+    }
+  },
+  "8430756516220939346": {
+    "metadata": {
+      "ipfs_hash": "OHPLKH68SBMEGC9TT", "description": "Question: RMVM1KQFPNC1UB33N Answer: XGNCJHJ12J4FTGSD8", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 812, "yes_preference": 804769897569062279204, "uniswap_contribution": 804769897569062279204}
+    }
+  },
+  "8762384873232798689": {
+    "metadata": {
+      "ipfs_hash": "218Q7YHHT6EMFP5YQ", "description": "Question: JX1RXGYKMJ82VYDIL Answer: 5L9HC2RH1GZP5JE6J", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 530, "yes_preference": 210832230148911035240, "uniswap_contribution": 210832230148911035240}
+    }
+  },
+  "1823806584481778461": {
+    "metadata": {
+      "ipfs_hash": "RWQRV3ASEOFRYLBV6", "description": "Question: GCS4EHCO8P7EI1ZVK Answer: 46FZRGYGRVQNVZHIQ", "adjudicator": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 10, "yes_preference": 36702277000823731030, "uniswap_contribution": 36702277000823731030}
+    }
+  },
+  "8710970183815423415": {
+    "metadata": {
+      "ipfs_hash": "L8SIMX06JPDNHTLVT", "description": "Question: RVCRNKXLSPI94CDAY Answer: 3KEDWW8KYJMNXSQRR", "adjudicator": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 103, "yes_preference": 309067030358858707441, "uniswap_contribution": 309067030358858707441}
+    }
+  },
+  "1721826275707154882": {
+    "metadata": {
+      "ipfs_hash": "CAP9EE04Y9F1CCP3F", "description": "Question: RK24QPA6AC3N072LG Answer: V5SKBJHA0D2ZIMO2G", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 559, "yes_preference": 3821669029752948228881, "uniswap_contribution": 3821669029752948228881}
+    }
+  },
+  "1754261991371611758": {
+    "metadata": {
+      "ipfs_hash": "M7NZWSOYK0LBHPTQ0", "description": "Question: CAUQC7OZ4OCM1H4EV Answer: JOAO2LK7LW6BU14EO", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 331, "yes_preference": 1933623947424848897707, "uniswap_contribution": 1933623947424848897707}
+    }
+  },
+  "4531096168821141727": {
+    "metadata": {
+      "ipfs_hash": "AVJRPHTDH9OFGNZ17", "description": "Question: KQRL6TRNZ3L96J65G Answer: 2YI0FY310KW4ATYBW", "adjudicator": "tz1dAPf4ivAgAQbp7Lua2M7kecVu6d9t4oYJ", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 342, "yes_preference": 3096853889124073619754, "uniswap_contribution": 3096853889124073619754}
+    }
+  },
+  "8290461615950494884": {
+    "metadata": {
+      "ipfs_hash": "WX0SFPNUVK59XTREN", "description": "Question: 3VM7HXRQWUECTT5SO Answer: XFV6VKIB17F4FO5EX", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 810, "yes_preference": 6583265407136565591120, "uniswap_contribution": 6583265407136565591120}
+    }
+  },
+  "2349606707506940961": {
+    "metadata": {
+      "ipfs_hash": "7SGFU0YNE1SP95PSQ", "description": "Question: AZZEU10FPOQVJGFCH Answer: 88FZJV5A4C8ZG8W0Q", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 54, "yes_preference": 458118263006947121382, "uniswap_contribution": 458118263006947121382}
+    }
+  },
+  "3297120043904506267": {
+    "metadata": {
+      "ipfs_hash": "FR0SIE4MO2JNGR0L5", "description": "Question: QXGZRT828V4QHCTBI Answer: 257B6RFNS560XCKNK", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 272, "yes_preference": 1174669214243585125808, "uniswap_contribution": 1174669214243585125808}
+    }
+  },
+  "2336618155683611662": {
+    "metadata": {
+      "ipfs_hash": "YOF1ZW2LGEEHV62K2", "description": "Question: PH52DZMS17IFPMI4R Answer: 70A2R1BKM396DXM6O", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 642, "yes_preference": 15076910481002680986, "uniswap_contribution": 15076910481002680986}
+    }
+  },
+  "2665076550516696293": {
+    "metadata": {
+      "ipfs_hash": "Y8BCQT08VXSERTL7A", "description": "Question: GV9K97S44F82VV5LE Answer: 2D4YRVLXJ4Z1E54VL", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 366, "yes_preference": 467246368521226242108, "uniswap_contribution": 467246368521226242108}
+    }
+  },
+  "7332788837793804521": {
+    "metadata": {
+      "ipfs_hash": "CCUMTON3U4BJAMZEH", "description": "Question: ROSFGCPKOIRBNNIA0 Answer: RE5XR2N34SOVOC1AQ", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 381, "yes_preference": 2310207415000280152695, "uniswap_contribution": 2310207415000280152695}
+    }
+  },
+  "3417371376812155024": {
+    "metadata": {
+      "ipfs_hash": "882V4AVUK3KLTH4VC", "description": "Question: 9LM4CED2PQG3R94SG Answer: CMYGUOKVJI2DK5CMV", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 15, "yes_preference": 8140120695264445095, "uniswap_contribution": 8140120695264445095}
+    }
+  },
+  "7568572442166225011": {
+    "metadata": {
+      "ipfs_hash": "XLLITTX0E0QNOKB7C", "description": "Question: 18B5NENS8RJDCP9XG Answer: CVDKE9ZF1R0DNGA95", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 513, "yes_preference": 3712287646551070331289, "uniswap_contribution": 3712287646551070331289}
+    }
+  },
+  "7102427158673055600": {
+    "metadata": {
+      "ipfs_hash": "7EI6GVT8KP5GQ8R8K", "description": "Question: V8VLAMFH33A452371 Answer: P34X0Q6KI16SJWTF8", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 444, "yes_preference": 2965023964263169393440, "uniswap_contribution": 2965023964263169393440}
+    }
+  },
+  "7627419311853961248": {
+    "metadata": {
+      "ipfs_hash": "S1228FXMGRACFE21F", "description": "Question: N0UJB54RVFVY60WEE Answer: EEVCDG4QCRKNP03PF", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 394, "yes_preference": 451811788524943573708, "uniswap_contribution": 451811788524943573708}
+    }
+  },
+  "7121106999022673546": {
+    "metadata": {
+      "ipfs_hash": "SKE2GUAXBVQMOPM0Z", "description": "Question: XYG95KOHW8R0XT5XR Answer: H3WB47BN07T53JV5C", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 403, "yes_preference": 3570647663818763133606, "uniswap_contribution": 3570647663818763133606}
+    }
+  },
+  "2301387676830351321": {
+    "metadata": {
+      "ipfs_hash": "KQ7AFJCHZ69CSA9L0", "description": "Question: 728ZMJHINPKBYRJIL Answer: GE771I1IVEBR5SI3V", "adjudicator": "tz1iFcpVuaBCaffFNG8LZKJrQdzzj7c5uW3t", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 816, "yes_preference": 1137240776971659904608, "uniswap_contribution": 1137240776971659904608}
+    }
+  },
+  "4928037985874584906": {
+    "metadata": {
+      "ipfs_hash": "O6JUPDMHK4S7NY7VP", "description": "Question: L1MWH5LIGZZMWRN1F Answer: O7965J17OXYOPIFVD", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754739, "quantity": 534, "yes_preference": 1080656510181945491784, "uniswap_contribution": 1080656510181945491784}
+    }
+  },
+  "7212630625371554825": {
+    "metadata": {
+      "ipfs_hash": "3M8YN73I6W1V61E7W", "description": "Question: PF9O8P6PHBEKYA4F4 Answer: SH5NHZLPO2SXMJNZ0", "adjudicator": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 818, "yes_preference": 1415202311466852047238, "uniswap_contribution": 1415202311466852047238}
+    }
+  },
+  "7885722419193500745": {
+    "metadata": {
+      "ipfs_hash": "MMZXYIO0SIHPJXC0C", "description": "Question: V23T3EFXRG4PWCFVR Answer: 5HTJM9A9Y5X48TI7X", "adjudicator": "tz1Lc4SKZLFriSm8ouwyUo3Hxkbv35VxwBP1", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 376, "yes_preference": 1062384381162212729960, "uniswap_contribution": 1062384381162212729960}
+    }
+  },
+  "7438623685276804606": {
+    "metadata": {
+      "ipfs_hash": "EYYMLXZQV815SE61R", "description": "Question: UENK3R1DFW4ZUEDGW Answer: ESGDTX9DSBYS8T3LB", "adjudicator": "tz1RncjhUDusSeNoLT11z35wmdRRaMsq5fsp", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 707, "yes_preference": 4744970493902259609877, "uniswap_contribution": 4744970493902259609877}
+    }
+  },
+  "7523550689901905921": {
+    "metadata": {
+      "ipfs_hash": "JUAQU1PAW91G6NO92", "description": "Question: HH5AVFG63XDBJD7VT Answer: U9WVWTAN8P6KO5B4Z", "adjudicator": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754739, "quantity": 192, "yes_preference": 428038144764558693312, "uniswap_contribution": 428038144764558693312}
+    }
+  },
+  "1042094440135220139": {
+    "metadata": {
+      "ipfs_hash": "5BLYNOAAR8NTANNYB", "description": "Question: FPLM6OW788UD1C47O Answer: ZWIMYM9CHLVWPCE03", "adjudicator": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754737, "quantity": 556, "yes_preference": 442967623469179329680, "uniswap_contribution": 442967623469179329680}
+    }
+  },
+  "7692014095549649890": {
+    "metadata": {
+      "ipfs_hash": "FTLDQIQY1GRW3F1ZH", "description": "Question: UIJELEIRX2VGOTJYQ Answer: IY2XR47XPC1VKT97R", "adjudicator": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 753, "yes_preference": 4810375959250313952420, "uniswap_contribution": 4810375959250313952420}
+    }
+  },
+  "2886888232319171386": {
+    "metadata": {
+      "ipfs_hash": "SVIGOZEWTE3DGCA4F", "description": "Question: VHO76C2TP32Z5KJVP Answer: QFC5XWY80AJX0Y09I", "adjudicator": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 655, "yes_preference": 3738090185167164125180, "uniswap_contribution": 3738090185167164125180}
+    }
+  },
+  "9160765673842375140": {
+    "metadata": {
+      "ipfs_hash": "NDV4B2S2O4ZKXAZXZ", "description": "Question: Y78O7Z1V4ZJO4691B Answer: TXF1TKTFQUQH5UZCW", "adjudicator": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 48, "yes_preference": 50926709377805930592, "uniswap_contribution": 50926709377805930592}
+    }
+  },
+  "8316774896884451626": {
+    "metadata": {
+      "ipfs_hash": "YJ435OJZ0BO5IEAPY", "description": "Question: BWDO5LUNKXY3R67CF Answer: 8QOCRUO06E4Y34CU3", "adjudicator": "tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 657, "yes_preference": 1818058112676198952524, "uniswap_contribution": 1818058112676198952524}
+    }
+  },
+  "8607496254042591484": {
+    "metadata": {
+      "ipfs_hash": "2FS1OP6NXGVP6ZITG", "description": "Question: R54BVUJF9AL9KLQ9I Answer: YDZGBNJKZTWKS0VJA", "adjudicator": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 72, "yes_preference": 549788487024120396840, "uniswap_contribution": 549788487024120396840}
+    }
+  },
+  "6229352627275709332": {
+    "metadata": {
+      "ipfs_hash": "NEAZKDDJKZAHNR3EA", "description": "Question: SZKEATQBTSU3MIHXU Answer: WCBRVH5J1VEEBTCGN", "adjudicator": "tz1XRcA64rrepjkDgJudqjk7Z5HyALk8u9iU", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 448, "yes_preference": 418604051335603618240, "uniswap_contribution": 418604051335603618240}
+    }
+  },
+  "1132162238287741828": {
+    "metadata": {
+      "ipfs_hash": "VKTDOZW98JKRKJKO5", "description": "Question: J675D8LIGGP4982EA Answer: P31R6ZZ80TM362MWZ", "adjudicator": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "currency": {
+        "fa12": "KT1RyQhbP5bHvTmSJr9oSuFJDTQJwNx32WUs"}
+    },
+    "state": {
+      "auctionRunning": {
+        "auction_period_end": 1623754738, "quantity": 676, "yes_preference": 2389951879401064884828, "uniswap_contribution": 2389951879401064884828}
+    }
+  }
+}

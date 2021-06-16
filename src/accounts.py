@@ -43,8 +43,9 @@ class Accounts:
 
     def import_from_file(self, account_data: str, account_name: str):
         account = pytezos.using(
-            key=account_data,
-            shell=self.endpoint,
+            shell=self.endpoint
+        ).using(
+            key=account_data
         )
         self.accounts[account_name] = account
 

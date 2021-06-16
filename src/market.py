@@ -335,13 +335,14 @@ class Market:
             self,
             market_id: int,
             user: str = "",
+            debug: bool = True
     ):
-        tokens = get_tokens_id_list(market_id)
         logger.debug(f'Querrying storage for market: {market_id}')
+        tokens = get_tokens_id_list(market_id)
         market_map = self.get_market_map_storage(market_id)
-        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id)
-        supply_map = self.get_supply_map_storage(tokens)
-        ledger_map = self.get_ledger_map_storage(tokens)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, debug=debug)
+        supply_map = self.get_supply_map_storage(tokens, debug=debug)
+        ledger_map = self.get_ledger_map_storage(tokens, debug=debug)
         return {
             'ledger_map': ledger_map,
             'liquidity_provider_map': liquidity_provider_map,
@@ -389,24 +390,31 @@ class Market:
             return None
         return market_map
 
-    def get_liquidity_provider_map_storage(self, market_id: int, users: list = None):
+    def get_liquidity_provider_map_storage(self, market_id: int, users: list = None, debug=True):
         liquidity_provider_map = {}
         if users is None:
             users = self.accounts.names()
+        logger.error(users)
         for user in users:
             try:
                 map_key = {
                     'originator': get_public_key(self.accounts[user]),
                     'market_id': market_id
                 }
-                liquidity_provider_map[user] = self.pm_contracts(
+                value = self.pm_contracts(
                     user
                 ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+                logger.error(value)
+                if debug is True:
+                    liquidity_provider_map[user] = value
+                else:
+                    liquidity_provider_map[(map_key['originator'], map_key['market_id'])] = value
             except:
                 continue
+        logger.error(liquidity_provider_map)
         return liquidity_provider_map
 
-    def get_ledger_map_storage(self, tokens: list, users: list = None):
+    def get_ledger_map_storage(self, tokens: list, users: list = None, debug=True):
         ledger_map = {}
         if users is None:
             users = self.accounts.names()
@@ -418,22 +426,31 @@ class Market:
                 map_key = {'owner': user_address, 'token_id': token['token_value']}
                 entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
                 try:
-                    token_map[token['token_name']] = entry[map_key]()
+                    value = entry[map_key]()
+                    if debug is True:
+                        token_map[token['token_name']] = value
+                    else:
+                        ledger_map[(map_key['owner'], map_key['token_id'])] = value
                     count += 1
                 except:
-                    token_map[token['token_name']] = 0
-            if count > 0:
+                    if debug is True:
+                        token_map[token['token_name']] = 0
+            if debug is True and count > 0:
                 ledger_map[user] = token_map
         return ledger_map
 
-    def get_supply_map_storage(self, tokens: list):
+    def get_supply_map_storage(self, tokens: list, debug=True):
         supply_map = {}
         for token in tokens:
             entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
             try:
-                supply_map[token['token_name']] = entry[token['token_value']]()
+                key = token['name '] if debug is True else token['token_value']
+                value = entry[token['token_value']]()
+                supply_map[key] = entry[token['token_value']]()
             except:
-                supply_map[token['token_name']] = 0
+                if debug is True:
+                    supply_map[token['token_name']] = 0
+        logger.error(supply_map)
         return supply_map
 
 #   logger.info(

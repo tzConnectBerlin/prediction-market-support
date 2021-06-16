@@ -7,16 +7,14 @@ import pytest
 from loguru import logger
 from pytezos.rpc.node import RpcError
 
-from tests.conftest import get_random_market
+#from tests.conftest import get_random_market
 from tests.sandbox import SandboxedTestCase
+from pytezos.sandbox.node import SandboxedNodeTestCase, node_container
 from src.utils import get_tokens_id_list, log_and_submit, raise_error
 from src.utils import id_generator
-
 LOGGING_RAISE = False
 
-#exist to load fixtures and check how long the function takes
-def test_empty():
-    assert True
+
 
 '''
 """
