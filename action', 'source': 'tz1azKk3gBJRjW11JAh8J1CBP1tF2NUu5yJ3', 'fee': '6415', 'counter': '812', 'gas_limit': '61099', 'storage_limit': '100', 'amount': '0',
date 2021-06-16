@@ -1,0 +1,224 @@
+============================= test session starts ==============================
+platform linux -- Python 3.9.5, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: /home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle
+plugins: profiling-1.7.0, forked-1.3.0, lazy-fixture-0.6.3, regtest-1.4.6, sugar-0.9.4, mock-3.6.1, xdist-2.2.1, timeout-1.4.2
+collected 7 items
+
+tests/test_integration.py ...FF..                                        [100%]
+
+=================================== FAILURES ===================================
+____________________ test_swap_token_token_in_auction_phase ____________________
+
+market = <src.market.Market object at 0x7f91cac68880>
+stablecoin_id = 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'
+
+    def test_swap_token_token_in_auction_phase(market, stablecoin_id):
+        quantity = 200
+        min_buy = 5
+        caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
+        end = datetime.now() + timedelta(minutes=0.02)
+        market_id, transaction = market.ask_question(
+            id_generator(),
+            id_generator(),
+            caller['name'],
+            1000,
+            2 ** 63,
+            id_generator(),
+            auction_end_date=end.timestamp(),
+            token_contract=stablecoin_id
+        )
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+        transaction = market.auction_clear(market_id, caller['name'])
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+        transaction = market.mint(market_id, caller['name'], 3 * quantity)
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
+        transaction = market.swap_tokens(market_id, caller['name'], "yes", 100, 5)
+        with pytest.raises(RpcError, match=r'Market not bootstrapped'):
+>           log_and_submit(
+                transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
+            )
+E           Failed: DID NOT RAISE <class 'pytezos.rpc.node.RpcError'>
+
+tests/test_integration.py:665: Failed
+---------------------------- Captured stdout setup -----------------------------
+mock_function
+---------------------------- Captured stderr setup -----------------------------
+2021-06-16 19:17:13.249 | INFO     | tests.conftest:log_contract_state:482 - -----------------------------<SubRequest 'log_contract_state' for <Function test_swap_token_token_in_auction_phase>>-----------------------------
+----------------------------- Captured stdout call -----------------------------
+Wait 1 seconds until block BLMNAiZx6L7j4FVuPd33k6f2sf3kDUHktWAXqnrkJT2bKtCLHbG is finalized
+Wait 1 seconds until block BLYxFWinvegk445MCiGVz3T96o6yu89NozEnsH94Bdduh2fJLzN is finalized
+Wait 1 seconds until block BM3n3ZdK8Juhr5x1akza8XcAMUyYEXw1dBUQwgR3mn7kk2qseqA is finalized
+Wait 1 seconds until block BMc2miv3ALbGZxd8qHQbF2JmHbEbLQKUSadEkhjY5sQtStqmHsh is finalized
+----------------------------- Captured stderr call -----------------------------
+2021-06-16 19:17:13.259 | DEBUG    | src.utils:log_and_submit:195 - 1400595069135656853 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 marketCreate {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'prim': 'Pair', 'args': [{'prim': 'Some', 'args': [{'string': 'YW7NJIUY1800NL7CM'}]}, {'string': 'Question: DSBGX8LAKJY5KVJV5 Answer: 01DNWMCPHIGSO5CI0'}, {'string': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'}, {'prim': 'Left', 'args': [{'string': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}]}]}, {'string': '2021-06-16T17:17:14Z'}, {'prim': 'Pair', 'args': [{'int': '9223372036854775808'}, {'int': '1000'}]}]}
+2021-06-16 19:17:15.360 | DEBUG    | src.utils:submit_transaction:91 - block baked: BLYxFWinvegk445MCiGVz3T96o6yu89NozEnsH94Bdduh2fJLzN
+2021-06-16 19:17:15.361 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'opHCSBKjCx5v6ZpHLXsEJtYccuYNkmtHkHyAFMPfN3KuKvwNzLF', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BLMNAiZx6L7j4FVuPd33k6f2sf3kDUHktWAXqnrkJT2bKtCLHbG', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '5414', 'counter': '805', 'gas_limit': '48958', 'storage_limit': '587', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'marketCreate', 'value': {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'prim': 'Pair', 'args': [{'prim': 'Some', 'args': [{'string': 'YW7NJIUY1800NL7CM'}]}, {'string': 'Question: DSBGX8LAKJY5KVJV5 Answer: 01DNWMCPHIGSO5CI0'}, {'string': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'}, {'prim': 'Left', 'args': [{'string': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}]}]}, {'string': '2021-06-16T17:17:14Z'}, {'prim': 'Pair', 'args': [{'int': '9223372036854775808'}, {'int': '1000'}]}]}}}], 'signature': 'sigPCPjvTqQVabXd1eWVTEAyck9yXHuiGFuDGLMv1zQxRGZ5m75RTsTYZYyuoheTJqx692mnimArgDkrDweemPzQ5GgzBn5k'}
+2021-06-16 19:17:15.386 | DEBUG    | src.utils:log_and_submit:195 - 1400595069135656853 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 auctionClear {'int': '1400595069135656853'}
+2021-06-16 19:17:17.483 | DEBUG    | src.utils:submit_transaction:91 - block baked: BLsior8gDUULfapc1HibXMZXvYXBaw28PNvCqbn6et8wHuB6w9E
+2021-06-16 19:17:17.484 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'opJbYrVFyKQXpNjBmmyvin6PyhtQUyWPYKrr5bXArnQoaGtxU6F', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BLYxFWinvegk445MCiGVz3T96o6yu89NozEnsH94Bdduh2fJLzN', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '4137', 'counter': '806', 'gas_limit': '38455', 'storage_limit': '452', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'auctionClear', 'value': {'int': '1400595069135656853'}}}], 'signature': 'sigiin1L4KCMg8ouanfqJFakt9NCrPxYKaQDGXAfTugxi1br3w74b3uP15ftmAofPwSKaEbVCkt4TEm3zpu1LveG9BNahMif'}
+2021-06-16 19:17:17.511 | DEBUG    | src.utils:log_and_submit:195 - 1400595069135656853 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 marketEnterExit {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'int': '600'}]}]}
+2021-06-16 19:17:17.511 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1400595069135656853
+2021-06-16 19:17:17.534 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:18.157 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:18.160 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:18.218 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:21.397 | DEBUG    | src.utils:log_and_submit:200 - {'ledger_map': {'mala': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'YW7NJIUY1800NL7CM', 'description': 'Question: DSBGX8LAKJY5KVJV5 Answer: 01DNWMCPHIGSO5CI0', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 10, 'liquidity_reward_currency_pool': 40, 'market_currency_pool': 950}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39092, 'liquidity_reward_supply_updated_at_block': 39092, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:23.499 | DEBUG    | src.utils:submit_transaction:91 - block baked: BLqPbhooZB3G35Y5DHGKYL9svrfoT3WtsgGoxV6wuk3T5bH1pv8
+2021-06-16 19:17:23.500 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'opP9Kx4PvsGXg32wapo9FMpas2u5tvuxhzWJoTHV3mRzTh2Pjnn', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BM3n3ZdK8Juhr5x1akza8XcAMUyYEXw1dBUQwgR3mn7kk2qseqA', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '6367', 'counter': '807', 'gas_limit': '60615', 'storage_limit': '237', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'marketEnterExit', 'value': {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'int': '600'}]}]}}}], 'signature': 'sigwD1GZ2WACtN4sNiXMvY9c9ogJVHh6W7Wy2EPgzP9JkADz5VbETrjWuKtnhtJbp5Vy8A7gzHwomCfABuvoahWCpK1uRwNm'}
+2021-06-16 19:17:23.501 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1400595069135656853
+2021-06-16 19:17:23.534 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:24.140 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:24.140 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:24.197 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:27.399 | DEBUG    | src.utils:log_and_submit:208 - {'ledger_map': {'mala': {'no_token': 600, 'yes_token': 600, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'YW7NJIUY1800NL7CM', 'description': 'Question: DSBGX8LAKJY5KVJV5 Answer: 01DNWMCPHIGSO5CI0', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 16, 'liquidity_reward_currency_pool': 64, 'market_currency_pool': 1520}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39092, 'liquidity_reward_supply_updated_at_block': 39092, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:27.407 | DEBUG    | src.utils:log_and_submit:195 - 1400595069135656853 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 swapTokens {'prim': 'Pair', 'args': [{'prim': 'Right', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'int': '100'}]}, {'int': '5'}]}
+2021-06-16 19:17:29.497 | DEBUG    | src.utils:submit_transaction:91 - block baked: BKv39z344HaEMVVQgCsVSMCMpXkCYSgGMpb5Pkbj7CSG9LcUXLA
+2021-06-16 19:17:29.498 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'oo8pxNPoa1QwCmNWxoq3PtPHXoyrfe9Xezxoa2yQnaFjeyuXp7r', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BMc2miv3ALbGZxd8qHQbF2JmHbEbLQKUSadEkhjY5sQtStqmHsh', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '3754', 'counter': '808', 'gas_limit': '34438', 'storage_limit': '100', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'swapTokens', 'value': {'prim': 'Pair', 'args': [{'prim': 'Right', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1400595069135656853'}, {'int': '100'}]}, {'int': '5'}]}}}], 'signature': 'sigv6R6vyjtJXmiybJdzLCoc2zpc7Cg7wyLdviPdU2Z5N2z1JTKVtwbJ2hBQivNjPLqsfPLnpbnqo8A93d3dpkicXHnVbwoj'}
+------------------------------ Captured log call -------------------------------
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BLMNAiZx6L7j4FVuPd33k6f2sf3kDUHktWAXqnrkJT2bKtCLHbG is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BLYxFWinvegk445MCiGVz3T96o6yu89NozEnsH94Bdduh2fJLzN is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BM3n3ZdK8Juhr5x1akza8XcAMUyYEXw1dBUQwgR3mn7kk2qseqA is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BMc2miv3ALbGZxd8qHQbF2JmHbEbLQKUSadEkhjY5sQtStqmHsh is finalized
+--------------------------- Captured stderr teardown ---------------------------
+2021-06-16 19:17:29.633 | INFO     | tests.conftest:log_contract_state:484 - -----------------------------END OF THE TEST-----------------------------
+_______________________ test_swap_token_resolved_market ________________________
+
+market = <src.market.Market object at 0x7f91cac68880>
+stablecoin_id = 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'
+
+    def test_swap_token_resolved_market(market, stablecoin_id):
+        quantity = 200
+        min_buy = 5
+        caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
+        end = datetime.now() + timedelta(minutes=0.02)
+        market_id, transaction = market.ask_question(
+            id_generator(),
+            id_generator(),
+            caller['name'],
+            1000,
+            2 ** 63,
+            id_generator(),
+            auction_end_date=end.timestamp(),
+            token_contract=stablecoin_id
+        )
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+        transaction = market.auction_clear(market_id, caller['name'])
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+        transaction = market.mint(market_id, caller['name'], 3 * quantity)
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
+        market.close_market(market_id, caller['name'], True)
+        log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=True)
+        transaction = market.swap_tokens(market_id, caller['name'], "yes", 100, 5)
+        with pytest.raises(RpcError, match=r'Market has already been resolved'):
+>           log_and_submit(
+                transaction, caller, market, market_id, error_func=raise_error,  logging=LOGGING_RAISE
+            )
+E           Failed: DID NOT RAISE <class 'pytezos.rpc.node.RpcError'>
+
+tests/test_integration.py:694: Failed
+---------------------------- Captured stdout setup -----------------------------
+mock_function
+---------------------------- Captured stderr setup -----------------------------
+2021-06-16 19:17:29.643 | INFO     | tests.conftest:log_contract_state:482 - -----------------------------<SubRequest 'log_contract_state' for <Function test_swap_token_resolved_market>>-----------------------------
+----------------------------- Captured stdout call -----------------------------
+Wait 1 seconds until block BKv39z344HaEMVVQgCsVSMCMpXkCYSgGMpb5Pkbj7CSG9LcUXLA is finalized
+Wait 1 seconds until block BLpMxYBJddmtsaHoNRvV8m1BmrmVMvkAVx7QUiArJRLwoFxAPoG is finalized
+Wait 1 seconds until block BLqtr5rEQELrKmsbo5tm34R1CQ1jVocwZQ9wsGopKowiiKq74d5 is finalized
+Wait 1 seconds until block BMTikQEHkNYTZeAhJ4qgXTTMj1DMgyFwyhWmqGXy17TDPsv1wZG is finalized
+Wait 1 seconds until block BMJfqN3EZENvg59Cgt1QNDbyznCh5RjXsVWrV2hLUFKhs9Wrjqr is finalized
+----------------------------- Captured stderr call -----------------------------
+2021-06-16 19:17:29.652 | DEBUG    | src.utils:log_and_submit:195 - 1116478199153672443 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 marketCreate {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'prim': 'Pair', 'args': [{'prim': 'Some', 'args': [{'string': 'AFTTL33YQ6P3UGJZQ'}]}, {'string': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J'}, {'string': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'}, {'prim': 'Left', 'args': [{'string': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}]}]}, {'string': '2021-06-16T17:17:30Z'}, {'prim': 'Pair', 'args': [{'int': '9223372036854775808'}, {'int': '1000'}]}]}
+2021-06-16 19:17:31.742 | DEBUG    | src.utils:submit_transaction:91 - block baked: BLpMxYBJddmtsaHoNRvV8m1BmrmVMvkAVx7QUiArJRLwoFxAPoG
+2021-06-16 19:17:31.743 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'oo4ZRiuq461WipHhRyfcK9WxbyfyaGGZyXjZtHkgm4FU6tfepD5', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BKv39z344HaEMVVQgCsVSMCMpXkCYSgGMpb5Pkbj7CSG9LcUXLA', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '5414', 'counter': '809', 'gas_limit': '48958', 'storage_limit': '587', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'marketCreate', 'value': {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'prim': 'Pair', 'args': [{'prim': 'Some', 'args': [{'string': 'AFTTL33YQ6P3UGJZQ'}]}, {'string': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J'}, {'string': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3'}, {'prim': 'Left', 'args': [{'string': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}]}]}, {'string': '2021-06-16T17:17:30Z'}, {'prim': 'Pair', 'args': [{'int': '9223372036854775808'}, {'int': '1000'}]}]}}}], 'signature': 'sigPua5L7WvQdbeLDJBRp1tSw2MxmVj9Lqu3jZPF6tTkvJ82ghZEvoJs8j7jAqZthyffQz5y49Qr7P5Qr1xKtxRGpbrRyh8W'}
+2021-06-16 19:17:31.754 | DEBUG    | src.utils:log_and_submit:195 - 1116478199153672443 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 auctionClear {'int': '1116478199153672443'}
+2021-06-16 19:17:33.849 | DEBUG    | src.utils:submit_transaction:91 - block baked: BMewbaXHei9mspFpN4bdZBujfF41V91LE71w4hW2dPrPnBvrzka
+2021-06-16 19:17:33.849 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'ooQjkxZK7rZ17UKo8mVd5XVnTLGguCRx7DZuXSoBmGkqhnieMEV', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BLpMxYBJddmtsaHoNRvV8m1BmrmVMvkAVx7QUiArJRLwoFxAPoG', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '4137', 'counter': '810', 'gas_limit': '38455', 'storage_limit': '452', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'auctionClear', 'value': {'int': '1116478199153672443'}}}], 'signature': 'sigt1ZNFYbumTCymjczT9ecFSRd34rVnKchGMstieaaQmH8Nhg675EDMttYyHmoYGj6r4S25c3KxHY8DS9ZdXRhr6ACJeX3Y'}
+2021-06-16 19:17:33.859 | DEBUG    | src.utils:log_and_submit:195 - 1116478199153672443 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 marketEnterExit {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '600'}]}]}
+2021-06-16 19:17:33.859 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1116478199153672443
+2021-06-16 19:17:33.880 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:34.504 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:34.504 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:34.570 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:37.752 | DEBUG    | src.utils:log_and_submit:200 - {'ledger_map': {'mala': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'AFTTL33YQ6P3UGJZQ', 'description': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 10, 'liquidity_reward_currency_pool': 40, 'market_currency_pool': 950}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39100, 'liquidity_reward_supply_updated_at_block': 39100, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:39.852 | DEBUG    | src.utils:submit_transaction:91 - block baked: BM8PSsrRCt9JrFN7iMoQveUWy9UA1kzm9eS7RvmWUBDuGadwB98
+2021-06-16 19:17:39.853 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'onzufLw4RqnzDaUDJMkwQTadRymaaq38Fuxqa9seV312oC3Qf2t', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BLqtr5rEQELrKmsbo5tm34R1CQ1jVocwZQ9wsGopKowiiKq74d5', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '6367', 'counter': '811', 'gas_limit': '60615', 'storage_limit': '237', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'marketEnterExit', 'value': {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '600'}]}]}}}], 'signature': 'sigtjUQqpyRRNBeR36FtF3FFj28MrtEmgYuFfGXcw5bUo1yVHdDBChjgmbLScVzPQfSzz3h9mTKUK3umV2om8VwZ13Qwwnqh'}
+2021-06-16 19:17:39.854 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1116478199153672443
+2021-06-16 19:17:39.909 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:40.619 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:40.620 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:40.682 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:43.816 | DEBUG    | src.utils:log_and_submit:208 - {'ledger_map': {'mala': {'no_token': 600, 'yes_token': 600, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'AFTTL33YQ6P3UGJZQ', 'description': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 16, 'liquidity_reward_currency_pool': 64, 'market_currency_pool': 1520}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39100, 'liquidity_reward_supply_updated_at_block': 39100, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:43.824 | DEBUG    | src.utils:log_and_submit:195 - 1116478199153672443 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 marketEnterExit {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '600'}]}]}
+2021-06-16 19:17:43.824 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1116478199153672443
+2021-06-16 19:17:43.844 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:44.521 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:44.521 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:44.604 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:47.664 | DEBUG    | src.utils:log_and_submit:200 - {'ledger_map': {'mala': {'no_token': 600, 'yes_token': 600, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'AFTTL33YQ6P3UGJZQ', 'description': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 16, 'liquidity_reward_currency_pool': 64, 'market_currency_pool': 1520}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39100, 'liquidity_reward_supply_updated_at_block': 39100, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:49.765 | DEBUG    | src.utils:submit_transaction:91 - block baked: BLjNnmfnZjG7NeRe9qcaHALpas6kTu93d2fdnRY34PodAB3H3TX
+2021-06-16 19:17:49.765 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'oni88cauHn3J1nfCqpA24pCqL1oLRuhFBQhkEK7Cpwg2KK2jbYd', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BMTikQEHkNYTZeAhJ4qgXTTMj1DMgyFwyhWmqGXy17TDPsv1wZG', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '6415', 'counter': '812', 'gas_limit': '61099', 'storage_limit': '100', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'marketEnterExit', 'value': {'prim': 'Pair', 'args': [{'prim': 'Left', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '600'}]}]}}}], 'signature': 'sigq1TZTHSPJroaZKSex6xiTe6Amw47Bmx4xbDSeh8tyMbsWR27qqFxy9Lv1TGqeHCXwcokYpzcMmLs6L9qStVeiKAkWs7xs'}
+2021-06-16 19:17:49.766 | DEBUG    | src.market:get_storage:340 - Querrying storage for market: 1116478199153672443
+2021-06-16 19:17:49.789 | ERROR    | src.market:get_liquidity_provider_map_storage:397 - ['siri', 'leonidas', 'amy', 'laura', 'lily', 'nina', 'emma', 'penny', 'sally', 'lisa', 'rimk', 'hannah', 'madonna', 'palu', 'mia', 'sergio', 'eva', 'maria', 'stavros', 'carl', 'anna', 'robin', 'donald', 'tasos', 'patoch', 'clara', 'marty', 'marco', 'paula', 'cathalina', 'tang', 'xenia', 'alexa', 'romina', 'robert', 'astrid', 'mala']
+2021-06-16 19:17:50.449 | ERROR    | src.market:get_liquidity_provider_map_storage:407 - {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}
+2021-06-16 19:17:50.450 | ERROR    | src.market:get_liquidity_provider_map_storage:414 - {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}
+2021-06-16 19:17:50.506 | ERROR    | src.market:get_supply_map_storage:453 - {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}
+2021-06-16 19:17:53.713 | DEBUG    | src.utils:log_and_submit:208 - {'ledger_map': {'mala': {'no_token': 1200, 'yes_token': 1200, 'pool_liquidity': 0, 'auction_reward': 1000000000000000000, 'liquidity_reward': 0}}, 'liquidity_provider_map': {'mala': {'bet': {'predicted_probability': 9223372036854775808, 'quantity': 1000}}}, 'market_map': {'metadata': {'ipfs_hash': 'AFTTL33YQ6P3UGJZQ', 'description': 'Question: 4BN5ZTS2TDVWPWCCG Answer: 9TBJZWJLBOOHL5M7J', 'adjudicator': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'currency': {'fa12': 'KT1FxBfSBskDJirX6CJh2tNuJj2pHcakRvwc'}}, 'state': {'marketBootstrapped': {'currency_pool': {'creator_reward_currency_pool': 22, 'liquidity_reward_currency_pool': 88, 'market_currency_pool': 2090}, 'bootstrap_yes_probability': 9223372036854775808, 'bootstrapped_at_block': 39100, 'liquidity_reward_supply_updated_at_block': 39100, 'resolution': None}}}, 'supply_map': {'no_token': 0, 'yes_token': 0, 'pool_liquidity': 0, 'auction_reward': 0, 'liquidity_reward': 0}}
+2021-06-16 19:17:53.720 | DEBUG    | src.utils:log_and_submit:195 - 1116478199153672443 tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3 swapTokens {'prim': 'Pair', 'args': [{'prim': 'Right', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '100'}]}, {'int': '5'}]}
+2021-06-16 19:17:55.804 | DEBUG    | src.utils:submit_transaction:91 - block baked: BKvpSGwH5iSpP6cWfuwnhJEr5CFcHdn23UnaQsGxGa7Qpa21VTW
+2021-06-16 19:17:55.805 | DEBUG    | src.utils:log_and_submit:204 - Result from TRANSACTION = {'chain_id': 'NetXnuwTfg9Box8', 'hash': 'oo45ZhfUM9rB83CoS1V3HwKJ9781oEtZpDcgZea2Tkd8UBVZAtF', 'protocol': 'PtEdo2ZkT9oKpimTah6x2embF25oss54njMuPzkJTEi5RqfdZFA', 'branch': 'BMJfqN3EZENvg59Cgt1QNDbyznCh5RjXsVWrV2hLUFKhs9Wrjqr', 'contents': [{'kind': 'transaction', 'source': 'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3', 'fee': '3754', 'counter': '813', 'gas_limit': '34438', 'storage_limit': '100', 'amount': '0', 'destination': 'KT1E3EEebdBNax2BigazVxrdq1uTJF4z3dBi', 'parameters': {'entrypoint': 'swapTokens', 'value': {'prim': 'Pair', 'args': [{'prim': 'Right', 'args': [{'prim': 'Unit'}]}, {'prim': 'Pair', 'args': [{'int': '1116478199153672443'}, {'int': '100'}]}, {'int': '5'}]}}}], 'signature': 'siggx2eDUD7fxBPcxskeycDMirjgcy7Z8X1wDFXAeDprd4truTwMvy9ttD3mDsFht9vguLJSYBGWtxWoMX3sRAc2jv9dey8z'}
+------------------------------ Captured log call -------------------------------
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BKv39z344HaEMVVQgCsVSMCMpXkCYSgGMpb5Pkbj7CSG9LcUXLA is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BLpMxYBJddmtsaHoNRvV8m1BmrmVMvkAVx7QUiArJRLwoFxAPoG is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BLqtr5rEQELrKmsbo5tm34R1CQ1jVocwZQ9wsGopKowiiKq74d5 is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BMTikQEHkNYTZeAhJ4qgXTTMj1DMgyFwyhWmqGXy17TDPsv1wZG is finalized
+INFO     pytezos:shell.py:87 Wait 1 seconds until block BMJfqN3EZENvg59Cgt1QNDbyznCh5RjXsVWrV2hLUFKhs9Wrjqr is finalized
+--------------------------- Captured stderr teardown ---------------------------
+2021-06-16 19:17:55.819 | INFO     | tests.conftest:log_contract_state:484 - -----------------------------END OF THE TEST-----------------------------
+=============================== warnings summary ===============================
+../../../../../.cache/pypoetry/virtualenvs/prediction-market-support-mREyC6rD-py3.9/lib/python3.9/site-packages/cytoolz/compatibility.py:2
+  /home/killua/.cache/pypoetry/virtualenvs/prediction-market-support-mREyC6rD-py3.9/lib/python3.9/site-packages/cytoolz/compatibility.py:2: DeprecationWarning: The toolz.compatibility module is no longer needed in Python 3 and has been deprecated. Please import these utilities directly from the standard library. This module will be removed in a future release.
+    warnings.warn("The toolz.compatibility module is no longer "
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+Profiling (from /home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle/prof/combined.prof):
+Wed Jun 16 19:17:59 2021    /home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle/prof/combined.prof
+
+         128419514 function calls (104355611 primitive calls) in 163.968 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1989 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        7    0.000    0.000  164.010   23.430 runner.py:106(pytest_runtest_protocol)
+        7    0.000    0.000  164.008   23.430 runner.py:114(runtestprotocol)
+       21    0.000    0.000  164.008    7.810 runner.py:212(call_and_report)
+   374/79    0.001    0.000  164.007    2.076 hooks.py:272(__call__)
+   374/79    0.000    0.000  164.006    2.076 manager.py:90(_hookexec)
+   374/79    0.001    0.000  164.006    2.076 manager.py:84(<lambda>)
+   374/79    0.003    0.000  164.006    2.076 callers.py:157(_multicall)
+       21    0.000    0.000  163.858    7.803 runner.py:240(call_runtest_hook)
+       21    0.000    0.000  163.858    7.803 runner.py:298(from_call)
+       21    0.000    0.000  163.857    7.803 runner.py:255(<lambda>)
+        7    0.000    0.000  117.636   16.805 runner.py:153(pytest_runtest_call)
+        7    0.000    0.000  117.636   16.805 python.py:1639(runtest)
+        7    0.000    0.000  117.635   16.805 python.py:176(pytest_pyfunc_call)
+       23    0.004    0.000  112.890    4.908 utils.py:191(log_and_submit)
+        2    0.001    0.000   71.761   35.881 test_integration.py:600(test_swap_token_token_on_cleared)
+       18    0.000    0.000   70.890    3.938 market.py:334(get_storage)
+       39    0.001    0.000   66.266    1.699 utils.py:83(submit_transaction)
+       76   64.072    0.843   64.072    0.843 {built-in method time.sleep}
+     9058    0.151    0.000   59.962    0.007 node.py:106(request)
+       35    0.003    0.000   58.099    1.660 shell.py:61(wait_next_block)
+
+
+SVG profile in /home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle/prof/combined.svg.
+============================= slowest 5 durations ==============================
+46.20s setup    tests/test_integration.py::test_empty
+37.81s call     tests/test_integration.py::test_swap_token_token_on_cleared[yes]
+33.95s call     tests/test_integration.py::test_swap_token_token_on_cleared[no]
+26.16s call     tests/test_integration.py::test_swap_token_resolved_market
+16.25s call     tests/test_integration.py::test_swap_token_token_in_auction_phase
+=========================== short test summary info ============================
+FAILED tests/test_integration.py::test_swap_token_token_in_auction_phase - Fa...
+FAILED tests/test_integration.py::test_swap_token_resolved_market - Failed: D...
+============== 2 failed, 5 passed, 1 warning in 165.00s (0:02:44) ==============

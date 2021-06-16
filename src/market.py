@@ -166,8 +166,8 @@ class Market:
     def multiple_bids(
             self,
             market_id: int,
-            quantity: int = 5,
-            rate: int = 10
+            quantity: int = random.randint(1, 900),
+            rate: int = random.randint(1, 2 ** 63)
     ):
         """
         Launch multiples bid on a auction for all of the user contained in the accounts Class

@@ -188,7 +188,7 @@ def id_generator(size=17, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def log_and_submit(transaction, account, market=None, market_id=None, error_func=raise_error, logging=True):
+def log_and_submit(transaction, account, market=None, market_id=None, error_func=raise_error, logging=True, debug=True):
     payload_parameters = transaction.json_payload()['contents'][0]['parameters']
     entrypoint = payload_parameters['entrypoint']
     params = payload_parameters['value']
@@ -196,7 +196,7 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     before_storage, after_storage = None, None
     if market is not None and logging is True:
         try:
-            before_storage = market.get_storage(market_id, account['name'])
+            before_storage = market.get_storage(market_id, account['name'], debug=debug)
             logger.debug(f"{before_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible before submit transaction: {e}")
@@ -204,7 +204,7 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     logger.debug(f"Result from TRANSACTION = {result}")
     if market is not None and logging is True:
         try:
-            after_storage = market.get_storage(market_id, account['name'])
+            after_storage = market.get_storage(market_id, account['name'], debug=debug)
             logger.debug(f"{after_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible after submit transaction: {e}")

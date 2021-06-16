@@ -70,7 +70,7 @@ test_accounts = [
     {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
 ]
 
-funded_accounts = test_accounts[0::35]
+funded_accounts = test_accounts[0::25]
 revealed_accounts = test_accounts[0::30]
 tezzed_accounts = test_accounts[0::30]
 
@@ -100,10 +100,6 @@ binary_contract = {
     }
 }
 
-import json
-
-#with open('tests/markets_empty.json') as json_file:
-#    data = json.load(json_file)
 
 for account in funded_accounts:
     pkh = account['key']
@@ -152,7 +148,8 @@ def submit_transaction_fixture(client):
 
 @pytest.fixture(scope="session", autouse=True)
 def contract_id(endpoint, stablecoin_id):
-    id = deploy_market(shell=endpoint, storage=binary_contract)
+    id = deploy_market(shell=endpoint)
+    '''
     if os.path.exists('data.json'):
         with open('data.json', "r") as outfile:
             data = eval(outfile.read())
@@ -164,6 +161,7 @@ def contract_id(endpoint, stablecoin_id):
     for key, _value in binary_contract['storage']['business_storage']['markets']['market_map']:
         logger.info(f"{key} {_value}")
         binary_contract['storage']['business_storage']['markets']['market_map'][key]['metadata']['fa12'] = stablecoin_id
+    '''
     logger.info(f"Binary prediction contract deployed at address {id}")
     return id
 
@@ -228,8 +226,8 @@ def market(config, get_accounts):
 def financed_accounts(client, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
-    accounts_to_finance = random.choices(test_accounts, k=30)
-    for account in test_accounts:
+    for i in range(25):
+        account = test_accounts[i]
         if True:
             money_seed = client.transaction(
                 account['key'], amount=Decimal(10)
@@ -250,14 +248,15 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
     sleep(3)
     bulk_transactions = config["admin_account"].bulk(*money_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
-    return accounts_to_finance
+    return funded_accounts
 
 
 @pytest.fixture(scope="session", autouse=True)
 def revealed_accounts(financed_accounts, config, get_accounts):
     accounts_obj = get_accounts
-    accounts_to_reveal = random.choices(financed_accounts, k=20)
-    for account in financed_accounts:
+    accounts_to_reveal = random.choices(financed_accounts, k=30)
+    for i in range(30):
+        account = test_accounts[i]
         if account in accounts_to_reveal:
             accounts_obj.activate_account(account['name'])
             try:
@@ -325,6 +324,7 @@ def minter_account(accounts_who_minted):
     return account
 
 
+'''
 @pytest.fixture(scope="session", autouse="True")
 def gen_markets(revealed_accounts, config, market, stablecoin_id, get_accounts):
     transactions = []
@@ -366,7 +366,6 @@ def gen_markets(revealed_accounts, config, market, stablecoin_id, get_accounts):
     return market_pool
 
 
-'''
 @pytest.fixture(scope="session", autouse="True")
 def gen_bid_markets(gen_markets, market, config, get_accounts):
     selection = random.sample(gen_markets, k=50)
