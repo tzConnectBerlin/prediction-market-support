@@ -157,15 +157,15 @@ def test_auction_bet_new_address_correct_bet(market, stablecoin_id):
         auction_end_date=end.timestamp(),
         token_contract=stablecoin_id
     )
+    logger.error(market_id)
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     quantity = 1000
     rate = 2 ** 32
     caller2 = {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"}
-    sleep(2)
+    sleep(4)
     transaction = market.bid_auction(market_id, caller2['name'], quantity, rate)
+    logger.error(market_id)
     before_storage, after_storage = log_and_submit(transaction, caller2, market, market_id, error_func=raise_error, logging=True)
-    logger.info(before_storage)
-    logger.info(after_storage)
     name = caller2['name']
     bet = after_storage['liquidity_provider_map'][name]['bet']
     assert bet['quantity'] == quantity
@@ -321,26 +321,6 @@ def test_clear_market_in_auction_phase(market, stablecoin_id):
     assert 'auctionRunning' not in state
     assert state['marketBootstrapped']['resolution'] is None
 
-
-def test_clear_market_with_no_bet_market(market, stablecoin_id):
-    caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
-    market_id, transaction = market.ask_question(
-        id_generator(),
-        id_generator(),
-        caller['name'],
-        1000,
-        2 ** 63,
-        id_generator(),
-        auction_end_date=end.timestamp(),
-        token_contract=stablecoin_id
-    )
-    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.auction_clear(market_id, caller['name'])
-    with pytest.raises(RpcError, match=r'Can\'t clear unhealthy market: no liquidity provided to'):
-        log_and_submit(
-            transaction, caller, market, market_id, error_func=raise_error, logging=True
-        )
 
 
 @pytest.mark.parametrize("quantity,rate", [[1, 100], [1, 2]])
