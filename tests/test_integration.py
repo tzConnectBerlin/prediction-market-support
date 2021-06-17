@@ -989,6 +989,8 @@ def test_add_liquidity_resolved_market(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.close_market(market_id, caller['name'], True)
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+    transaction = market.auction_withdraw(market_id, caller["name"])
+    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.update_liquidity(market_id, caller['name'], "payIn", 300, 900, 900)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
