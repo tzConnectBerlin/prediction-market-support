@@ -226,7 +226,7 @@ def market(config, get_accounts):
 def financed_accounts(client, config: Config, stablecoin_id: str):
     money_seeding = []
     stablecoin_seeding = []
-    for i in range(30):
+    for i in range(len(test_accounts)):
         account = test_accounts[i]
         if True:
             money_seed = client.transaction(
@@ -237,12 +237,16 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
     # accounts_to_finance = random.choices(test_accounts, k=30)
     count = 0
     for account in test_accounts:
-
-        money_seed = client.transaction(
-            account['key'], amount=Decimal(10)
-        )
-        account['status'] += ',tezzed'
-        money_seeding.append(money_seed)
+        if count < 30:
+            stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
+            stablecoin_seed = stablecoin.transfer({
+                'from': get_public_key(config['admin_account']),
+                'to': account['key'],
+                'value': 2 ** 42
+            })
+            account['status'] += ',financed'
+            stablecoin_seeding.append(stablecoin_seed.as_transaction())
+            count += 1
 
     bulk_transactions = config["admin_account"].bulk(*stablecoin_seeding)
     submit_transaction(bulk_transactions, error_func=raise_error)
@@ -255,67 +259,15 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
 @pytest.fixture(scope="session", autouse=True)
 def revealed_accounts(financed_accounts, config, get_accounts):
     accounts_obj = get_accounts
-    accounts_to_reveal = random.choices(financed_accounts, k=30)
-    for i in range(30):
+    for i in range(len(test_accounts)):
         account = test_accounts[i]
-        if account in accounts_to_reveal:
-            accounts_obj.activate_account(account['name'])
-            try:
-                accounts_obj.reveal_account(account['name'])
-                account["status"] += ",revealed"
-            except:
-                continue
-    return accounts_to_reveal
-
-
-@pytest.fixture(scope="function")
-def revealed_account(revealed_accounts, stablecoin, get_accounts):
-    selected_account = random.choice(revealed_accounts)
-    stablecoin_balance = stablecoin.get_balance(selected_account["name"])
-    tez_balance = get_accounts[selected_account['name']].balance()
-    logger.info(f"acount use for the call: {selected_account}")
-    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
-    yield selected_account
-    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
-
-
-@pytest.fixture(scope="function")
-def financed_account(financed_accounts, stablecoin, get_accounts):
-    selected_account = random.choice(financed_accounts)
-    stablecoin_balance = stablecoin.get_balance(selected_account["name"])
-    tez_balance = get_accounts[selected_account['name']].balance()
-    logger.info(f"acount use for the call: {selected_account}")
-    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
-    yield selected_account
-    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
-
-
-@pytest.fixture(scope="function")
-def non_financed_account(client, stablecoin, get_accounts):
-    selection = [x for x in test_accounts if 'financed' not in x['status']]
-    selected_account = random.choice(selection)
-    stablecoin_balance = stablecoin.get_balance(selected_account["name"])
-    tez_balance = get_accounts[selected_account['name']].balance()
-    logger.info(f"acount used for the call: {selected_account}")
-    transaction = client.transaction(
-        selected_account['key'], amount=Decimal(10)
-    )
-    submit_transaction(transaction, error_func=raise_error)
-    logger.info(f"{selected_account['key']} as money")
-    try:
-        get_accounts.activate_account(account_name=selected_account['name'])
-        get_accounts.reveal_account(account_name=selected_account['name'])
-    except:
-        logger.info(f"Non financed account: {selected_account} already available on the network")
-    logger.info(f"account stablecoin balance before call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
-    yield selected_account
-    logger.info(f"account stablecoin balance after call: {stablecoin_balance}")
-    logger.info(f"account tez balance before call: {tez_balance}")
+        accounts_obj.activate_account(account['name'])
+        try:
+            accounts_obj.reveal_account(account['name'])
+            account["status"] += ",revealed"
+        except:
+            continue
+    return test_accounts
 
 
 @pytest.fixture(scope="function")
