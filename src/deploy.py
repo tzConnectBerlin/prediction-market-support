@@ -127,6 +127,7 @@ def deploy_stablecoin(key=admin['sk'], shell=shell, wrkdir=stablecoin_path, stor
     wrkdir = os.path.abspath(wrkdir)
     file_path = os.path.abspath(USDtzLeger['path'])
     stablecoin_id = deploy_from_file(file_path, key, wrkdir, storage['storage'], shell, get_contract=True)
+    logger.info(storage)
     if stablecoin_id is None:
         raise Exception("deploiement failed")
     logger.debug(f"stablecoin was deployed at {stablecoin_id}")
