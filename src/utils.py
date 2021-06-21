@@ -16,7 +16,7 @@ from src.errors import contract_error
 logger = logger.opt(colors=True)
 
 client = pytezos.using(
-    shell="http://localhost:20000",
+    shell="http://localhost:20001",
     key="edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn"
 )
 
@@ -80,6 +80,23 @@ def print_and_ignore(err_message):
     sys.exit()
 
 
+def bake():
+    baking_rights = client.shell.blocks['head'].helpers.baking_rights()
+    key_hash = sorted(baking_rights, key=lambda baker: baker['priority'])[0]['delegate']
+    print(baking_rights)
+    keys = {
+        'tz1MT1ZfNoDXzWvUj4zJg8cVq7tt7a6QcC58': 'edsk3Q3uoz73R7a2GoKHncLZMGD14rKydkiypCvrN3iXk3Ufmx6ZtR',
+        'tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m':'edsk4QvnUzAQ3s8jiFdmpAztGtXkUoKiKJdKS4QeqdM9aZNE53q8FD',
+        'tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4': 'edsk3aE3Faxgb2mvjHGSHDW4U9TwrGnuRuamJBCcr1wbqMjR2QtXCV',
+        'tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2': 'edsk2sRikkzrGKnRC28UhvJsKAM19vuv4LtCRViyjkm2jMyAxiCMuG',
+        'tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3': 'edsk4FxpsXkEmFG7fKygaWYJ4hb65vuH55ehM2856xAvipztVWuxJM',
+        'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb': 'edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq',
+        'tz1YPSCGWXwBdTncK2aCctSZAXWvGsGwVJqU': 'edsk3RFgDiCt7tWB2oe96w1eRw72iYiiqZPLu9nnEY23MYRp2d8Kkx',
+        'tz1Vb3PvQAHTgyp56rXqSpkcaUc5zdEcFfbD': 'edsk3crF2KCjXWjPUpTSzLFkfywmiyQ3ZLaYhq1FKHTnMcZQ8fr41m'
+    }
+    client.using(key=keys[key_hash]).bake_block().fill().work().sign().inject()
+
+
 def submit_transaction(transaction, count=None, tries=10, error_func=None):
     """
     Submit a transaction
@@ -87,11 +104,13 @@ def submit_transaction(transaction, count=None, tries=10, error_func=None):
     try:
         transaction_ = transaction.autofill(ttl=60, counter=count)
         res = transaction_.sign().inject(_async=False)
-        block_hash = transaction_.shell.wait_next_block(max_iterations=10)
-        logger.debug(f"block baked: {block_hash}")
+        if hasattr(sys, '_called_from_test'):
+            bake()
+        else:
+            block_hash = transaction_.shell.wait_next_block(max_iterations=10)
+            logger.debug(f"block baked: {block_hash}")
         return res
     except RpcError as r:
-        '''
         err_message = ast.literal_eval(str(r)[1:-2])
         if 'id' in err_message and tries >= 0:
             tries = tries - 1
@@ -108,7 +127,6 @@ def submit_transaction(transaction, count=None, tries=10, error_func=None):
         logger.debug(f"the transaction couldn't be injected because of {err_message}")
         if error_func is not None:
             return error_func(err_message)
-        '''
         raise
 
 

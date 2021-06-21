@@ -67,6 +67,7 @@ class Market:
             token_contract = self.config['stablecoin']
         if market_id is None:
             market_id = random.randint(10, 2 ** 63)
+        logger.error(auction_end_date)
         # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
         if type(token_contract) is str:
             currency = {'fa12': token_contract}

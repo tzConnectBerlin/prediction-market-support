@@ -13,6 +13,7 @@ import requests.exceptions
 from testcontainers.core.generic import DockerContainer
 from loguru import logger
 from pytezos import pytezos
+from pytezos import Undefined
 from unittest.mock import patch, MagicMock
 
 from src.accounts import Accounts
@@ -24,7 +25,6 @@ from src.stablecoin import Stablecoin
 from src.utils import *
 
 
-# import ujson
 market_pool = []
 reserved = []
 
@@ -195,38 +195,6 @@ def market(config, accounts_instance):
     new_market = Market(accounts_instance, config)
     return new_market
 
-
-@pytest.fixture(scope="session", autouse=True)
-def financed_accounts(client, config: Config, stablecoin_id: str):
-    money_seeding = []
-    for i in range(len(test_accounts)):
-        account = test_accounts[i]
-        if True:
-            money_seed = client.transaction(
-                account['key'], amount=Decimal(10)
-            )
-            account['status'] += ',tezzed'
-            money_seeding.append(money_seed)
-
-    bulk_transactions = config["admin_account"].bulk(*money_seeding)
-    submit_transaction(bulk_transactions, error_func=raise_error)
-    return test_accounts
-
-
-@pytest.fixture(scope="session", autouse=True)
-def revealed_accounts(financed_accounts, config, accounts_instance):
-    accounts_obj = accounts_instance
-    for i in range(len(test_accounts)):
-        account = test_accounts[i]
-        accounts_obj.activate_account(account['name'])
-        try:
-            accounts_obj.reveal_account(account['name'])
-            account["status"] += ",revealed"
-        except:
-            continue
-    return test_accounts
-
-
 '''
 @pytest.fixture(scope="session", autouse="True")
 def gen_markets(revealed_accounts, config, market, stablecoin_id, accounts_instance):
@@ -394,13 +362,6 @@ def pytest_configure():
     file after command line options have been parsed.
     """
     sys._called_from_test = True
-    #container = DockerContainer(
-    #    'bakingbad/sandboxed-node:v9.0-rc1-1',
-    #)
-    #container.ports[8732] = 20000
-    #container.with_name('flextesa-sandbox')
-    #sys._container = container
-    #sys._container.start()
     #launch_sandbox()
     #sleep(20)
 
@@ -410,7 +371,6 @@ def pytest_sessionstart(session):
     Called after the Session object has been created and
     before performing collection and entering the run test loop.
     """
-    #launch_sandbox()
 
 
 def pytest_sessionfinish(session, exitstatus):

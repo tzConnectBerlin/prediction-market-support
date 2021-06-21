@@ -258,7 +258,7 @@ def test_auction_bet_non_existent_market_id(market):
 
 def test_auction_bet_market_already_cleared(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -291,7 +291,7 @@ Clear market
 
 def test_clear_market_in_auction_phase(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -323,7 +323,7 @@ def test_clear_market_in_auction_phase(market, stablecoin_id):
 @pytest.mark.parametrize("quantity,rate", [[1, 100], [1, 2]])
 def test_clear_market_insufficient_liquidity_from_bets(market, quantity, rate, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -344,7 +344,7 @@ def test_clear_market_insufficient_liquidity_from_bets(market, quantity, rate, s
 
 def test_clear_market_on_cleared(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -378,7 +378,7 @@ Auction withdraw
 
 def test_withdraw_auction_cleared(market, stablecoin_id):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         "when",
         "tomorrow",
@@ -405,7 +405,7 @@ def test_withdraw_auction_cleared(market, stablecoin_id):
 
 def test_withdraw_auction_bidded(market, stablecoin_id):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -427,7 +427,7 @@ def test_withdraw_auction_bidded(market, stablecoin_id):
 
 def test_withdraw_auction_resolved(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -458,7 +458,7 @@ def test_withdraw_auction_resolved(market):
 def test_withdraw_without_participating_in_the_market(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
     attacker = {"name": "marty", "key": "tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -491,7 +491,7 @@ Mint token
 import time
 def test_mint_token_on_cleared(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -525,7 +525,7 @@ def test_mint_token_on_cleared(market):
 
 def test_mint_token_in_auction_phase(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -549,7 +549,7 @@ def test_mint_token_in_auction_phase(market):
 
 def test_mint_resolved_market(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -585,7 +585,7 @@ def test_mint_inexistent_market(market):
 def test_mint_insufficient_currency_balance(market, stablecoin):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
     attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -617,7 +617,7 @@ Burn token
 
 def test_burn_token_on_cleared(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -660,7 +660,7 @@ def test_burn_token_on_cleared(market):
 
 def test_burn_token_in_auction_phase(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -683,7 +683,7 @@ def test_burn_token_in_auction_phase(market):
 
 def test_burn_resolved_market(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -719,7 +719,7 @@ def test_burn_inexistent_market(market):
 def test_burn_insufficient_currency_balance(market):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
     attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -759,7 +759,7 @@ def test_swap_token_token_on_cleared(market, token_type, stablecoin_id):
     quantity = 200
     min_buy = 5
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -798,7 +798,7 @@ def test_swap_token_token_in_auction_phase(market, stablecoin_id):
     quantity = 200
     min_buy = 5
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -821,7 +821,7 @@ def test_swap_token_resolved_market(market, stablecoin_id):
     quantity = 200
     min_buy = 5
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -858,7 +858,7 @@ def test_swap_token_inexistent_market(market):
 def test_swap_tokens_insufficient_currency_balance(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     attacker = {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -885,7 +885,7 @@ Add liquidity
 
 def test_add_liquidity_on_cleared(market, stablecoin_id):
     quantity = 100
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     market_id, transaction = market.ask_question(
         id_generator(),
@@ -923,7 +923,7 @@ def test_add_liquidity_on_cleared(market, stablecoin_id):
 
 def test_add_liquidity_in_auction_phase(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     quantity = 100
     market_id, transaction = market.ask_question(
         id_generator(),
@@ -944,7 +944,7 @@ def test_add_liquidity_in_auction_phase(market, stablecoin_id):
 
 def test_add_liquidity_non_withdraw(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     quantity = 100
     market_id, transaction = market.ask_question(
         id_generator(),
@@ -968,7 +968,7 @@ def test_add_liquidity_non_withdraw(market, stablecoin_id):
 
 def test_add_liquidity_resolved_market(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -1006,7 +1006,7 @@ def test_add_liquidity_inexistent_market(market):
 
 def test_add_liquidity_insufficient_currency_balance(market, stablecoin_id):
     quantity = 100
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     attacker = {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"}
     market_id, transaction = market.ask_question(
@@ -1035,7 +1035,7 @@ Remove liquidity
 
 def test_remove_liquidity_on_cleared(market, stablecoin_id):
     quantity = 100
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     market_id, transaction = market.ask_question(
         id_generator(),
@@ -1077,7 +1077,7 @@ def test_remove_liquidity_on_cleared(market, stablecoin_id):
 
 def test_remove_liquidity_in_auction_phase(market, stablecoin_id):
     quantity = 100
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     market_id, transaction = market.ask_question(
         id_generator(),
@@ -1097,7 +1097,7 @@ def test_remove_liquidity_in_auction_phase(market, stablecoin_id):
 
 def test_remove_liquidity_resolved_market(market, stablecoin_id):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     market_id, transaction = market.ask_question(
         id_generator(),
         id_generator(),
@@ -1135,7 +1135,7 @@ def test_remove_liquidity_inexistent_market(market):
 
 def test_remove_liquidity_insufficient_currency_balance(market, stablecoin_id):
     quantity = 100
-    end = datetime.now() + timedelta(minutes=0.02)
+    end = datetime.now() + timedelta(seconds=0.01)
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
     attacker = {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"}
     market_id, transaction = market.ask_question(
@@ -1168,7 +1168,7 @@ Resolve Market
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_cleared_phase(market, token_type):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -1195,7 +1195,7 @@ def test_resolve_market_in_cleared_phase(market, token_type):
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_in_auction_phase(market, token_type):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -1227,7 +1227,7 @@ def test_resolve_market_in_auction_phase(market, token_type):
 @pytest.mark.parametrize('token_type', [True, False])
 def test_resolve_market_already_resolved(market, token_type):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -1257,7 +1257,7 @@ def test_resolve_market_already_resolved(market, token_type):
 def test_resolve_market_unauthorized_account(market, token_type):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
     attacker = {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -1294,7 +1294,7 @@ Claim winnings
 @pytest.mark.parametrize('token_type', [True, False])
 def test_claim_winning_lqt_provider(market, token_type):
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",
@@ -1324,7 +1324,7 @@ def test_claim_winning_lqt_provider(market, token_type):
     )
 
     account = {"name": "donald", "key": "tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2", "status": "created"}
-    end = datetime.now() + timedelta(minutes=0.002)
+    end = datetime.now() + timedelta(seconds=0.01)
 
     market_id, transaction = market.ask_question(
         "when",

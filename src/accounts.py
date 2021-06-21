@@ -117,3 +117,13 @@ class Accounts:
         Return account for account
         """
         return self.accounts[account_name]
+
+    def get_key(self, account_name: str):
+        """
+        Return key for account
+        """
+        key_string = account_name + ','
+        key_string += self.accounts[account_name].key.public_key() + ','
+        key_string += self.accounts[account_name].key.public_key_hash() + ','
+        key_string += 'unencrypted:' + self.accounts[account_name].key.secret_key()
+        return key_string

@@ -53,7 +53,7 @@ binary_contract = {
 
 helper_directory = contract_path + 'm4_helpers'
 
-shell = 'http://localhost:20000'
+shell = 'http://localhost:20001'
 
 
 def wait_next_block(block_time, client):
@@ -174,7 +174,7 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path, sto
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = os.path.abspath('.')
-    logger.error(storage)
+    logger.error(key)
     market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=storage['storage'], shell=shell, get_contract=True)
     if market_id is None:
         raise Exception("deploiement failed")

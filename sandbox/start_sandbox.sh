@@ -5,7 +5,7 @@ docker_name="flextesa-sandbox"
 test_sandbox="test-sandbox"
 default_protocol="edobox"
 root_path=/tmp/mini-box
-flextesa_image="registry.gitlab.com/tezos/flextesa:51670095-run"
+flextesa_image="registry.gitlab.com/tezos/flextesa:20210601"
 #flextesa_image="bakingbad/sandboxed-node"
 port=20000
 
