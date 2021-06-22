@@ -14,6 +14,7 @@ from testcontainers.core.generic import DockerContainer
 from loguru import logger
 from pytezos import pytezos
 from pytezos import Undefined
+from pytezos.michelson.forge  import optimize_timestamp
 from unittest.mock import patch, MagicMock
 
 from src.accounts import Accounts
@@ -66,13 +67,16 @@ test_accounts = [
     {"name": "robert", "key": "tz1ghjxBNM1ic25Lzq33Eq7z5RiXTQhiaPDT", "status": "created"},
     {"name": "tasos", "key": "tz1XdPirP3FxZDNGZMhw7Nk2hDAfSiCVGWF9", "status": "created"},
     {"name": "sergio", "key": "tz1gK1rZy2Biut8hcJiyEufbtXQ9rkNvToub", "status": "created"},
-    {"name": "stavros", "key": "tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d", "status": "created"},
     {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
 ]
 
 funded_accounts = test_accounts[0:25]
 revealed_accounts = test_accounts[0:30]
 tezzed_accounts = test_accounts[0:30]
+
+header_timestamp = None
+
+clientInstance = None
 
 USDtzLeger = {
         'storage': {
@@ -113,7 +117,15 @@ def client(endpoint):
     ).using(
         key='edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn'
     )
+    clientInstance = client
     return client
+
+
+@pytest.fixture(scope="function", autouse=True)
+def header_timestamp(client):
+    header_time = client.shell.blocks['head'].header.shell()['timestamp']
+    header_timestamp = optimize_timestamp(header_time)
+    return header_timestamp
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -186,7 +198,9 @@ def config(contract_id, stablecoin_id, endpoint):
 @pytest.fixture(scope="session", autouse=True)
 def accounts_instance(endpoint):
     accounts = Accounts(endpoint)
-    accounts.import_from_folder("tests/users")
+    users = ['siri', 'leonidas', 'rimk', 'donald', 'mala', 'stavros', 'marty']
+    for user in users:
+        accounts.import_from_file(f'tests/users/{user}.json', user)
     return accounts
 
 
@@ -194,6 +208,46 @@ def accounts_instance(endpoint):
 def market(config, accounts_instance):
     new_market = Market(accounts_instance, config)
     return new_market
+
+
+def get_market(caller):
+    end = datetime.now() + timedelta(seconds=random.uniform(0.15, 2.5))
+
+    market_id, transaction = market.ask_question(
+        id_generator(),
+        id_generator(),
+        caller['name'],
+        1000,
+        2 ** 63,
+        id_generator(),
+        auction_end_date=end.timestamp(),
+        token_contract=stablecoin_id
+    )
+    log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
+
+    return market_id
+
+
+def get_cleared_market(caller):
+    auction_end = clientInstance.shell.blocks['head'].header.shell()['timestamp']
+    end_timestamp = optimize_timestamp(auction_end)
+    market_id, transaction = market.ask_question(
+        "when",
+        "tomorrow",
+        caller["name"],
+        1000,
+        2 ** 63,
+        caller['key'],
+        auction_end_date=end_timestamp,
+        market_id=None,
+        token_contract=None
+    )
+    log_and_submit(transaction, caller, market, market_id, logging=True)
+
+    transaction = market.auction_clear(market_id, caller["name"])
+    log_and_submit(transaction, caller, market, market_id, logging=True)
+
+    return market_id
 
 '''
 @pytest.fixture(scope="session", autouse="True")
@@ -362,8 +416,8 @@ def pytest_configure():
     file after command line options have been parsed.
     """
     sys._called_from_test = True
-    #launch_sandbox()
-    #sleep(20)
+    launch_sandbox()
+    sleep(5)
 
 
 def pytest_sessionstart(session):
@@ -384,6 +438,5 @@ def pytest_unconfigure(config):
     """
     Called before test process is exited.
     """
-    #sys._container.stop()
     del sys._called_from_test
-    #stop_sandbox()
+    stop_sandbox()

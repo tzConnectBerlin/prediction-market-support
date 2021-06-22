@@ -335,15 +335,15 @@ class Market:
     def get_storage(
             self,
             market_id: int,
-            user: str = "",
+            users: list[str] = None,
             debug: bool = True
     ):
         logger.debug(f'Querrying storage for market: {market_id}')
         tokens = get_tokens_id_list(market_id)
         market_map = self.get_market_map_storage(market_id)
-        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, debug=debug)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, debug=debug, users=users)
         supply_map = self.get_supply_map_storage(tokens, debug=debug)
-        ledger_map = self.get_ledger_map_storage(tokens, debug=debug)
+        ledger_map = self.get_ledger_map_storage(tokens, debug=debug, users=users)
         return {
             'ledger_map': ledger_map,
             'liquidity_provider_map': liquidity_provider_map,
@@ -447,8 +447,3 @@ class Market:
             except:
                 supply_map[token['token_name']] = 0
         return supply_map
-
-#   logger.info(
-#       f'User {user} with key {get_public_key(self.accounts[user])} \
-#       betted {quantity} at the fixed probability if {probability}'
-#   )

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-default_protocol=Edo
+default_protocol=Florence
 
 all_commands="
 * usage | help | --help | -h: Display this help message."
@@ -28,7 +28,7 @@ export leonidas="leonidas,edpkubySH5X7nj2snpWe51joWyrEtEzVgBxJ4mFxvrDMqQqotm1yNC
 export rimk="rimk,edpkuz9PdqkfWPTxxC1uhTnWtkDsb2hWWKhfj54v3yiPAdhHo6He3E,tz1PMqV7qGgWMNH2HR9inWjSvf3NwtHg7Xg4,unencrypted:edsk3aE3Faxgb2mvjHGSHDW4U9TwrGnuRuamJBCcr1wbqMjR2QtXCV"
 export donald="donald,edpktqDLAmhcUAbztjBP7v8fyj5NGWU1G47kZrpvBY19TMLgjFRovR,tz1VWU45MQ7nxu5PGgWxgDePemev6bUDNGZ2,unencrypted:edsk2sRikkzrGKnRC28UhvJsKAM19vuv4LtCRViyjkm2jMyAxiCMuG"
 export mala="mala,edpkv9FcnmEx1LET4F9hhKdijvZcj4YynekNQrhbugqAyuqyyzTJFR,tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3,unencrypted:edsk4FxpsXkEmFG7fKygaWYJ4hb65vuH55ehM2856xAvipztVWuxJM"
-export stavros="stavros,edpktsMd27YJSpzMWPP93o5naTYsp2uSNT7yJZifLHzgJiSMufUtv3,tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d,unencrypted:edsk36su9hdbfCCpJnDdCsQVs4JSbf7DcmPbeRBhpZznzEcX5gPRpP"
+export stavros="stavros,edpkvRf4cKZ3hJJRrProttxwQW2LhHRn3T49pa2MrvSmCiKxc2VQkY,tz1iPFr4obPeSzknBPud8uWXZC7j5gKoah8d,unencrypted:edsk36su9hdbfCCpJnDdCsQVs4JSbf7DcmPbeRBhpZznzEcX5gPRpP"
 export marty="marty,edpkuvwKYxfbAN5DLXvHxE3XwWmanfhLQpx3LdH1oF9oB549iS8sCv,tz1Q3eT3kwr1hfvK49HK8YqPadNXzxdxnE7u,unencrypted:edsk4MmZRWF3uzMLh28g4ocxHsJPzLNrKeGTwM5uX3sFDn63GMPiog"
 
 all_commands="$all_commands
@@ -50,7 +50,10 @@ start () {
                 --add-bootstrap-account="$mala@2_000_000_000_000" \
                 --add-bootstrap-account="$donald@2_000_000_000_000" \
                 --add-bootstrap-account="$stavros@2_000_000_000_000" \
+                --add-bootstrap-account="$marty@2_000_000_000_000" \
                 --until-level 200_000_000 \
+                --timestamp-delay=-3600 \
+                --with-timestamp \
                 --no-baking \
                 --protocol-kind "$default_protocol"
         }
