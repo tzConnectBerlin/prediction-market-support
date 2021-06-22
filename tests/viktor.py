@@ -1,7 +1,10 @@
 from tests.conftest import market
 from pytezos import pytezos
 from src.config import Config
+from src.accounts import Accounts
+from src.market import Market
 from src.utils import get_public_key, get_stablecoin, get_tokens_id_list, print_error, submit_transaction
+
 
 def start(config_file, contract_id, stablecoin_id):
     config = Config(
@@ -9,8 +12,10 @@ def start(config_file, contract_id, stablecoin_id):
         contract=contract_id
     )
     # tokens = get_tokens_id_list(market_id)
-    config = config
     account = config.get_admin_account()
+    accounts = Accounts(config['endpoint'])
+    accounts.import_from_folder('tests/users')
+    market = Market(accounts, config)
     contract = account.contract(contract_id)
     stablecoin = account.contract(stablecoin_id)
     buis_storage = contract.storage["business_storage"]
@@ -21,8 +26,10 @@ def start(config_file, contract_id, stablecoin_id):
     
     return {
             "config": config,
+            "market": market,
             "contract": contract,
             "client": account,
+            "market": market,
             "stablecoin": stablecoin,
             "business_storage": buis_storage,
             "markets": markets,

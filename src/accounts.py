@@ -9,6 +9,8 @@ from pytezos import pytezos, Key
 from src.utils import submit_transaction, get_tezos_client_path
 
 
+
+
 class Accounts:
     """
     User Class for Handling tezos accounts
@@ -16,6 +18,7 @@ class Accounts:
 
     def __init__(self, endpoint):
         self.accounts = {}
+        self._clients = {}
         self.endpoint = endpoint
 
     def __getitem__(self, account_name: str):
@@ -40,8 +43,9 @@ class Accounts:
 
     def import_from_file(self, account_data: str, account_name: str):
         account = pytezos.using(
-            key=account_data,
-            shell=self.endpoint,
+            shell=self.endpoint
+        ).using(
+            key=account_data
         )
         self.accounts[account_name] = account
 
@@ -73,6 +77,8 @@ class Accounts:
         subprocess.run(
             [
                 'tezos-client',
+                '-d',
+                '.tezos-client',
                 '-E',
                 host,
                 'import',
@@ -93,6 +99,8 @@ class Accounts:
         if self.accounts[account_name].balance() == 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
+        else:
+            print('the activation is not valid, the account does not have any tez')
 
     def reveal_account(self, account_name: str):
         """
@@ -109,3 +117,13 @@ class Accounts:
         Return account for account
         """
         return self.accounts[account_name]
+
+    def get_key(self, account_name: str):
+        """
+        Return key for account
+        """
+        key_string = account_name + ','
+        key_string += self.accounts[account_name].key.public_key() + ','
+        key_string += self.accounts[account_name].key.public_key_hash() + ','
+        key_string += 'unencrypted:' + self.accounts[account_name].key.secret_key()
+        return key_string

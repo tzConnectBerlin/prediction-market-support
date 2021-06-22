@@ -28,13 +28,19 @@ class Market:
         self.accounts = accounts
         self.config = config
         self.contract = self.config['contract']
-        self.adminClient = self.config['admin_account'].contract(self.contract)
+        self._clients = {}
+        try:
+            self.adminClient = self.config['admin_account'].contract(self.contract)
+        except:
+            self.adminClient = None
 
     def pm_contracts(
             self,
             user: str
     ):
-        return self.accounts[user].contract(self.contract)
+        if user not in self._clients:
+            self._clients[user] = self.accounts[user].contract(self.contract)
+        return self._clients[user]
 
     def ask_question(
             self,
@@ -44,7 +50,7 @@ class Market:
             quantity: int,
             rate: int,
             ipfs_hash: str,
-            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)),
+            auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)).timestamp(),
             market_id: int = None,
             token_contract: str = None
     ):
@@ -61,6 +67,7 @@ class Market:
             token_contract = self.config['stablecoin']
         if market_id is None:
             market_id = random.randint(10, 2 ** 63)
+        logger.error(auction_end_date)
         # Fully featured api / Created default for ipfs and timestamp but make sure it is starting point
         if type(token_contract) is str:
             currency = {'fa12': token_contract}
@@ -149,7 +156,7 @@ class Market:
         """
         data = {
             'direction': direction,
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -160,8 +167,8 @@ class Market:
     def multiple_bids(
             self,
             market_id: int,
-            quantity: int = 5,
-            rate: int = 10
+            quantity: int = random.randint(1, 900),
+            rate: int = random.randint(1, 2 ** 63)
     ):
         """
         Launch multiples bid on a auction for all of the user contained in the accounts Class
@@ -218,7 +225,7 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payIn',
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -241,7 +248,7 @@ class Market:
         """
         operation = self.pm_contracts(user).marketEnterExit({
             'direction': 'payOut',
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
             }
@@ -270,7 +277,9 @@ class Market:
             market_id: int,
             user: str,
             direction: str,
-            amount: int
+            amount: int,
+            slippage_control_yes: int,
+            slippage_control_no: int,
     ):
         """
         Update the liquidity for the market
@@ -282,10 +291,16 @@ class Market:
         amount: The amount of liquidity tokens to receive or burn
         """
         operation = self.pm_contracts(user).swapLiquidity({
-            'direction': direction,
+            'slippage_control': {
+                'token_a': slippage_control_yes,
+                'token_b': slippage_control_no
+            },
             'params': {
-                'market_id': market_id,
-                'amount': amount
+                'direction': direction,
+                'trade': {
+                    'market_id': market_id,
+                    'amount': amount
+                }
             }
         })
         return operation.as_transaction()
@@ -295,7 +310,8 @@ class Market:
             market_id: int,
             user: str,
             token_to_sell: str,
-            amount: int
+            amount: int,
+            min_amount_of_bought_token_accepted: int
     ):
         """
         Swap one outcome token through the liquidity pool for its opposing pair
@@ -304,33 +320,35 @@ class Market:
         market_id: id of the concerned market
         token_to_sell: the type of token to sell (yes or no)
         amount: the amount to token to sell
+        min_amount_of_bought_token_accepted: minimum amount that a user agrees to buy of a token
         """
         operation = self.pm_contracts(user).swapTokens({
             'token_to_sell': token_to_sell,
-            'params': {
+            'trade': {
                 'market_id': market_id,
                 'amount': amount
-            }
+            },
+            'slippage_control': min_amount_of_bought_token_accepted
         })
         return operation.as_transaction()
 
     def get_storage(
             self,
             market_id: int,
-            user: str,
+            users: list[str] = None,
+            debug: bool = True
     ):
-        time.sleep(3)
-        tokens = get_tokens_id_list(market_id)
         logger.debug(f'Querrying storage for market: {market_id}')
+        tokens = get_tokens_id_list(market_id)
         market_map = self.get_market_map_storage(market_id)
-        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, user)
-        supply_map = self.get_supply_map_storage(user, tokens)
-        ledger_map = self.get_ledger_map_storage(user, tokens)
+        liquidity_provider_map = self.get_liquidity_provider_map_storage(market_id, debug=debug, users=users)
+        supply_map = self.get_supply_map_storage(tokens, debug=debug)
+        ledger_map = self.get_ledger_map_storage(tokens, debug=debug, users=users)
         return {
-            'market_map': market_map,
+            'ledger_map': ledger_map,
             'liquidity_provider_map': liquidity_provider_map,
+            'market_map': market_map,
             'supply_map': supply_map,
-            'ledger_map': ledger_map
         }
 
     def is_cleared(self, market_id: int):
@@ -373,53 +391,59 @@ class Market:
             return None
         return market_map
 
-    def get_liquidity_provider_map_storage(self, market_id: int, user: str):
-        try:
-            map_key = {
-                'originator': get_public_key(self.accounts[user]),
-                'market_id': market_id
-            }
-            liquidity_provider_map = self.pm_contracts(
-                user
-            ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
-            return liquidity_provider_map
-        except:
-            logger.debug(
-                f"can't get liquidity_provider_map for market_id = {market_id} and user = {user}"
-            )
-            return None
-
-    def get_ledger_map_storage(self, user: str, tokens: list):
-        ledger_map = {}
-        user_address = get_public_key(self.accounts[user])
-        for token in tokens:
-            map_key = {'owner': user_address, 'token_id': token['token_value']}
-            entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+    def get_liquidity_provider_map_storage(self, market_id: int, users: list = None, debug=True):
+        liquidity_provider_map = {}
+        if users is None:
+            users = self.accounts.names()
+        for user in users:
             try:
-                ledger_map[token['token_name']] = entry[map_key]()
+                map_key = {
+                    'originator': get_public_key(self.accounts[user]),
+                    'market_id': market_id
+                }
+                value = self.pm_contracts(
+                    user
+                ).storage['business_storage']['markets']['liquidity_provider_map'][map_key]()
+                if debug is True:
+                    liquidity_provider_map[user] = value
+                else:
+                    liquidity_provider_map[(map_key['originator'], map_key['market_id'])] = value
             except:
-                ledger_map[token['token_name']] = None
+                continue
+        return liquidity_provider_map
+
+    def get_ledger_map_storage(self, tokens: list, users: list = None, debug=True):
+        ledger_map = {}
+        if users is None:
+            users = self.accounts.names()
+        for user in users:
+            user_address = get_public_key(self.accounts[user])
+            token_map = {}
+            count = 0
+            for token in tokens:
+                map_key = {'owner': user_address, 'token_id': token['token_value']}
+                entry = self.pm_contracts(user).storage['business_storage']['tokens']['ledger_map']
+                try:
+                    value = entry[map_key]()
+                    if debug is True:
+                        token_map[token['token_name']] = value
+                    else:
+                        ledger_map[(map_key['owner'], map_key['token_id'])] = value
+                    count += 1
+                except:
+                    token_map[token['token_name']] = 0
+            if debug is True and count > 0:
+                ledger_map[user] = token_map
         return ledger_map
 
-    def get_supply_map_storage(self, user: str, tokens: list):
+    def get_supply_map_storage(self, tokens: list, debug=True):
         supply_map = {}
+        entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
         for token in tokens:
-            entry = self.pm_contracts(user).storage['business_storage']['tokens']['supply_map']
             try:
-                supply_map[token['token_name']] = entry[token['token_value']]()
+                key = token['token_name'] if debug is True else token['token_value']
+                value = entry[token['token_value']]()
+                supply_map[key] = entry[token['token_value']]()
             except:
-                supply_map[token['token_name']] = None
-        if supply_map == {}:
-            return None
+                supply_map[token['token_name']] = 0
         return supply_map
-
-    def get_all_bets_for_market(self, market_id: int):
-        for user in self.accounts.names():
-            liquidity = self.get_liquidity_provider_map_storage(market_id, user)
-            if liquidity is not None:
-                quantity = liquidity['bet']['quantity']
-                probability = liquidity['bet']['quantity']
-            logger.info(
-                f'User {user} with key {get_public_key(self.accounts[user])} \
-                betted {quantity} at the fixed probability if {probability}'
-            )

@@ -35,6 +35,7 @@ USDtzLeger = {
         }
 }
 
+
 binary_contract = {
     'path': contract_path + 'container/main.mligo.m4',
     'storage': {
@@ -45,13 +46,14 @@ binary_contract = {
             },
         'business_storage': {
             'tokens': {'ledger_map': {}, 'supply_map': {}},
-            'markets': {'market_map': {}, 'liquidity_provider_map': {}}}
+            'markets': {'market_map': {}, 'liquidity_provider_map': {}}
+        }
     }
 }
 
 helper_directory = contract_path + 'm4_helpers'
 
-shell = 'http://localhost:20000'
+shell = 'http://localhost:20001'
 
 
 def wait_next_block(block_time, client):
@@ -98,7 +100,7 @@ def get_contract_id(client, block_time, opg_hash, num_block_wait=10):
             return contract_id
 
 
-def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
+def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell, get_contract=False):
     """
     Compile and deploy a ligo contract
 
@@ -110,27 +112,31 @@ def deploy_from_file(file, key, wrkdir="", storage=None, shell=shell):
     """
     contract = compile_contract(file, wrkdir)
     logger.debug(contract)
+    logger.debug(storage)
     ci = ContractInterface.from_michelson(contract)
-    client = pytezos.using(shell=shell, key=key)
+    #Doing this in two time seems to create better results
+    client = pytezos.using(shell=shell).using(key=key)
+    logger.info(storage)
     operation = client.origination(script=ci.script(initial_storage=storage))
     res = submit_transaction(operation)
-    if res is not None and res["hash"]:
-        return get_contract_id(client, 2, res["hash"])
+    if res is not None and res["hash"] and get_contract is True:
+        return get_contract_id(client, 3, res["hash"])
 
 
-def deploy_stablecoin(key=admin['sk'], shell=shell, wrkdir=stablecoin_path):
+def deploy_stablecoin(key=admin['sk'], shell=shell, wrkdir=stablecoin_path, storage=USDtzLeger):
     wrkdir = os.path.abspath(wrkdir)
     file_path = os.path.abspath(USDtzLeger['path'])
-    stablecoin_id = deploy_from_file(file_path, key, wrkdir, USDtzLeger['storage'], shell)
+    stablecoin_id = deploy_from_file(file_path, key, wrkdir, storage['storage'], shell, get_contract=True)
+    logger.info(storage)
     if stablecoin_id is None:
         raise Exception("deploiement failed")
     logger.debug(f"stablecoin was deployed at {stablecoin_id}")
     return stablecoin_id
 
 
-def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts', shell=shell):
+def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contracts', shell=shell, key=admin['sk']):
     transactions = []
-    client = pytezos.using(shell=shell, key=admin['sk'])
+    client = pytezos.using(shell=shell).using(key=key)
     contract = client.contract(contract_id)
     for file in os.listdir(path):
         macro_filepath = f'{path}/{file}'
@@ -139,18 +145,17 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
         file_name = os.path.splitext(file)[0]
         filepath = f"{compiled_path}/{file_name}"
         write_to_file(content, filepath)
-        #logger.debug(f"{filepath} was generated")
+        logger.info(f"{filepath} was generated")
         content = compile_expression(filepath)
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
-        sleep(2)
         logger.info(f"{filepath} lambda is deployed")
     operation = contract.sealContract()
     submit_transaction(operation.as_transaction())
 
 
-def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
+def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path, storage=binary_contract):
     """
     Deploy the complete market on the specified shell
 
@@ -169,9 +174,12 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
     wrkdir = os.path.abspath('.')
-    market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=binary_contract['storage'], shell=shell)
+    logger.error(key)
+    market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=storage['storage'], shell=shell, get_contract=True)
+    if market_id is None:
+        raise Exception("deploiement failed")
     lazy_contracts_path = contract_path + '/lazy/lazy_lambdas'
-    deploy_lambdas(lazy_contracts_path, market_id, compiled_path=path, shell=shell)
+    deploy_lambdas(lazy_contracts_path, market_id, compiled_path=path, shell=shell, key=key)
     logger.debug(f"Binary market was deployed at {market_id}")
     print(f"Binary market was deployed at {market_id}")
     return market_id

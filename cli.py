@@ -39,20 +39,20 @@ def check_account_loaded(account):
 
 @app.command()
 def manage_accounts(
+        users: List[str],
         activate: bool = typer.Option(False, "--activate", "-a"),
         reveal: bool = typer.Option(False, "--reveal", "-r"),
         import_accounts: bool = typer.Option(False, "--import", "-i"),
+        fund: bool = typer.Option(False, "--fund", "-f")
 ):
     """
     Management of accounts in the user folder
     """
-    account_list = state["accounts"].names()
-    with typer.progressbar(account_list) as progress:
+    with typer.progressbar(users) as progress:
         for user in progress:
+            if user not in state["accounts"]:
+                print(f"user: {user} not found")
             if import_accounts:
-                if user is None:
-                    print('please add user')
-                    continue
                 state['accounts'].import_to_tezos_client(user)
             if activate:
                 state['accounts'].activate_account(user)
@@ -92,7 +92,6 @@ def ask_question(
     except:
         print("something is wrong with the chosen date format")
         exit()
-    print(auction_end_date)
     if ipfs_hash is None:
         ipfs = ipfshttpclient.connect(state['config']['ipfs_server'])
         ipfs_hash = ipfs.add_str(json.dumps(param))
@@ -287,16 +286,24 @@ def swap_liquidity(
         market_id: int,
         user: str,
         direction: str,
-        amount: int
+        amount: int,
+        slippage_control_yes: int = typer.Argument(None),
+        slippage_control_no: int = typer.Argument(None)
 ):
     """
     Update the liquidity for the market
     """
+    if slippage_control_no is None:
+        slippage_control_no = amount
+    if slippage_control_yes is None:
+        slippage_control_yes = amount
     transaction = state["market"].update_liquidity(
         market_id,
         user,
         direction,
-        amount
+        amount,
+        slippage_control_yes,
+        slippage_control_no
     )
     submit_transaction(transaction, error_func=print_error)
 
@@ -416,12 +423,12 @@ def fund_stablecoin(
 
     value: the amont of tezos funded
     """
-    if len(state["accounts"].names()) == 0:
+    users = state["accounts"].names()
+    if len(users) == 0:
         print("Please add some accounts before using this functionality")
-    user_list = state["accounts"].names()
-    print("Transferring stablecoin to accounts:", state["accounts"].names())
+    print("Transferring stablecoin to accounts:", users)
     transactions = []
-    with typer.progressbar(user_list) as progress:
+    with typer.progressbar(users) as progress:
         for user in progress:
             transaction = state["stablecoin"].fund(user, value)
             transactions.append(transaction)
@@ -464,17 +471,23 @@ def stablecoin_balance(
 @app.command()
 def import_accounts(
         users: List[str],
-        force: bool = typer.Option(None, "--force", "-f")
+        force: bool = typer.Option(None, "--force", "-f"),
+        activate: bool = typer.Option(False, "--activate", "-a"),
+        reveal: bool = typer.Option(False, "--reveal", "-r"),
+        import_accounts: bool = typer.Option(False, "--import", "-i"),
 ):
     for user in users:
         username = typer.prompt(f"Please associate a name for this account {user}")
         state['accounts'].import_from_file(user, username)
-        state['accounts'].import_to_tezos_client(username)
-        typer.echo(f"{username} was imported")
-        state["accounts"].activate_account(username)
-        typer.echo(f"{username} was activated")
-        state["accounts"].reveal_account(username)
-        typer.echo(f"{username} was revealed")
+        if import_accounts == True or force == True:
+            state['accounts'].import_to_tezos_client(username)
+            typer.echo(f"{username} was imported to tezos-client")
+        if activate == True or force == True:
+            state["accounts"].activate_account(username)
+            typer.echo(f"{username} was activated")
+        if reveal == True or force == True:
+            state["accounts"].reveal_account(username)
+            typer.echo(f"{username} was revealed")
 
 
 @app.callback()
@@ -501,8 +514,9 @@ def main(
         import_accounts(accounts_to_import, force)
     state['accounts'].import_from_tezos_client(accounts_to_ignore)
     state['market'] = Market(state['accounts'], state['config'])
-    #state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
+    state['stablecoin'] = Stablecoin(state['accounts'], state['config'])
     return state
+
 
 if __name__ == "__main__":
     app()

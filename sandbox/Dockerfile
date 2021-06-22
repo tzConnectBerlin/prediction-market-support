@@ -1,2 +1,5 @@
 FROM registry.gitlab.com/tezos/flextesa:master-run
-COPY flextesa.sh .
+RUN apk add tzdata
+RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+RUN echo "Europe/Berlin" > /etc/timezone
+COPY test_sandbox.sh .

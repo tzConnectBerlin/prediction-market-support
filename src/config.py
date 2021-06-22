@@ -2,6 +2,7 @@ import configparser
 
 from pytezos import pytezos
 
+from loguru import logger
 
 class Config:
     def __init__(
@@ -31,12 +32,19 @@ class Config:
         self.data['contract_path'] = config['Tezos']['contract_path']
         self.data['stablecoin_path'] = config['Tezos']['stablecoin_path']
         self.data['admin_priv_key'] = admin_account_key or config['Tezos']['privkey']
+        self.data['admin_account'] = None
 
     def get_admin_account(self):
-        try:
-            self.data['admin_account'] = pytezos.using(key=self.data['admin_priv_key'], shell=self['endpoint'])
-        except Exception as _e:
-            print(f"Something went wrong with instantiating the shell object on endpoint {self['endpoint']}")
+        if self.data['admin_account'] is None:
+            try:
+                logger.error("in")
+                self.data['admin_account'] = pytezos.using(
+                    shell=self['endpoint']
+                ).using(
+                    key=self.data['admin_priv_key']
+                )
+            except Exception as _e:
+                logger.error(f"Something went wrong with instantiating the shell object on endpoint {self['endpoint']}")
         return self.data['admin_account']
 
     def __getitem__(self, key):
