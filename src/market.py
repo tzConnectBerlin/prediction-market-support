@@ -438,8 +438,8 @@ class Market:
 
     def get_supply_map_storage(self, tokens: list, debug=True):
         supply_map = {}
+        entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
         for token in tokens:
-            entry = self.adminClient.storage['business_storage']['tokens']['supply_map']
             try:
                 key = token['token_name'] if debug is True else token['token_value']
                 value = entry[token['token_value']]()

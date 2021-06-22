@@ -223,7 +223,7 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     before_storage, after_storage = None, None
     if market is not None and logging is True:
         try:
-            before_storage = market.get_storage(market_id, [account['name']], debug=debug)
+            before_storage = market.get_storage(market_id, debug=debug)
             logger.debug(f"{before_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible before submit transaction: {e}")
@@ -231,7 +231,7 @@ def log_and_submit(transaction, account, market=None, market_id=None, error_func
     logger.debug(f"Result from TRANSACTION = {result}")
     if market is not None and logging is True:
         try:
-            after_storage = market.get_storage(market_id, [account['name']], debug=debug)
+            after_storage = market.get_storage(market_id, debug=debug)
             logger.debug(f"{after_storage}")
         except Exception as e:
             logger.debug(f"storage is not accessible after submit transaction: {e}")
