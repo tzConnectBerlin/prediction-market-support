@@ -12,4 +12,4 @@ port=20000
 #Instantation Dockerfile
 #docker run --rm --name $docker_name -e block_time=1 --detach -p $port:$port $flextesa_image flextesa key bob
 docker build -t $test_sandbox sandbox/
-docker run --rm --name $docker_name -e block_time=1 -d -p 20001:20000 alo sh test_sandbox.sh start
+docker run --rm --name $docker_name -e block_time=1 -d -p 20001:20000 $test_sandbox sh test_sandbox.sh start
