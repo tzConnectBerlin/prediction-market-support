@@ -919,9 +919,9 @@ def test_add_liquidity_on_cleared(market, stablecoin_id):
     before_ledger = before_storage["ledger_map"]
     after_ledger = after_storage["ledger_map"]
     name = caller['name']
-    assert before_ledger[name]['pool_liquidity'] + quantity == after_ledger[name]['pool_liquidity']
-    assert before_ledger[name]['yes_token'] != after_ledger[name]['yes_token']
-    assert before_ledger[name]['no_token'] != after_ledger[name]['no_token']
+    assert before_ledger[name]['pool_liquidity'] < after_ledger[name]['pool_liquidity']
+    assert before_ledger[name]['yes_token'] > after_ledger[name]['yes_token']
+    assert before_ledger[name]['no_token'] > after_ledger[name]['no_token']
 
 
 def test_add_liquidity_in_auction_phase(market, stablecoin_id):

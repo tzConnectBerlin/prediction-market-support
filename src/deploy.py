@@ -46,7 +46,14 @@ binary_contract = {
             },
         'business_storage': {
             'tokens': {'ledger_map': {}, 'supply_map': {}},
-            'markets': {'market_map': {}, 'liquidity_provider_map': {}}
+            'markets': {
+				'market_map': {},
+				'liquidity_provider_map': {},
+				'create_restrictions': {
+					'creator_address': None,
+					'currency': None
+				}
+			}
         }
     }
 }

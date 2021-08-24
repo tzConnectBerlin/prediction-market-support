@@ -70,9 +70,9 @@ test_accounts = [
     {"name": "leonidas", "key": "tz1ZrWi7V8tu3tVepAQVAEt8jgLz4VVEEf7m", "status": "created"}
 ]
 
-funded_accounts = test_accounts[0::25]
-revealed_accounts = test_accounts[0::30]
-tezzed_accounts = test_accounts[0::30]
+funded_accounts = test_accounts[0::5]
+revealed_accounts = test_accounts[0::7]
+tezzed_accounts = test_accounts[0::7]
 
 USDtzLeger = {
         'storage': {
@@ -237,7 +237,7 @@ def financed_accounts(client, config: Config, stablecoin_id: str):
     # accounts_to_finance = random.choices(test_accounts, k=30)
     count = 0
     for account in test_accounts:
-        if count < 30:
+        if count < 5:
             stablecoin = get_stablecoin(config['admin_account'], stablecoin_id)
             stablecoin_seed = stablecoin.transfer({
                 'from': get_public_key(config['admin_account']),

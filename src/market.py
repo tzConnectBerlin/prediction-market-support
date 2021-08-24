@@ -53,7 +53,7 @@ class Market:
             auction_end_date: datetime = (datetime.now() + timedelta(minutes=5)).timestamp(),
             market_id: int = None,
             token_contract: str = None,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Create a new prediction market
@@ -86,7 +86,7 @@ class Market:
             },
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
             'metadata': {
                 'ipfs_hash': ipfs_hash,
@@ -103,7 +103,7 @@ class Market:
             user: str,
             quantity: int = 5,
             rate: int = 10,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Launch a bid on an auction
@@ -116,7 +116,7 @@ class Market:
         data = {
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
             'bet': {
                 'quantity': quantity,
@@ -176,7 +176,7 @@ class Market:
             market_id: int,
             quantity: int = random.randint(1, 900),
             rate: int = random.randint(1, 2 ** 63),
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Launch multiples bid on a auction for all of the user contained in the accounts Class
@@ -184,11 +184,12 @@ class Market:
         ipfs_hash: Contract on which the bid are made
         """
         operations_list = []
-        for user in self.accounts.names():
+        for i in range(3):
+            user = self.accounts.names()[i]
             data = {
                 "operation_details" : {
                     'market_id': market_id,
-                    "execution_deadline": execution_deadline
+                    "execution_deadline": int(execution_deadline)
                 },
                 'bet': {
                     'quantity': quantity,
@@ -225,7 +226,7 @@ class Market:
             market_id: int,
             user: str,
             amount: int,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Mint the token
@@ -238,9 +239,9 @@ class Market:
         operation = self.pm_contracts(user).marketEnterExit({
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
-            'direction': 'Mint',
+            'direction': 'mint',
             'amount': amount
         }
         )
@@ -251,7 +252,7 @@ class Market:
             market_id: int,
             user: str,
             amount: int,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Burn the token
@@ -263,9 +264,9 @@ class Market:
         operation = self.pm_contracts(user).marketEnterExit({
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
-            'direction': 'Burn',
+            'direction': 'burn',
             'amount': amount
         }
         )
@@ -294,7 +295,7 @@ class Market:
             amount: int,
             minimum_yes: int,
             minimum_no: int,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Remove liquidity for the market
@@ -308,9 +309,9 @@ class Market:
         operation = self.pm_contracts(user).removeLiquidity({
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
-            'min_tokens': {
+            'min_token_amounts': {
                 'token_a': minimum_yes,
                 'token_b': minimum_no
             },
@@ -326,10 +327,10 @@ class Market:
             no: int,
             minimum_yes: int,
             minimum_no: int,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
-        Remove liquidity for the market
+        Add liquidity to the market
 
         user:
         direction: Union type of the following options add the liquidity
@@ -337,16 +338,16 @@ class Market:
         from the pool
         amount: The amount of liquidity tokens to receive or burn
         """
-        operation = self.pm_contracts(user).removeLiquidity({
+        operation = self.pm_contracts(user).addLiquidity({
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
-            'intended_tokens': {
+            'intended_token_amounts': {
                 'token_a': yes,
                 'token_b': no
             },
-            'min_tokens': {
+            'min_token_amounts': {
                 'token_a': minimum_yes,
                 'token_b': minimum_no
             }
@@ -360,7 +361,7 @@ class Market:
             token_to_sell: str,
             amount: int,
             min_amount_of_bought_token_accepted: int,
-            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=5)).timestamp()
+            execution_deadline: datetime =  (datetime.now() + timedelta(minutes=60)).timestamp()
     ):
         """
         Swap one outcome token through the liquidity pool for its opposing pair
@@ -374,7 +375,7 @@ class Market:
         operation = self.pm_contracts(user).swapTokens({
             "operation_details" : {
                 'market_id': market_id,
-                "execution_deadline": execution_deadline
+                "execution_deadline": int(execution_deadline)
             },
             'token_to_sell': token_to_sell,
             'fixed_input': amount,
