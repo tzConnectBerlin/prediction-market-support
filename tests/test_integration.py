@@ -907,7 +907,7 @@ def test_add_liquidity_on_cleared(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
     transaction = market.auction_withdraw(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payIn", quantity, quantity * 3, quantity * 3)
+    transaction = market.add_liquidity(market_id, caller['name'], yes = quantity, no = quantity, minimum_yes = quantity // 3, minimum_no = quantity // 3)
     before_storage, after_storage = log_and_submit(
         transaction,
         caller,
@@ -939,7 +939,7 @@ def test_add_liquidity_in_auction_phase(market, stablecoin_id):
         token_contract=stablecoin_id
     )
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payIn", quantity, quantity * 3, quantity * 3)
+    transaction = market.add_liquidity(market_id, caller['name'], yes = quantity, no = quantity, minimum_yes = quantity // 3, minimum_no = quantity // 3)
     with pytest.raises(RpcError, match=r'Market not bootstrapped'):
         log_and_submit(
             transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -962,7 +962,7 @@ def test_add_liquidity_non_withdraw(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_clear(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payIn", quantity, quantity * 3, quantity * 3)
+    transaction = market.add_liquidity(market_id, caller['name'], yes = quantity, no = quantity, minimum_yes = quantity // 3, minimum_no = quantity // 3)
     with pytest.raises(RpcError, match=r'Withdraw auction bet before further liquidity'):
         log_and_submit(
             transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -991,7 +991,7 @@ def test_add_liquidity_resolved_market(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_withdraw(market_id, caller["name"])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payIn", 300, 900, 900)
+    transaction = market.add_liquidity(market_id, caller['name'], yes = 900, no = 900, minimum_yes = 300, minimum_no = 300)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
             transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -1000,7 +1000,7 @@ def test_add_liquidity_resolved_market(market, stablecoin_id):
 
 def test_add_liquidity_inexistent_market(market):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    transaction = market.update_liquidity(1, caller['name'], "payIn", 300, 100, 100)
+    transaction = market.add_liquidity(1, caller['name'], yes = 200, no = 200, minimum_yes = 100, minimum_no = 100)
     with pytest.raises(RpcError, match=r'No such market'):
         log_and_submit(
             transaction, caller, 1, error_func=raise_error, logging=LOGGING_RAISE
@@ -1025,7 +1025,7 @@ def test_add_liquidity_insufficient_currency_balance(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_clear(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
-    transaction = market.update_liquidity(market_id, attacker['name'], "payIn", 300, 900, 900)
+    transaction = market.add_liquidity(market_id, attacker['name'], yes = 900, no = 900, minimum_yes = 300, minimum_no = 300)
     with pytest.raises(RpcError, match=r'Not enough balance in source account'):
         log_and_submit(
             transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -1057,9 +1057,9 @@ def test_remove_liquidity_on_cleared(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
     transaction = market.auction_withdraw(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payIn",  quantity, 3 * quantity, 3 * quantity)
+    transaction = market.add_liquidity(market_id, caller['name'], yes = quantity, no = quantity, minimum_yes = quantity // 3, minimum_no = quantity // 3)
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payOut", 2 * quantity, quantity, quantity)
+    transaction = market.remove_liquidity(market_id, caller['name'], 2 * quantity, quantity, quantity)
     before_storage, after_storage = log_and_submit(
         transaction,
         caller,
@@ -1093,7 +1093,7 @@ def test_remove_liquidity_in_auction_phase(market, stablecoin_id):
         token_contract=stablecoin_id
     )
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payOut", 100, 100, 100)
+    transaction = market.remove_liquidity(market_id, caller['name'], 100, 100, 100)
     with pytest.raises(RpcError, match=r'Market not bootstrapped'):
         log_and_submit(transaction, caller, market, market_id, error_func=raise_error)
 
@@ -1120,7 +1120,7 @@ def test_remove_liquidity_resolved_market(market, stablecoin_id):
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
     transaction = market.auction_withdraw(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, caller['name'], "payOut", 100, 100, 100)
+    transaction = market.remove_liquidity(market_id, caller['name'], 100, 100, 100)
     with pytest.raises(RpcError, match=r'Market has already been resolved'):
         log_and_submit(
             transaction, caller, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
@@ -1129,7 +1129,7 @@ def test_remove_liquidity_resolved_market(market, stablecoin_id):
 
 def test_remove_liquidity_inexistent_market(market):
     caller = {"name": "mala", "key": "tz1azKk3gBJRjW11JAh8J1CBP1tF2NUu5yJ3", "status": "created"}
-    transaction = market.update_liquidity(1, caller['name'], "payOut", 100, 100, 100)
+    transaction = market.remove_liquidity(1, caller['name'], 100, 100, 100)
     with pytest.raises(RpcError, match=r'No such market'):
         log_and_submit(
             transaction, caller, market, 1, error_func=raise_error, logging=LOGGING_RAISE
@@ -1156,7 +1156,7 @@ def test_remove_liquidity_insufficient_currency_balance(market, stablecoin_id):
     log_and_submit(transaction, attacker, market, market_id, error_func=raise_error)
     transaction = market.auction_withdraw(market_id, caller['name'])
     log_and_submit(transaction, caller, market, market_id, error_func=raise_error, logging=False)
-    transaction = market.update_liquidity(market_id, attacker['name'], "payOut", 100, 100, 100)
+    transaction = market.remove_liquidity(market_id, attacker['name'], 100, 100, 100)
     with pytest.raises(RpcError, match=r'Not enough balance in source account'):
         log_and_submit(
             transaction, attacker, market, market_id, error_func=raise_error, logging=LOGGING_RAISE
