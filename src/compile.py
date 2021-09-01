@@ -40,7 +40,6 @@ def compile_contract(file, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-contract {file} main"
     result = run_command(compile_command)
-    logger.debug(result)
     return result
 
 
@@ -54,7 +53,6 @@ def compile_storage(file, storage, wrkdir=""):
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-storage {file} main '{storage}'"
     result = run_command(compile_command)
-    logger.debug(result)
     return result
 
 
@@ -65,9 +63,7 @@ def compile_expression(file, wrkdir=""):
     :param file: path to the file to compile
     """
     compile_command = f"{ligo_cmd(wrkdir)} compile-expression --init-file={file} cameligo f"
-    logger.debug(compile_command)
     result = run_command(compile_command)
-    logger.debug(result)
     return result
 
 
@@ -82,7 +78,6 @@ def preprocess_file(file, helper_directory, wrkdir=""):
         wrkdir = os.path.split(file)[0]
     compile_command = f'm4 -P -I {helper_directory} -D "M4_WORKING_DIR={wrkdir}" {file}'
     result = run_command(compile_command)
-    logger.debug(result)
     return result
 
 
@@ -106,7 +101,6 @@ def launch_sandbox():
     """
     command = "sh sandbox/start_sandbox.sh"
     result = run_command(command)
-    logger.debug(result)
     return result
 
 
@@ -118,5 +112,4 @@ def stop_sandbox():
     """
     command = "sh sandbox/stop_sandbox.sh"
     result = run_command(command)
-    logger.debug(result)
     return result

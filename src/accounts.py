@@ -3,9 +3,12 @@ import os
 import subprocess
 
 import glob
+from loguru import logger
 from pytezos import pytezos, Key
 
 from src.utils import submit_transaction, get_tezos_client_path
+
+
 
 
 class Accounts:
@@ -44,7 +47,7 @@ class Accounts:
         )
         self.accounts[account_name] = account
 
-    def import_from_tezos_client(self, ignored_accounts=[], client_path='~/.tezos-client'):
+    def import_from_tezos_client(self, ignored_accounts=[], client_path='.tezos-client'):
         """
         Import account from tezos client
         """
@@ -52,7 +55,8 @@ class Accounts:
         with open(path, 'r') as f:
             try:
                 data = json.loads(f.read())
-            except:
+            except Exception as e:
+                logger.info(e)
                 raise Exception('there is something wrong with the key file')
         for x in data:
             if x['name'] not in ignored_accounts:
@@ -71,6 +75,8 @@ class Accounts:
         subprocess.run(
             [
                 'tezos-client',
+                '-d',
+                '.tezos-client',
                 '-E',
                 host,
                 'import',
@@ -88,16 +94,21 @@ class Accounts:
         """
         Activate account
         """
-        if self.accounts[account_name].balance() == 0:
+        if self.accounts[account_name].balance() != 0:
             operation = self.accounts[account_name].activate_account()
             submit_transaction(operation)
+        else:
+            print('the activation is not valid, the account does not have any tez')
 
     def reveal_account(self, account_name: str):
         """
         Reveal account
         """
         operation = self.accounts[account_name].reveal()
-        submit_transaction(operation)
+        try:
+            submit_transaction(operation)
+        except:
+            return
 
     def get_account(self, account_name: str):
         """

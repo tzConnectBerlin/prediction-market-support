@@ -139,13 +139,13 @@ def deploy_lambdas(path: str, contract_id: str, compiled_path='compiled_contract
         file_name = os.path.splitext(file)[0]
         filepath = f"{compiled_path}/{file_name}"
         write_to_file(content, filepath)
-        logger.debug(f"{filepath} was generated")
+        #logger.debug(f"{filepath} was generated")
         content = compile_expression(filepath)
         file_name = os.path.splitext(file_name)[0]
         operation = contract.installLambda({'name': file_name, 'code': content})
         res = submit_transaction(operation.as_transaction(), error_func=print_error)
         sleep(2)
-        logger.debug(f"{filepath} lambda was deployed")
+        logger.info(f"{filepath} lambda is deployed")
     operation = contract.sealContract()
     submit_transaction(operation.as_transaction())
 
@@ -168,7 +168,7 @@ def deploy_market(key=admin['sk'], shell=shell, contract_path=contract_path):
         logger.debug("Successfully created the directory %s " % path)
     filepath = f"{path}/main.mligo"
     write_to_file(content, filepath)
-    wrkdir = '/tmp'
+    wrkdir = os.path.abspath('.')
     market_id = deploy_from_file(filepath, key, wrkdir=wrkdir, storage=binary_contract['storage'], shell=shell)
     lazy_contracts_path = contract_path + '/lazy/lazy_lambdas'
     deploy_lambdas(lazy_contracts_path, market_id, compiled_path=path, shell=shell)

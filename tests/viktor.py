@@ -9,6 +9,7 @@ def start(config_file, contract_id, stablecoin_id):
         contract=contract_id
     )
     # tokens = get_tokens_id_list(market_id)
+    config = config
     account = config.get_admin_account()
     contract = account.contract(contract_id)
     stablecoin = account.contract(stablecoin_id)
@@ -18,7 +19,9 @@ def start(config_file, contract_id, stablecoin_id):
     ledger_map = buis_storage['tokens']['ledger_map']
     supply_map = buis_storage['tokens']['supply_map']
     
-    return {"contract": contract,
+    return {
+            "config": config,
+            "contract": contract,
             "client": account,
             "stablecoin": stablecoin,
             "business_storage": buis_storage,

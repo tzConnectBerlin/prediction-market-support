@@ -16,9 +16,20 @@ class Stablecoin:
             config: Config,
     ):
         self.accounts = accounts
+        self.client = None
         self.config = config
         self.market_id = config['contract']
-        self.client = config['admin_account'].contract(config['stablecoin'])
+    
+    def get_client(self):
+        if self.client is None:
+            try: 
+                self.client = self.config['admin_account'].contract(
+                        self.config['stablecoin']
+                )
+            except:
+                logger.debug("Stablecoin was not found")
+                raise
+        return self.client
 
 
     def pm_contracts(
@@ -42,11 +53,11 @@ class Stablecoin:
         Check how much can be spent
         """
         owner_address = self.accounts[owner].key.public_key_hash()
-        operation = self.client.getAllowance({
+        operation = self.get_client().getAllowance({
             'owner': owner_address,
             'spender': self.market_id,
             'contract_2': self.market_id
-        })
+/home/killua/Documents/Projects/tezos/prediction-market-contracts/wolfram-oracle/src/stablecoin.py        })
         return operation.as_transaction()
 
     def transfer(self, src: str, dest: str, value: int):
@@ -55,7 +66,7 @@ class Stablecoin:
         """
         src_address = self.accounts[src].key.public_key_hash()
         dest_address = self.accounts[dest].key.public_key_hash()
-        operation = self.client.transfer({
+        operation = self.get_client().transfer({
             'from': src_address,
             'to': dest_address,
             'value': value
@@ -67,7 +78,7 @@ class Stablecoin:
         Fund a account with stablecoin
         """
         dest_address = self.accounts[dest].key.public_key_hash()
-        operation = self.client.transfer({
+        operation = self.get_client().transfer({
             'from': get_public_key(self.config["admin_account"]),
             'to': dest_address,
             'value': value
@@ -76,7 +87,7 @@ class Stablecoin:
 
     def get_balance(self, user: str):
         user_address = self.accounts[user].key.public_key_hash()
-        balance = self.client.getBalance(
+        balance = self.get_client().getBalance(
             {'owner': user_address, 'contract_1': Undefined}
         ).view()
         return int(balance)

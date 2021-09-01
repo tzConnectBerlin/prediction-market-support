@@ -35,7 +35,7 @@ class Config:
     def get_admin_account(self):
         try:
             self.data['admin_account'] = pytezos.using(key=self.data['admin_priv_key'], shell=self['endpoint'])
-        except:
+        except Exception as _e:
             print(f"Something went wrong with instantiating the shell object on endpoint {self['endpoint']}")
         return self.data['admin_account']
 
